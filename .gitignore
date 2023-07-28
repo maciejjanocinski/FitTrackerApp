@@ -1,0 +1,9 @@
+/.gradle
+/.idea
+/gradle
+/gradlew
+/gradlew.bat
+/HELP.md
+/settings.gradle
+/build
+/src/resources/application.properties
