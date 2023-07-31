@@ -1,11 +1,13 @@
 package app.services;
 
 import app.dto.LoginResponseDTO;
+import app.dto.RegisterDTO;
 import app.models.RoleEntity;
 import app.models.UserEntity;
 import app.repository.RoleRepository;
 import app.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -29,23 +32,30 @@ public class AuthenticationService {
     private final TokenService tokenService;
 
 
-    public UserEntity register(String username, String password) {
+    public UserEntity register(RegisterDTO body) {
         UserEntity user = new UserEntity();
-        user.setUsername(username);
 
-        user.setPassword(passwordEncoder.encode(password));
+        user.setName(body.getName());
+        user.setSurname(body.getSurname());
+        user.setEmail(body.getEmail());
+        user.setPhone(body.getPhone());
 
-        RoleEntity role = roleRepository.findByAuthority("USER").get();
+
+        user.setUsername(body.getUsername());
+        user.setPassword(passwordEncoder.encode(body.getPassword()));
+
+        RoleEntity userRole = roleRepository.findByAuthority("USER").get();
+        RoleEntity userStandardRole = roleRepository.findByAuthority("USER_STANDARD").get();
         Set<RoleEntity> authorities = new HashSet<>();
-        authorities.add(role);
-
+        authorities.add(userRole);
+        authorities.add(userStandardRole);
         user.setAuthorities(authorities);
 
         return userRepository.save(user);
     }
 
 
-    public LoginResponseDTO login(String username, String password) {
+    public ResponseEntity<Object> login(String username, String password) {
 
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -53,13 +63,12 @@ public class AuthenticationService {
             );
             String token = tokenService.generateJwt(auth);
 
-            return new LoginResponseDTO(userRepository.findByUsername(username).get(), token);
+            LoginResponseDTO responseDTO = new LoginResponseDTO(userRepository.findByUsername(username).get(), token);
+            return ResponseEntity.ok(responseDTO);
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
+            return ResponseEntity.badRequest().body(Map.of("message", "User with this credentials does not exist."));
         }
-
     }
 
 

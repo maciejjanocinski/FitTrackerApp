@@ -17,27 +17,39 @@ import java.util.UUID;
 @SpringBootApplication
 public class FitTrackerAppApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FitTrackerAppApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(FitTrackerAppApplication.class, args);
+    }
 
-	 @Bean
-	CommandLineRunner run (RoleRepository roleRepository,
-						   UserRepository userRepository,
-						   PasswordEncoder passwordEncoder) {
-		return args -> {
-			if(roleRepository.findByAuthority("ADMIN").isPresent()) return;
-			roleRepository.save(new RoleEntity("USER"));
-			RoleEntity adminRole = roleRepository.save(new RoleEntity("ADMIN"));
+    @Bean
+    CommandLineRunner run(RoleRepository roleRepository,
+                          UserRepository userRepository,
+                          PasswordEncoder passwordEncoder) {
+        return args -> {
+            if (roleRepository.findByAuthority("ADMIN").isPresent()) return;
+            var userRole = roleRepository.save(new RoleEntity("USER"));
+            roleRepository.save(new RoleEntity("USER_STANDARD"));
+           var userPremium = roleRepository.save(new RoleEntity("USER_PREMIUM"));
+            var adminRole = roleRepository.save(new RoleEntity("ADMIN"));
 
-			Set<RoleEntity> roles = new HashSet<>();
-			roles.add(adminRole);
-			String password = passwordEncoder.encode("admin");
+            Set<RoleEntity> roles = new HashSet<>();
+            roles.add(userRole);
+            roles.add(adminRole);
+            roles.add(userPremium);
+            String password = passwordEncoder.encode("password");
 
 
-			UserEntity admin = new UserEntity("admin", password, roles );
-			userRepository.save(admin);
- 		};
-	 }
+            UserEntity admin = new UserEntity(
+                    "Admin",
+                    "Maciej",
+                    "Janociński",
+                    "maciejjanocinski@gmail.com",
+                    "123456789",
+                    password,
+                    roles);
+
+            userRepository.save(admin);
+        };
+    }
 
 }
