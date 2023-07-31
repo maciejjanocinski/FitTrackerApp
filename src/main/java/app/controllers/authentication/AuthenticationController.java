@@ -1,7 +1,7 @@
 package app.controllers.authentication;
 
 import app.dto.LoginDTO;
-import app.dto.RegisterDTO;
+import app.dto.UserDTO;
 import app.models.UserEntity;
 import app.services.AuthenticationService;
 import jakarta.validation.Valid;
@@ -18,12 +18,12 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public UserEntity register(@RequestBody @Valid RegisterDTO user) {
+    public ResponseEntity<UserEntity> register(@RequestBody @Valid UserDTO user) {
         return authenticationService.register(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody LoginDTO body) {
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginDTO body) {
         return authenticationService.login(body.getUsername(), body.getPassword());
     }
 

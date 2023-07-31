@@ -1,8 +1,10 @@
 package app.models;
 
+import app.utils.passwordValidation.ValidPassword;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -28,24 +30,23 @@ public class UserEntity implements UserDetails {
     private Long id;
 
     @Column(unique = true)
-    @NotNull
+    @Size(min = 6, message = "Username must have at least 6 characters.")
     private String username;
 
-    @NotNull
+    @NotEmpty(message = "You have to pass your name.")
     private String name;
 
-    @NotNull
+    @NotEmpty(message = "You have to pass your surname.")
     private String surname;
 
-    @Email
-    @NotNull
+    @Email(message = "Wrong email")
+    @NotEmpty(message = "You have to pass your email.")
     private String email;
 
-    @Size(min = 9, max = 9)
+    @Size( min = 9, max = 9, message = "Phone number must contain 9 digits.")
     private String phone;
 
     @JsonIgnore
-    @NotNull
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)

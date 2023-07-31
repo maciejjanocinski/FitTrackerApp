@@ -22,33 +22,14 @@ public class FitTrackerAppApplication {
     }
 
     @Bean
-    CommandLineRunner run(RoleRepository roleRepository,
-                          UserRepository userRepository,
-                          PasswordEncoder passwordEncoder) {
+    CommandLineRunner run(RoleRepository roleRepository) {
         return args -> {
             if (roleRepository.findByAuthority("ADMIN").isPresent()) return;
-            var userRole = roleRepository.save(new RoleEntity("USER"));
+            roleRepository.save(new RoleEntity("ADMIN"));
+            roleRepository.save(new RoleEntity("USER"));
             roleRepository.save(new RoleEntity("USER_STANDARD"));
-           var userPremium = roleRepository.save(new RoleEntity("USER_PREMIUM"));
-            var adminRole = roleRepository.save(new RoleEntity("ADMIN"));
+            roleRepository.save(new RoleEntity("USER_PREMIUM"));
 
-            Set<RoleEntity> roles = new HashSet<>();
-            roles.add(userRole);
-            roles.add(adminRole);
-            roles.add(userPremium);
-            String password = passwordEncoder.encode("password");
-
-
-            UserEntity admin = new UserEntity(
-                    "Admin",
-                    "Maciej",
-                    "Janociński",
-                    "maciejjanocinski@gmail.com",
-                    "123456789",
-                    password,
-                    roles);
-
-            userRepository.save(admin);
         };
     }
 

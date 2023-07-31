@@ -1,7 +1,7 @@
 package app.services;
 
 import app.dto.LoginResponseDTO;
-import app.dto.RegisterDTO;
+import app.dto.UserDTO;
 import app.models.RoleEntity;
 import app.models.UserEntity;
 import app.repository.RoleRepository;
@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.AuthenticationException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,7 @@ public class AuthenticationService {
     private final TokenService tokenService;
 
 
-    public UserEntity register(RegisterDTO body) {
+    public ResponseEntity<UserEntity> register(UserDTO body) {
         UserEntity user = new UserEntity();
 
         user.setName(body.getName());
@@ -44,14 +43,12 @@ public class AuthenticationService {
         user.setUsername(body.getUsername());
         user.setPassword(passwordEncoder.encode(body.getPassword()));
 
-        RoleEntity userRole = roleRepository.findByAuthority("USER").get();
         RoleEntity userStandardRole = roleRepository.findByAuthority("USER_STANDARD").get();
         Set<RoleEntity> authorities = new HashSet<>();
-        authorities.add(userRole);
         authorities.add(userStandardRole);
         user.setAuthorities(authorities);
 
-        return userRepository.save(user);
+        return ResponseEntity.ok(userRepository.save(user));
     }
 
 

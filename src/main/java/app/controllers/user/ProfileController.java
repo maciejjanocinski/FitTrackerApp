@@ -1,5 +1,6 @@
 package app.controllers.user;
 
+import app.dto.PasswordDTO;
 import app.models.UserEntity;
 import app.repository.UserRepository;
 import app.services.UserService;
@@ -10,10 +11,7 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -33,8 +31,18 @@ public class ProfileController {
 
     @DeleteMapping("/")
     public ResponseEntity<String> deleteProfile(@CurrentSecurityContext(expression = "authentication")
-                                                        Authentication authentication, @RequestBody Map<String, String> password) {
+                                                Authentication authentication, @RequestBody Map<String, String> password) {
         return userService.deleteProfile(authentication, password);
     }
 
+    @PatchMapping("/")
+    public ResponseEntity<String> updateProfile(@CurrentSecurityContext(expression = "authentication")
+                                                Authentication authentication,
+                                                @RequestBody(required = false) Map<String, String> updates,
+                                                @RequestParam(required = false) PasswordDTO password) {
+        if (password != null) {
+            return userService.updatePassword(authentication, password);
+        }
+        return userService.updateProfile(authentication, updates);
+    }
 }
