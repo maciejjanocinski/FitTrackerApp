@@ -1,7 +1,8 @@
 package app.services;
 
-import app.dto.LoginResponseDTO;
-import app.dto.UserDTO;
+import app.dto.LoginDto;
+import app.dto.LoginResponseDto;
+import app.dto.UserDto;
 import app.models.RoleEntity;
 import app.models.UserEntity;
 import app.repository.RoleRepository;
@@ -31,7 +32,7 @@ public class AuthenticationService {
     private final TokenService tokenService;
 
 
-    public ResponseEntity<UserEntity> register(UserDTO body) {
+    public ResponseEntity<UserEntity> register(UserDto body) {
         UserEntity user = new UserEntity();
 
         user.setName(body.getName());
@@ -52,15 +53,15 @@ public class AuthenticationService {
     }
 
 
-    public ResponseEntity<Object> login(String username, String password) {
+    public ResponseEntity<Object> login(LoginDto loginDto) {
 
         try {
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
+                    new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
             );
             String token = tokenService.generateJwt(auth);
 
-            LoginResponseDTO responseDTO = new LoginResponseDTO(userRepository.findByUsername(username).get(), token);
+            LoginResponseDto responseDTO = new LoginResponseDto(userRepository.findByUsername(loginDto.username()).get(), token);
             return ResponseEntity.ok(responseDTO);
 
         } catch (Exception e) {

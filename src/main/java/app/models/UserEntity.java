@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collection;
 import java.util.Set;
@@ -23,6 +24,7 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class UserEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -54,29 +56,6 @@ public class UserEntity implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> authorities;
-
-
-    public UserEntity(String username,
-                      String name,
-                      String surname,
-                      String email,
-                      String phone,
-                      String password,
-                      Set<RoleEntity> authorities) {
-        this.username = username;
-        this.name = name;
-        this.surname = surname;
-        this.email = email;
-        this.phone = phone;
-        this.password = password;
-        this.authorities = authorities;
-    }
-
-    public UserEntity(String username, String password, Set<RoleEntity> authorities) {
-        this.username = username;
-        this.password = password;
-        this.authorities = authorities;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
