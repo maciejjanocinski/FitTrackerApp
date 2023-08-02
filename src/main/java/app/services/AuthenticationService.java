@@ -1,11 +1,14 @@
 package app.services;
 
-import app.dto.LoginResponseDTO;
+import app.dto.LoginDto;
+import app.dto.LoginResponseDto;
+import app.dto.UserDto;
 import app.models.RoleEntity;
 import app.models.UserEntity;
 import app.repository.RoleRepository;
 import app.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,8 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.AuthenticationException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -29,37 +32,41 @@ public class AuthenticationService {
     private final TokenService tokenService;
 
 
-    public UserEntity register(String username, String password) {
+    public ResponseEntity<UserEntity> register(UserDto body) {
         UserEntity user = new UserEntity();
-        user.setUsername(username);
 
-        user.setPassword(passwordEncoder.encode(password));
+        user.setName(body.getName());
+        user.setSurname(body.getSurname());
+        user.setEmail(body.getEmail());
+        user.setPhone(body.getPhone());
 
-        RoleEntity role = roleRepository.findByAuthority("USER").get();
+
+        user.setUsername(body.getUsername());
+        user.setPassword(passwordEncoder.encode(body.getPassword()));
+
+        RoleEntity userStandardRole = roleRepository.findByAuthority("USER_STANDARD").get();
         Set<RoleEntity> authorities = new HashSet<>();
-        authorities.add(role);
-
+        authorities.add(userStandardRole);
         user.setAuthorities(authorities);
 
-        return userRepository.save(user);
+        return ResponseEntity.ok(userRepository.save(user));
     }
 
 
-    public LoginResponseDTO login(String username, String password) {
+    public ResponseEntity<Object> login(LoginDto loginDto) {
 
         try {
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
+                    new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
             );
             String token = tokenService.generateJwt(auth);
 
-            return new LoginResponseDTO(userRepository.findByUsername(username).get(), token);
+            LoginResponseDto responseDTO = new LoginResponseDto(userRepository.findByUsername(loginDto.username()).get(), token);
+            return ResponseEntity.ok(responseDTO);
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
+            return ResponseEntity.badRequest().body(Map.of("message", "User with this credentials does not exist."));
         }
-
     }
 
 

@@ -1,7 +1,11 @@
 package app.models;
 
+import app.utils.passwordValidation.ValidPassword;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collection;
 import java.util.Set;
@@ -16,18 +21,32 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class UserEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-
+    @JsonIgnore
     private Long id;
 
     @Column(unique = true)
+    @Size(min = 6, message = "Username must have at least 6 characters.")
     private String username;
+
+    @NotEmpty(message = "You have to pass your name.")
+    private String name;
+
+    @NotEmpty(message = "You have to pass your surname.")
+    private String surname;
+
+    @Email(message = "Wrong email")
+    @NotEmpty(message = "You have to pass your email.")
+    private String email;
+
+    @Size( min = 9, max = 9, message = "Phone number must contain 9 digits.")
+    private String phone;
 
     @JsonIgnore
     private String password;
@@ -35,15 +54,9 @@ public class UserEntity implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-           inverseJoinColumns = @JoinColumn(name = "role_id"))
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> authorities;
 
-
-    public UserEntity(String username, String password, Set<RoleEntity> authorities) {
-        this.username = username;
-        this.password = password;
-        this.authorities = authorities;
-    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;
