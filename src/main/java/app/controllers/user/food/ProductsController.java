@@ -24,7 +24,7 @@ public class ProductsController {
         return ResponseEntity.ok("Products search page");
     }
     @GetMapping("/search")
-    public ResponseEntity<List<ProductEntity>> searchProducts(@RequestParam String productName) throws IOException, InterruptedException {
-        return productsService.searchProducts(productName);
+    public ResponseEntity<List<ProductEntity>> searchProducts(@RequestParam String product) throws IOException, InterruptedException {
+        return productsService.searchProducts(product);
     }
 }

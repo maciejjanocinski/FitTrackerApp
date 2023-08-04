@@ -6,5 +6,5 @@ import lombok.Data;
 public class AddProductDto {
     String foodId;
     String measureLabel;
-    Double quanity;
+    Double quantity;
 }

@@ -28,6 +28,8 @@ public class ProductEntity {
 
     private String image;
 
+    private boolean isUsed = false;
+
     @ElementCollection
     private Map<String, Double> measures;
 

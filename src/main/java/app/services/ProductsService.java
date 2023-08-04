@@ -28,12 +28,12 @@ public class ProductsService {
    private final ProductsRepository productsRepository;
    private final ObjectMapper objectMapper;
 
-    public ResponseEntity<List<ProductEntity>> searchProducts(String productName) throws IOException, InterruptedException {
-        productsRepository.deleteAll();
+    public ResponseEntity<List<ProductEntity>> searchProducts(String product) throws IOException, InterruptedException {
+        productsRepository.deleteNotUsedProducts();
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
-        String response = apiRequest(id, key, productName);
+        String response = apiRequest(id, key, product);
         List<ProductEntity> products = parseProductsFromJson(response);
 
         productsRepository.saveAll(products);
