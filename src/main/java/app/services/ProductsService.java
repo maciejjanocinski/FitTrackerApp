@@ -24,21 +24,19 @@ import java.util.Map;
 @AllArgsConstructor
 public class ProductsService {
 
-    ProductsRepository productsRepository;
-    ObjectMapper objectMapper = new ObjectMapper();
-    private final Dotenv dotenv = Dotenv.load();
+   private final Dotenv dotenv = Dotenv.load();
+   private final ProductsRepository productsRepository;
+   private final ObjectMapper objectMapper;
 
-    public ResponseEntity<List<ProductEntity>> searchProducts(String query) throws IOException, InterruptedException {
+    public ResponseEntity<List<ProductEntity>> searchProducts(String productName) throws IOException, InterruptedException {
+        productsRepository.deleteAll();
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
-        productsRepository.deleteAll();
-
-        String response = apiRequest(id, key, query);
+        String response = apiRequest(id, key, productName);
         List<ProductEntity> products = parseProductsFromJson(response);
 
         productsRepository.saveAll(products);
-
         return ResponseEntity.ok(products);
     }
 

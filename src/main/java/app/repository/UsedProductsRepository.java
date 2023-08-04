@@ -1,10 +1,9 @@
 package app.repository;
 
-import app.models.UsersProductsEntity;
+import app.models.UsedProductsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UsersProductsRepository extends JpaRepository<UsersProductsEntity, Long> {
-
+public interface UsedProductsRepository extends JpaRepository<UsedProductsEntity, Long> {
 }
