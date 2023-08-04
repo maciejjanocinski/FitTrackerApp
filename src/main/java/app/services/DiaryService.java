@@ -10,8 +10,11 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -22,8 +25,17 @@ public class DiaryService {
     ProductsRepository productsRepository;
     UserRepository userRepository;
 
+
+    public ResponseEntity<UserDiary> getDiary() {
+        NutrientsSum nutrientsSum = usersProductsRepository.sumNutrients();
+        List<UsersProductsEntity> products = usersProductsRepository.findAll();
+        UserDiary diary = new UserDiary(nutrientsSum, products);
+
+        return ResponseEntity.ok(diary);
+    }
+
     @Transactional
-    public ResponseEntity<String> addProductToDiary(AddProductDto addProductDto, Authentication authentication) {
+    public ResponseEntity<UsersProductsEntity> addProductToDiary(AddProductDto addProductDto, Authentication authentication) {
         UserEntity user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         ProductEntity product = productsRepository.findById(addProductDto.getFoodId())
@@ -38,10 +50,10 @@ public class DiaryService {
         product.setUsed(true);
         usersProductsRepository.save(usersProductsEntity);
 
-        return ResponseEntity.ok("Product: " + product.getName() + " added to diary successfully");
+        return ResponseEntity.ok(usersProductsEntity);
     }
 
-    public ResponseEntity<String> editProductAmountInDiary(EditProductDto editProductDto) {
+    public ResponseEntity<UsersProductsEntity> editProductAmountInDiary(EditProductDto editProductDto) {
         UsersProductsEntity oldUsersProductsEntity = usersProductsRepository.findById(editProductDto.getUsersProductsId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -54,7 +66,7 @@ public class DiaryService {
         usersProductsRepository.deleteById(oldUsersProductsEntity.getUsersProductsId());
         usersProductsRepository.save(newUsersProductsEntity);
 
-        return ResponseEntity.ok("Edited successfully");
+        return ResponseEntity.ok(newUsersProductsEntity);
     }
 
     @Transactional
@@ -74,6 +86,7 @@ public class DiaryService {
     private UsersProductsEntity generateNewUsersProductsRecord(ProductEntity product, Long id, String measureLabel, double quantity) {
         long userId = id;
         String productId = product.getId();
+        String productName = product.getName();
         double calories = product.getKcal() / 100 * product.getMeasures().get(measureLabel) * quantity;
         double proteins = product.getProtein() / 100 * product.getMeasures().get(measureLabel) * quantity;
         double fats = product.getFat() / 100 * product.getMeasures().get(measureLabel) * quantity;

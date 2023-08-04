@@ -19,6 +19,8 @@ public class UsersProductsEntity {
 
     private String productId;
 
+    private String productName;
+
     private double kcal;
 
     private double protein;
