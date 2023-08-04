@@ -6,4 +6,5 @@
 /HELP.md
 /settings.gradle
 /build
+.env
 /src/resources/application.properties

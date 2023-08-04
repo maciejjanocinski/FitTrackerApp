@@ -22,7 +22,6 @@ public class UserController {
     @GetMapping("/")
     public ResponseEntity<?> getProfile(@CurrentSecurityContext(expression = "authentication")
                                         Authentication authentication) {
-
         return userService.getProfile(authentication);
     }
 
@@ -30,7 +29,6 @@ public class UserController {
     public ResponseEntity<String> updateProfile(@CurrentSecurityContext(expression = "authentication")
                                                 Authentication authentication,
                                                 @RequestBody Map<String, String> updates) {
-
         return userService.updateProfile(authentication, updates);
     }
 
@@ -38,7 +36,6 @@ public class UserController {
     public ResponseEntity<String> updatePassword(@CurrentSecurityContext(expression = "authentication")
                                                      Authentication authentication,
                                                  @RequestBody updatePasswordDto password){
-
         return userService.updatePassword(authentication,password);
     }
 
@@ -46,7 +43,6 @@ public class UserController {
     public ResponseEntity<String> deleteProfile(@CurrentSecurityContext(expression = "authentication")
                                                 Authentication authentication,
                                                 @RequestBody DeleteProfileDto deleteProfileDto) {
-
         return userService.deleteProfile(authentication, deleteProfileDto);
     }
 

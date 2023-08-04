@@ -1,20 +1,17 @@
 package app.models;
 
-import app.utils.passwordValidation.ValidPassword;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Collection;
 import java.util.Set;
 
@@ -45,7 +42,7 @@ public class UserEntity implements UserDetails {
     @NotEmpty(message = "You have to pass your email.")
     private String email;
 
-    @Size( min = 9, max = 9, message = "Phone number must contain 9 digits.")
+    @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
     private String phone;
 
     @JsonIgnore
@@ -56,6 +53,7 @@ public class UserEntity implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> authorities;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
