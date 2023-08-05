@@ -1,6 +1,7 @@
 package app.services;
 
 import app.dto.DeleteProfileDto;
+import app.dto.UpdateProfileInfoDto;
 import app.dto.UserDto;
 import app.dto.updatePasswordDto;
 import app.models.UserEntity;
@@ -37,24 +38,24 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public ResponseEntity<String> updateProfile(Authentication authentication, Map<String, String> updates) {
+    public ResponseEntity<String> updateProfile(Authentication authentication, UpdateProfileInfoDto updates) {
         UserEntity user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
 
-        if (updates.containsKey("username")) {
-            user.setUsername(updates.get("username"));
+        if (updates.getUpdates().containsKey("username")) {
+            user.setUsername(updates.getUpdates().get("username"));
         }
-        if (updates.containsKey("name")) {
-            user.setName(updates.get("name"));
+        if (updates.getUpdates().containsKey("name")) {
+            user.setName(updates.getUpdates().get("name"));
         }
-        if (updates.containsKey("surname")) {
-            user.setSurname(updates.get("surname"));
+        if (updates.getUpdates().containsKey("surname")) {
+            user.setSurname(updates.getUpdates().get("surname"));
         }
-        if (updates.containsKey("email")) {
-            user.setEmail(updates.get("email"));
+        if (updates.getUpdates().containsKey("email")) {
+            user.setEmail(updates.getUpdates().get("email"));
         }
-        if (updates.containsKey("phone")) {
-            user.setPhone(updates.get("phone"));
+        if (updates.getUpdates().containsKey("phone")) {
+            user.setPhone(updates.getUpdates().get("phone"));
         }
 
         user.setUsername(user.getUsername());

@@ -13,6 +13,9 @@ public interface ProductsRepository extends JpaRepository<ProductEntity, String>
     @Modifying
     @Transactional
     @Query("DELETE FROM ProductEntity p WHERE p.isUsed = false")
-    public void deleteNotUsedProducts();
+     void deleteNotUsedProducts();
+
+     ProductEntity findProductEntityByProductIdAndName(String id, String name);
+     ProductEntity findProductEntityByProductId(String id);
 
 }

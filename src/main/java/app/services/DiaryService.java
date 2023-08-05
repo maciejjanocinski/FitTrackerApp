@@ -38,8 +38,8 @@ public class DiaryService {
     public ResponseEntity<UsersProductsEntity> addProductToDiary(AddProductDto addProductDto, Authentication authentication) {
         UserEntity user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        ProductEntity product = productsRepository.findById(addProductDto.getFoodId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        ProductEntity product = productsRepository.findProductEntityByProductIdAndName(addProductDto.getFoodId(), addProductDto.getName());
+
 
         UsersProductsEntity usersProductsEntity = generateNewUsersProductsRecord(
                 product,
@@ -58,7 +58,7 @@ public class DiaryService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         UsersProductsEntity newUsersProductsEntity = generateNewUsersProductsRecord(
-                productsRepository.findById(oldUsersProductsEntity.getProductId()).orElseThrow(() -> new RuntimeException("Product not found")),
+                productsRepository.findProductEntityByProductIdAndName(oldUsersProductsEntity.getProductId(), oldUsersProductsEntity.getProductName()),
                 oldUsersProductsEntity.getUserId(),
                 editProductDto.getMeasureLabel(),
                 editProductDto.getQuantity());
@@ -74,8 +74,9 @@ public class DiaryService {
         UsersProductsEntity usersProductsEntity = usersProductsRepository.findById(usersProductsId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        ProductEntity product = productsRepository.findById(usersProductsEntity.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        ProductEntity product = productsRepository.findProductEntityByProductIdAndName(
+                usersProductsEntity.getProductId(),
+                usersProductsEntity.getProductName());
 
         product.setUsed(false);
         usersProductsRepository.deleteById(usersProductsId);
@@ -85,7 +86,7 @@ public class DiaryService {
 
     private UsersProductsEntity generateNewUsersProductsRecord(ProductEntity product, Long id, String measureLabel, double quantity) {
         long userId = id;
-        String productId = product.getId();
+        String productId = product.getProductId();
         String productName = product.getName();
         double calories = product.getKcal() / 100 * product.getMeasures().get(measureLabel) * quantity;
         double proteins = product.getProtein() / 100 * product.getMeasures().get(measureLabel) * quantity;
@@ -94,7 +95,7 @@ public class DiaryService {
         double fiber = product.getFiber() / 100 * product.getMeasures().get(measureLabel) * quantity;
         String image = product.getImage();
 
-        return new UsersProductsEntity(userId, productId, calories, proteins, fats, carbs, fiber, image, measureLabel, quantity);
+        return new UsersProductsEntity(userId, productId, productName, calories, proteins, fats, carbs, fiber, image, measureLabel, quantity);
     }
 
 

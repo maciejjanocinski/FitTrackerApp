@@ -1,4 +1,4 @@
-package app.controllers.user.diary;
+package app.controllers.diary;
 
 import app.dto.AddProductDto;
 import app.dto.EditProductDto;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/user/diary")
+@RequestMapping("/diary")
 public class DiaryController {
 
     private final DiaryService diaryService;

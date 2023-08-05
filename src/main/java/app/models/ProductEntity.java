@@ -11,8 +11,11 @@ import java.util.List;
 @Table(name = "products")
 public class ProductEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "product_id")
-    private String id;
+    private String productId;
 
     private String name;
 

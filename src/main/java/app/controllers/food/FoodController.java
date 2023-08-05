@@ -1,4 +1,4 @@
-package app.controllers.user.food;
+package app.controllers.food;
 
 import app.models.ProductEntity;
 import app.services.ProductsService;
@@ -14,8 +14,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/user/food")
-public class ProductsController {
+@RequestMapping("/food")
+public class FoodController {
 
     private final ProductsService productsService;
 

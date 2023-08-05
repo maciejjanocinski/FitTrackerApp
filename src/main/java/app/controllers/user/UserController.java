@@ -1,6 +1,7 @@
 package app.controllers.user;
 
 import app.dto.DeleteProfileDto;
+import app.dto.UpdateProfileInfoDto;
 import app.dto.updatePasswordDto;
 import app.services.UserService;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,7 @@ public class UserController {
     @PatchMapping("/")
     public ResponseEntity<String> updateProfile(@CurrentSecurityContext(expression = "authentication")
                                                 Authentication authentication,
-                                                @RequestBody Map<String, String> updates) {
+                                                @RequestBody UpdateProfileInfoDto updates) {
         return userService.updateProfile(authentication, updates);
     }
 

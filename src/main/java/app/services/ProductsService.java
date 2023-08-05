@@ -78,7 +78,7 @@ public class ProductsService {
             }
 
             product.setMeasures(measures);
-            product.setId(foodId == null ? "" : foodId.asText());
+            product.setProductId(foodId == null ? "" : foodId.asText());
             product.setName(label == null ? "" : label.asText());
             product.setKcal(kcal == null ? 0 : kcal.asDouble());
             product.setProtein(protein == null ? 0 : protein.asDouble());
