@@ -2,7 +2,7 @@ package app.controllers.diary;
 
 import app.dto.AddProductDto;
 import app.dto.EditProductDto;
-import app.models.UserDiary;
+import app.models.Diary;
 import app.models.UsersProductsEntity;
 import app.services.DiaryService;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ public class DiaryController {
     private final DiaryService diaryService;
 
     @GetMapping("/")
-    public ResponseEntity<UserDiary> getDiary() {
+    public ResponseEntity<Diary> getDiary() {
         return diaryService.getDiary();
     }
 

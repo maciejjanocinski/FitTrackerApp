@@ -9,9 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Collection;
 import java.util.Set;
 
@@ -53,6 +50,11 @@ public class UserEntity implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<RoleEntity> authorities;
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "goals_id")
+    private Goals goals;
 
 
     @Override

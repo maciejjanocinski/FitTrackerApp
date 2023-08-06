@@ -37,7 +37,17 @@ public class UsersProductsEntity {
 
     private Double quantity;
 
-    public UsersProductsEntity(Long userId, String productId, String productName, double kcal, double protein, double fat, double carbohydrates, double fiber, String image, String measureLabel, Double quantity) {
+    public UsersProductsEntity(Long userId,
+                               String productId,
+                               String productName,
+                               double kcal,
+                               double protein,
+                               double fat,
+                               double carbohydrates,
+                               double fiber,
+                               String image,
+                               String measureLabel,
+                               Double quantity) {
         this.userId = userId;
         this.productId = productId;
         this.productName = productName;

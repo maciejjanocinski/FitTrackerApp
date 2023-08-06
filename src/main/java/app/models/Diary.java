@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDiary {
+public class Diary {
     private NutrientsSum nutrientsSum;
     private List<UsersProductsEntity> products;
 }

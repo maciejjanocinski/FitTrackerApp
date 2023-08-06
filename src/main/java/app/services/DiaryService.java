@@ -10,7 +10,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +25,10 @@ public class DiaryService {
     UserRepository userRepository;
 
 
-    public ResponseEntity<UserDiary> getDiary() {
+    public ResponseEntity<Diary> getDiary() {
         NutrientsSum nutrientsSum = usersProductsRepository.sumNutrients();
         List<UsersProductsEntity> products = usersProductsRepository.findAll();
-        UserDiary diary = new UserDiary(nutrientsSum, products);
+        Diary diary = new Diary(nutrientsSum, products);
 
         return ResponseEntity.ok(diary);
     }
