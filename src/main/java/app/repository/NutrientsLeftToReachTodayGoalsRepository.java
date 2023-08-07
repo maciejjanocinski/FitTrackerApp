@@ -3,6 +3,7 @@ package app.repository;
 import app.models.NutrientsLeftToReachTodayGoals;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -15,7 +16,8 @@ public interface NutrientsLeftToReachTodayGoalsRepository extends JpaRepository<
             "g.carbohydrates - ns.totalCarbohydrates, " +
             "g.fat - ns.totalFat," +
             "g.fiber - ns.totalFiber) " +
-            "FROM Goals g, NutrientsSum ns ")
-    NutrientsLeftToReachTodayGoals calculateNutrientsLeft();
+            "FROM Goals g, NutrientsSum ns " +
+            "where g.id = :goalsId and ns.id = :nutrientsSumId")
+    NutrientsLeftToReachTodayGoals calculateNutrientsLeft(@Param("goalsId") Long goalsId, @Param("nutrientsSumId") Long nutrientsSumId);
 
 }

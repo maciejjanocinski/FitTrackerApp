@@ -21,6 +21,7 @@ public class DiaryService {
     private final NutrientsSumRepository nutrientsSumRepository;
     private final GoalsRepository goalsRepository;
     private final  DiaryRepository diaryRepository;
+    private final NutrientsLeftToReachTodayGoalsRepository nutrientsLeftToReachTodayGoalsRepository;
 
     @Transactional
     public ResponseEntity<Diary> getDiary(Authentication authentication) {
@@ -28,17 +29,10 @@ public class DiaryService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         NutrientsSum nutrientsSum = nutrientsSumRepository.getTotalNutrientsSum(user.getDiary().getId());
-
-
-        user.getDiary().getGoals().setCarbohydrates(200);
-        user.getDiary().getGoals().setFat(200);
-        user.getDiary().getGoals().setKcal(200);
-        user.getDiary().getGoals().setProtein(200);
-        user.getDiary().getGoals().setFat(200);
-        user.getDiary().getGoals().setFiber(200);
         user.getDiary().setNutrientsSum(nutrientsSum);
-      //  user.getDiary().setNutrientsLeftToReachTodayGoals();
 
+       NutrientsLeftToReachTodayGoals nutrientsLeftToReachTodayGoals = calculateNutrientsLeftToReachTodayGoals(user.getDiary().getGoals(), nutrientsSum);
+       user.getDiary().setNutrientsLeftToReachTodayGoals(nutrientsLeftToReachTodayGoals);
 
 
         return ResponseEntity.ok(user.getDiary());
@@ -51,10 +45,10 @@ public class DiaryService {
         Product product = productsRepository.findProductEntityByProductIdAndName(addProductDto.getFoodId(), addProductDto.getName());
         product.setUsed(true);
 
-       Diary diary = user.getDiary();
+
 
         ProductAddedToDiary productAddedToDiary = generateNewUsersProductsRecord(
-                diary,
+                user.getDiary(),
                 product,
                 addProductDto.getMeasureLabel(),
                 addProductDto.getQuantity()
@@ -110,6 +104,16 @@ public class DiaryService {
         String image = product.getImage();
 
         return new ProductAddedToDiary(productId, productName, calories, proteins, carbs, fats, fiber, image, measureLabel, quantity, diary);
+    }
+
+    private NutrientsLeftToReachTodayGoals calculateNutrientsLeftToReachTodayGoals(Goals goals, NutrientsSum nutrientsSum) {
+        double caloriesLeft = goals.getKcal() - nutrientsSum.getTotalKcal();
+        double proteinsLeft = goals.getProtein() - nutrientsSum.getTotalProtein();
+        double fatsLeft = goals.getFat() - nutrientsSum.getTotalFat();
+        double carbsLeft = goals.getCarbohydrates() - nutrientsSum.getTotalCarbohydrates();
+        double fiberLeft = goals.getFiber() - nutrientsSum.getTotalFiber();
+
+        return new NutrientsLeftToReachTodayGoals(caloriesLeft, proteinsLeft, fatsLeft, carbsLeft, fiberLeft);
     }
 
 

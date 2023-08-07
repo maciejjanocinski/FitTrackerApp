@@ -48,7 +48,7 @@ public class AuthenticationService {
 
         Diary diary = new Diary();
         NutrientsSum sumNutrientsEntity = new NutrientsSum();
-        Goals goalsEntity = new Goals();
+        Goals goalsEntity = new Goals(1000, 100, 100, 100, 100);
         NutrientsLeftToReachTodayGoals nutrientsLeftToReachTodayGoals = new NutrientsLeftToReachTodayGoals();
 
         diary.setNutrientsSum(sumNutrientsEntity);
