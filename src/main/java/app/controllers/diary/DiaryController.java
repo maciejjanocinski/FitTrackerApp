@@ -1,9 +1,7 @@
 package app.controllers.diary;
 
 import app.dto.AddProductDto;
-import app.dto.EditProductDto;
 import app.models.Diary;
-import app.models.UsersProductsEntity;
 import app.services.DiaryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,24 +17,25 @@ public class DiaryController {
     private final DiaryService diaryService;
 
     @GetMapping("/")
-    public ResponseEntity<Diary> getDiary() {
-        return diaryService.getDiary();
+    public ResponseEntity<Diary> getDiary(@CurrentSecurityContext(expression = "authentication")
+                                                    Authentication authentication) {
+        return diaryService.getDiary(authentication);
     }
 
     @PostMapping("/addProduct")
-    public ResponseEntity<UsersProductsEntity> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
+    public ResponseEntity<?> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
                                                     Authentication authentication,
                                                                  @RequestBody AddProductDto addProductDto) {
         return diaryService.addProductToDiary(addProductDto, authentication);
     }
 
-    @PatchMapping("/editProduct")
-    public ResponseEntity<UsersProductsEntity> editProductAmountInDiary(@RequestBody EditProductDto editProductDto) {
-        return diaryService.editProductAmountInDiary(editProductDto);
-    }
-
-    @DeleteMapping("/deleteProduct")
-    public ResponseEntity<String> deleteProductFromDiary(@RequestBody Long usersProductsId) {
-        return diaryService.deleteProductFromDiary(usersProductsId);
-    }
+//    @PatchMapping("/editProduct")
+//    public ResponseEntity<UsersProductsEntity> editProductAmountInDiary(@RequestBody EditProductDto editProductDto) {
+//        return diaryService.editProductAmountInDiary(editProductDto);
+//    }
+//
+//    @DeleteMapping("/deleteProduct")
+//    public ResponseEntity<String> deleteProductFromDiary(@RequestBody Long usersProductsId) {
+//        return diaryService.deleteProductFromDiary(usersProductsId);
+//    }
 }

@@ -4,7 +4,7 @@ import app.dto.DeleteProfileDto;
 import app.dto.UpdateProfileInfoDto;
 import app.dto.UserDto;
 import app.dto.updatePasswordDto;
-import app.models.UserEntity;
+import app.models.User;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,7 +15,6 @@ import app.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -31,7 +30,7 @@ public class UserService implements UserDetailsService {
     }
 
     public ResponseEntity<?> getProfile(Authentication authentication) {
-        UserEntity user = userRepository.findByUsername(authentication.getName())
+        User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return ResponseEntity.ok(user);
@@ -39,7 +38,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public ResponseEntity<String> updateProfile(Authentication authentication, UpdateProfileInfoDto updates) {
-        UserEntity user = userRepository.findByUsername(authentication.getName())
+        User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
 
         if (updates.getUpdates().containsKey("username")) {
@@ -69,7 +68,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public ResponseEntity<String> updatePassword(Authentication authentication, updatePasswordDto password) {
-        UserEntity user = userRepository.findByUsername(authentication.getName())
+        User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
         UserDto userDto = new UserDto();
 
@@ -89,7 +88,7 @@ public class UserService implements UserDetailsService {
     }
 
     public ResponseEntity<String> deleteProfile(Authentication authentication, DeleteProfileDto deleteDto) {
-        UserEntity user = userRepository.findByUsername(authentication.getName())
+        User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
 

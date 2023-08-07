@@ -1,6 +1,6 @@
 package app.dto;
 
-import app.models.UserEntity;
+import app.models.User;
 
-public record LoginResponseDto(UserEntity userEntity, String jwt) {
+public record LoginResponseDto(User userEntity, String jwt) {
 }

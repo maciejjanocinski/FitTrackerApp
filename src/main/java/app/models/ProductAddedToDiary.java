@@ -1,54 +1,50 @@
 package app.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 
-@Data
+import java.util.List;
+
 @Entity
-@Table(name = "users_products")
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-public class UsersProductsEntity {
+public class ProductAddedToDiary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long usersProductsId;
-
-    private Long userId;
+    private Long id;
 
     private String productId;
-
     private String productName;
-
     private double kcal;
-
     private double protein;
-
-    private double fat;
-
     private double carbohydrates;
-
+    private double fat;
     private double fiber;
-
     private String image;
-
     private String measureLabel;
+    private double quantity;
 
-    private Double quantity;
 
-    public UsersProductsEntity(Long userId,
-                               String productId,
+    @ManyToOne
+    @JoinColumn(name = "diary_id")
+    @JsonIgnoreProperties("products")
+    private Diary diary;
+
+    public ProductAddedToDiary(String productId,
                                String productName,
                                double kcal,
                                double protein,
-                               double fat,
                                double carbohydrates,
+                               double fat,
                                double fiber,
                                String image,
                                String measureLabel,
-                               Double quantity) {
-        this.userId = userId;
+                               double quantity,
+                               Diary diary) {
         this.productId = productId;
         this.productName = productName;
         this.kcal = kcal;
@@ -59,5 +55,6 @@ public class UsersProductsEntity {
         this.image = image;
         this.measureLabel = measureLabel;
         this.quantity = quantity;
+        this.diary = diary;
     }
 }

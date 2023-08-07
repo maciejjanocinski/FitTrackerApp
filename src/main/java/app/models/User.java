@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
@@ -17,13 +18,12 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class UserEntity implements UserDetails {
+public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @UuidGenerator
     @JsonIgnore
-    private Long id;
+    private String id;
 
     @Column(unique = true)
     @Size(min = 6, message = "Username must have at least 6 characters.")
@@ -49,13 +49,11 @@ public class UserEntity implements UserDetails {
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RoleEntity> authorities;
-
+    private Set<Role> authorities;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "goals_id")
-    private Goals goals;
-
+    @JoinColumn(name = "diary_id")
+    private Diary diary;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

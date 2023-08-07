@@ -2,7 +2,7 @@ package app.controllers.authentication;
 
 import app.dto.LoginDto;
 import app.dto.UserDto;
-import app.models.UserEntity;
+import app.models.User;
 import app.services.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserEntity> register(@RequestBody @Valid UserDto user) {
+    public ResponseEntity<User> register(@RequestBody @Valid UserDto user) {
         return authenticationService.register(user);
     }
 

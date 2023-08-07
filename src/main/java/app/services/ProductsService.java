@@ -1,6 +1,6 @@
 package app.services;
 
-import app.models.ProductEntity;
+import app.models.Product;
 import app.repository.ProductsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,13 +28,13 @@ public class ProductsService {
    private final ProductsRepository productsRepository;
    private final ObjectMapper objectMapper;
 
-    public ResponseEntity<List<ProductEntity>> searchProducts(String product) throws IOException, InterruptedException {
+    public ResponseEntity<List<Product>> searchProducts(String product) throws IOException, InterruptedException {
         productsRepository.deleteNotUsedProducts();
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
         String response = apiRequest(id, key, product);
-        List<ProductEntity> products = parseProductsFromJson(response);
+        List<Product> products = parseProductsFromJson(response);
 
         productsRepository.saveAll(products);
         return ResponseEntity.ok(products);
@@ -49,13 +49,13 @@ public class ProductsService {
         return res.body();
     }
 
-    private List<ProductEntity> parseProductsFromJson(String json) throws JsonProcessingException {
+    private List<Product> parseProductsFromJson(String json) throws JsonProcessingException {
         JsonNode rootNode = objectMapper.readTree(json);
         JsonNode hintsNode = rootNode.get("hints");
-        List<ProductEntity> products = new ArrayList<>();
+        List<Product> products = new ArrayList<>();
 
         for (JsonNode node : hintsNode) {
-            ProductEntity product = new ProductEntity();
+            Product product = new Product();
 
             var foodId = node.get("food").get("foodId");
             var label = node.get("food").get("label");
