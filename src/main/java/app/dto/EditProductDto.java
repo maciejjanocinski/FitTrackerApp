@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class EditProductDto {
-    Long usersProductsId;
+    Long id;
     String measureLabel;
     Double quantity;
 }

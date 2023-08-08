@@ -32,6 +32,10 @@ public class UserDto {
     @NotEmpty(message = "You have to pass your surname.")
     private String surname;
 
+    @NotEmpty(message = "You have to pass your gender.")
+    @Size(max = 1, min = 1, message = "One character is enough.")
+    private String gender;
+
     @NotEmpty(message = "You have to pass your email.")
     @Column(unique = true)
     @Email

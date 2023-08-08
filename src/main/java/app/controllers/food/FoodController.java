@@ -1,6 +1,6 @@
 package app.controllers.food;
 
-import app.models.ProductEntity;
+import app.models.Product;
 import app.services.ProductsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class FoodController {
         return ResponseEntity.ok("Products search page");
     }
     @GetMapping("/search")
-    public ResponseEntity<List<ProductEntity>> searchProducts(@RequestParam String product) throws IOException, InterruptedException {
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String product) throws IOException, InterruptedException {
         return productsService.searchProducts(product);
     }
 }

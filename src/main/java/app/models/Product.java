@@ -1,20 +1,22 @@
 package app.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.UuidGenerator;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 @Data
 @Entity
 @Table(name = "products")
-public class ProductEntity {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonIgnore
     private Long id;
 
-    @Column(name = "product_id")
     private String productId;
 
     private String name;
@@ -34,7 +36,7 @@ public class ProductEntity {
     private boolean isUsed = false;
 
     @ElementCollection
+    @JsonIgnore
     private Map<String, Double> measures;
-
 }
 
