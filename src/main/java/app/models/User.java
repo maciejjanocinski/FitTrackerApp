@@ -35,6 +35,9 @@ public class User implements UserDetails {
     @NotEmpty(message = "You have to pass your surname.")
     private String surname;
 
+    @NotEmpty(message = "You have to pass your gender.")
+    private String gender;
+
     @Email(message = "Wrong email")
     @NotEmpty(message = "You have to pass your email.")
     private String email;

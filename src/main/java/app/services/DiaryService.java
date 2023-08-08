@@ -4,7 +4,6 @@ import app.dto.AddProductDto;
 import app.dto.EditProductDto;
 import app.models.*;
 import app.repositories.*;
-//import app.repository.UsersProductsRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class DiaryService {
-
 
     private final ProductsRepository productsRepository;
     private final UserRepository userRepository;
@@ -28,14 +26,7 @@ public class DiaryService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         calculateNutrientsSum(user);
-
-        NutrientsLeftToReachTodayGoals nutrientsLeftToReachTodayGoals =
-                calculateNutrientsLeftToReachTodayGoals(
-                        user.getDiary().getNutrientsLeftToReachTodayGoals(),
-                        user.getDiary().getGoals(),
-                        user.getDiary().getNutrientsSum()
-                );
-        user.getDiary().setNutrientsLeftToReachTodayGoals(nutrientsLeftToReachTodayGoals);
+        calculateNutrientsLeftToReachTodayGoals(user);
 
         return ResponseEntity.ok(user.getDiary());
     }
@@ -61,7 +52,6 @@ public class DiaryService {
     }
 
     public ResponseEntity<ProductAddedToDiary> editProductAmountInDiary(EditProductDto editProductDto) {
-        System.out.println(editProductDto.getId());
         ProductAddedToDiary oldProduct = productsAddedToDiaryRepository.findById(editProductDto.getId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -74,7 +64,7 @@ public class DiaryService {
         productsAddedToDiaryRepository.delete(oldProduct);
         productsAddedToDiaryRepository.save(newProduct);
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(newProduct);
     }
 
     @Transactional
@@ -82,13 +72,11 @@ public class DiaryService {
         ProductAddedToDiary productAddedToDiary = productsAddedToDiaryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         Product product = productsRepository.findProductEntityByProductIdAndName(productAddedToDiary.getProductId(), productAddedToDiary.getProductName());
-
         productsAddedToDiaryRepository.delete(productAddedToDiary);
 
         if (productsAddedToDiaryRepository.findProductAddedToDiaryByProductName(productAddedToDiary.getProductName()).isEmpty()) {
             product.setUsed(false);
         }
-
         return ResponseEntity.ok("Product deleted from diary successfully");
     }
 
@@ -106,13 +94,12 @@ public class DiaryService {
         return new ProductAddedToDiary(productId, productName, calories, proteins, carbs, fats, fiber, image, measureLabel, quantity, diary);
     }
 
-    private NutrientsLeftToReachTodayGoals calculateNutrientsLeftToReachTodayGoals(NutrientsLeftToReachTodayGoals nutrientsLeft, Goals goals, NutrientsSum nutrientsSum) {
-        nutrientsLeft.setKcal(goals.getKcal() - nutrientsSum.getTotalKcal());
-        nutrientsLeft.setProtein(goals.getProtein() - nutrientsSum.getTotalProtein());
-        nutrientsLeft.setCarbohydrates(goals.getCarbohydrates() - nutrientsSum.getTotalCarbohydrates());
-        nutrientsLeft.setFat(goals.getFat() - nutrientsSum.getTotalFat());
-        nutrientsLeft.setFiber(goals.getFiber() - nutrientsSum.getTotalFiber());
-        return nutrientsLeft;
+    private void calculateNutrientsLeftToReachTodayGoals(User user) {
+        user.getDiary().getNutrientsLeftToReachTodayGoals().setKcal(user.getDiary().getGoals().getKcal() - user.getDiary().getNutrientsSum().getTotalKcal());
+        user.getDiary().getNutrientsLeftToReachTodayGoals().setProtein(user.getDiary().getGoals().getProtein() - user.getDiary().getNutrientsSum().getTotalProtein());
+        user.getDiary().getNutrientsLeftToReachTodayGoals().setCarbohydrates(user.getDiary().getGoals().getCarbohydrates() - user.getDiary().getNutrientsSum().getTotalCarbohydrates());
+        user.getDiary().getNutrientsLeftToReachTodayGoals().setFat(user.getDiary().getGoals().getFat() - user.getDiary().getNutrientsSum().getTotalFat());
+        user.getDiary().getNutrientsLeftToReachTodayGoals().setFiber(user.getDiary().getGoals().getFiber() - user.getDiary().getNutrientsSum().getTotalFiber());
     }
 
     private void calculateNutrientsSum(User user) {

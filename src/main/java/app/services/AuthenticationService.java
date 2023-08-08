@@ -36,6 +36,7 @@ public class AuthenticationService {
 
         user.setName(body.getName());
         user.setSurname(body.getSurname());
+        user.setGender(body.getGender());
         user.setEmail(body.getEmail());
         user.setPhone(body.getPhone());
 
@@ -49,7 +50,7 @@ public class AuthenticationService {
 
         Diary diary = new Diary();
         NutrientsSum sumNutrientsEntity = new NutrientsSum();
-        Goals goalsEntity = new Goals(1000, 100, 100, 100, 100);
+        Goals goalsEntity = new Goals(0,0,0,0,0);
         NutrientsLeftToReachTodayGoals nutrientsLeftToReachTodayGoals = new NutrientsLeftToReachTodayGoals();
         diary.setProducts(new ArrayList<>());
         diary.setNutrientsSum(sumNutrientsEntity);
