@@ -23,7 +23,6 @@ public class Diary {
     @JsonIgnore
     private Long id;
 
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "nutrients_sum_id")
     private NutrientsSum nutrientsSum;
@@ -36,8 +35,9 @@ public class Diary {
     @JoinColumn(name = "nutrients_left_to_reach_today_goals_id")
     private NutrientsLeftToReachTodayGoals nutrientsLeftToReachTodayGoals;
 
-    @JsonIgnoreProperties("diary")
+
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("diary")
     private List<ProductAddedToDiary> products;
 
 }

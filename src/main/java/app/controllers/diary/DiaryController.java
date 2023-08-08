@@ -1,7 +1,9 @@
 package app.controllers.diary;
 
 import app.dto.AddProductDto;
+import app.dto.EditProductDto;
 import app.models.Diary;
+import app.models.ProductAddedToDiary;
 import app.services.DiaryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,19 +25,19 @@ public class DiaryController {
     }
 
     @PostMapping("/addProduct")
-    public ResponseEntity<?> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
+    public ResponseEntity<ProductAddedToDiary> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
                                                     Authentication authentication,
                                                                  @RequestBody AddProductDto addProductDto) {
         return diaryService.addProductToDiary(addProductDto, authentication);
     }
 
-//    @PatchMapping("/editProduct")
-//    public ResponseEntity<UsersProductsEntity> editProductAmountInDiary(@RequestBody EditProductDto editProductDto) {
-//        return diaryService.editProductAmountInDiary(editProductDto);
-//    }
-//
-//    @DeleteMapping("/deleteProduct")
-//    public ResponseEntity<String> deleteProductFromDiary(@RequestBody Long usersProductsId) {
-//        return diaryService.deleteProductFromDiary(usersProductsId);
-//    }
+    @PatchMapping("/editProduct")
+    public ResponseEntity<ProductAddedToDiary> editProductAmountInDiary(@RequestBody EditProductDto editProductDto) {
+        return diaryService.editProductAmountInDiary(editProductDto);
+    }
+
+    @DeleteMapping("/deleteProduct")
+    public ResponseEntity<String> deleteProductFromDiary(@RequestBody Long usersProductsId) {
+        return diaryService.deleteProductFromDiary(usersProductsId);
+    }
 }

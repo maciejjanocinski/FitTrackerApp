@@ -1,4 +1,4 @@
-package app.repository;
+package app.repositories;
 
 import app.models.Product;
 import jakarta.transaction.Transactional;

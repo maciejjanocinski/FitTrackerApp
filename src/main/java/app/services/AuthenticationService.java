@@ -4,7 +4,7 @@ import app.dto.LoginDto;
 import app.dto.LoginResponseDto;
 import app.dto.UserDto;
 import app.models.*;
-import app.repository.*;
+import app.repositories.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +51,7 @@ public class AuthenticationService {
         NutrientsSum sumNutrientsEntity = new NutrientsSum();
         Goals goalsEntity = new Goals(1000, 100, 100, 100, 100);
         NutrientsLeftToReachTodayGoals nutrientsLeftToReachTodayGoals = new NutrientsLeftToReachTodayGoals();
-
+        diary.setProducts(new ArrayList<>());
         diary.setNutrientsSum(sumNutrientsEntity);
         diary.setGoals(goalsEntity);
         diary.setNutrientsLeftToReachTodayGoals(nutrientsLeftToReachTodayGoals);

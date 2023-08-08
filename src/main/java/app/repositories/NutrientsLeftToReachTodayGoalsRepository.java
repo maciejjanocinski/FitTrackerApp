@@ -1,4 +1,4 @@
-package app.repository;
+package app.repositories;
 
 import app.models.NutrientsLeftToReachTodayGoals;
 import org.springframework.data.jpa.repository.JpaRepository;

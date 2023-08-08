@@ -20,7 +20,7 @@ public class NutrientsSum {
     private double totalFiber;
 
 
-    public NutrientsSum(Double totalKcal, Double totalProtein, Double totalCarbohydrates, Double totalFat, Double totalFiber) {
+    public NutrientsSum(double totalKcal, double totalProtein, double totalCarbohydrates, double totalFat, double totalFiber) {
         this.totalKcal = totalKcal;
         this.totalProtein = totalProtein;
         this.totalCarbohydrates = totalCarbohydrates;
