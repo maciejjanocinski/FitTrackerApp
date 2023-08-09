@@ -1,6 +1,10 @@
 package app.dto;
 
-public record EditProductDto(long id,
-                             String measureLabel,
-                             double quantity) {
+import lombok.Data;
+
+@Data
+public class EditProductDto {
+    private long id;
+    private String measureLabel;
+    private double quantity;
 }

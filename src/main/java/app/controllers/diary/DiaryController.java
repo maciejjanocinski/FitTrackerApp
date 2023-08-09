@@ -20,13 +20,13 @@ public class DiaryController {
 
     @GetMapping("/")
     public ResponseEntity<Diary> getDiary(@CurrentSecurityContext(expression = "authentication")
-                                                    Authentication authentication) {
+                                          Authentication authentication) {
         return diaryService.getDiary(authentication);
     }
 
     @PostMapping("/addProduct")
     public ResponseEntity<ProductAddedToDiary> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
-                                                    Authentication authentication,
+                                                                 Authentication authentication,
                                                                  @RequestBody AddProductDto addProductDto) {
         return diaryService.addProductToDiary(addProductDto, authentication);
     }

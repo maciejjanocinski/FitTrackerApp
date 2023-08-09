@@ -3,6 +3,7 @@ package app.dto;
 import lombok.Data;
 
 import java.util.Map;
-
-public record UpdateProfileInfoDto(Map<String, String> updates) {
+@Data
+public class UpdateProfileInfoDto {
+    private Map<String, String> updates;
 }

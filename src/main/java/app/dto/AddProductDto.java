@@ -1,9 +1,11 @@
 package app.dto;
 
+import lombok.Data;
 
-public record AddProductDto(String foodId,
-                            String name,
-                            String measureLabel,
-                            Double quantity) {
-
+@Data
+public class AddProductDto {
+    private String foodId;
+    private String name;
+    private String measureLabel;
+    private Double quantity;
 }
