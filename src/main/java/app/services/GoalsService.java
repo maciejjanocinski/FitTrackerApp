@@ -18,17 +18,13 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class GoalsService {
 
-    private final GoalsRepository goalsRepository;
     private final UserRepository userRepository;
 
     public ResponseEntity<Goals> getGoals(Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Goals goals = goalsRepository.findById(user.getDiary().getGoals().getId())
-                .orElseThrow(() -> new RuntimeException("Goals not found"));
-
-        return ResponseEntity.ok(goals);
+        return ResponseEntity.ok(user.getDiary().getGoals());
     }
 
     @Transactional
