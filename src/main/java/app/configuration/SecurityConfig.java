@@ -1,6 +1,6 @@
 package app.configuration;
 
-import app.utils.RsaKeyProperties;
+import app.util.RsaKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -16,7 +16,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
@@ -35,12 +34,12 @@ import java.util.Map;
 
 @Configuration
 @AllArgsConstructor
-public class SecurityConfig {
+class SecurityConfig {
 
     private final RsaKeyProperties keys;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+     PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
         encoderMap.put(idForEncode, new BCryptPasswordEncoder());
@@ -55,7 +54,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> {
@@ -79,19 +78,19 @@ public class SecurityConfig {
 
 
     @Bean
-    public JwtDecoder jwtDecoder() {
+     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(keys.getPublicKey()).build();
     }
 
     @Bean
-    public JwtEncoder jwtEncoder() {
+     JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(keys.getPublicKey()).privateKey(keys.getPrivateKey()).build();
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
