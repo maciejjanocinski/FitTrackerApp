@@ -19,13 +19,13 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "users")
+@Table
 public class User implements UserDetails {
 
     @Id
     @UuidGenerator
     @JsonIgnore
-    private String id;
+    private String userId;
 
     @Column(unique = true)
     @Size(min = 6, message = "Username must have at least 6 characters.")

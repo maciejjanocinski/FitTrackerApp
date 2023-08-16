@@ -1,7 +1,7 @@
 package app.authentication;
 
-import app.user.UserDto;
 import app.user.User;
+import app.user.UserDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin("*")
+
 @AllArgsConstructor
 class AuthenticationController {
 

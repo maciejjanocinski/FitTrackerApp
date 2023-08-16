@@ -24,7 +24,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    ResponseEntity<?> getProfile(Authentication authentication) {
+    ResponseEntity<User> getUser(Authentication authentication) {
         User user = getUser(userRepository, authentication);
 
         return ResponseEntity.ok(user);
@@ -80,7 +80,8 @@ public class UserService implements UserDetailsService {
     ResponseEntity<String> deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
         User user = getUser(userRepository, authentication);
 
-        if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword())) {
+        if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword()) &&
+                deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
             userRepository.delete(user);
             return ResponseEntity.ok("Profile with username \"" + user.getUsername() + "\" has been deleted.");
         }

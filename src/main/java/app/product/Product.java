@@ -32,6 +32,8 @@ public class Product {
 
     private boolean isUsed = false;
 
+    private String query;
+
     @ElementCollection
     @JsonIgnore
     private Map<String, Double> measures;

@@ -1,24 +1,25 @@
 package app.user;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
 @AllArgsConstructor
-@Controller
+
+@RestController
 @RequestMapping("/user")
 class UserController {
 
     UserService userService;
 
     @GetMapping("/")
-    private ResponseEntity<?> getProfile(@CurrentSecurityContext(expression = "authentication")
+    private ResponseEntity<User> getUser(@CurrentSecurityContext(expression = "authentication")
                                          Authentication authentication) {
-        return userService.getProfile(authentication);
+        return userService.getUser(authentication);
     }
 
     @PatchMapping("/")

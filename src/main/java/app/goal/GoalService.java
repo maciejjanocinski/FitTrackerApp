@@ -21,24 +21,21 @@ class GoalService {
 
     private final UserRepository userRepository;
 
-    ResponseEntity<Map<String, Double>> getGoal(Authentication authentication) {
+    ResponseEntity<GoalResponseDto> getGoal(Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
+        diary.calculateNutrientsLeft();
+        diary.calculateNutrientsSum();
 
-        Map<String, Double> goal = Map.of(
-                "kcal", diary.getGoalKcal(),
-                "protein", diary.getGoalProtein(),
-                "carbohydrates", diary.getGoalCarbohydrates(),
-                "fat", diary.getGoalFat(),
-                "fiber", diary.getGoalFiber()
-        );
-
+        GoalResponseDto goal = new GoalResponseDto(diary.getGoalKcal(), diary.getGoalProtein(), diary.getGoalCarbohydrates(),
+                diary.getGoalFat(), diary.getGoalFiber());
         return ResponseEntity.ok(goal);
     }
 
     @Transactional
-    public ResponseEntity<Map<String, Double>> setGoal(Authentication authentication, GoalDto goalsDto) {
+    public ResponseEntity<GoalResponseDto> setGoal(Authentication authentication, GoalDto goalsDto) {
         User user = getUser(userRepository, authentication);
         Diary diary = user.getDiary();
+
 
         if (goalsDto.kcal() <= 0 ||
                 goalsDto.proteinPercentage() +
@@ -47,15 +44,12 @@ class GoalService {
             throw new InvalidInputException("Kcal must be greater than 0 and sum of percentages must be equal to 100");
         }
 
-        countAndSetGoal(goalsDto, getUser(userRepository, authentication));
+        countAndSetGoal(goalsDto, user);
+        diary.calculateNutrientsLeft();
+        diary.calculateNutrientsSum();
 
-        Map<String, Double> goal = Map.of(
-                "kcal", diary.getGoalKcal(),
-                "protein", diary.getGoalProtein(),
-                "carbohydrates", diary.getGoalCarbohydrates(),
-                "fat", diary.getGoalFat(),
-                "fiber", diary.getGoalFiber()
-        );
+      GoalResponseDto goal = new GoalResponseDto(diary.getGoalKcal(), diary.getGoalProtein(), diary.getGoalCarbohydrates(),
+                diary.getGoalFat(), diary.getGoalFiber());
 
         return ResponseEntity.ok(goal);
     }

@@ -30,7 +30,7 @@ public class ProductService {
 
     public ResponseEntity<List<Product>> searchProducts(String product) throws IOException, InterruptedException {
         if(foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product)) {
-            return ResponseEntity.ok(productsRepository.findAll());
+            return ResponseEntity.ok(productsRepository.findAllByQuery(product).get());
         }
         productsRepository.deleteNotUsedProducts();
         foodApiManager.setLastQuery(product);
@@ -39,7 +39,7 @@ public class ProductService {
         String id = dotenv.get("PRODUCTS_API_ID");
 
         String json = getProductsFromFoodApi(id, key, product);
-        List<Product> products = parseProductsFromJson(json);
+        List<Product> products = parseProductsFromJson(json, product);
 
         productsRepository.saveAll(products);
         return ResponseEntity.ok(products);
@@ -54,7 +54,7 @@ public class ProductService {
         return res.body();
     }
 
-    private List<Product> parseProductsFromJson(String json) throws JsonProcessingException {
+    private List<Product> parseProductsFromJson(String json, String query) throws JsonProcessingException {
         JsonNode rootNode = objectMapper.readTree(json);
         JsonNode hintsNode = rootNode.get("hints");
         List<Product> products = new ArrayList<>();
@@ -83,21 +83,22 @@ public class ProductService {
 
             Product product = new Product();
             product.setMeasures(measures);
-            checkIfFieldsAreNotNull(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image);
+            checkIfFieldsAreNotNullAndSetValues(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
             products.add(product);
         }
         return products;
     }
 
-    private void checkIfFieldsAreNotNull(Product product,
-                                         JsonNode foodId,
-                                         JsonNode label,
-                                         JsonNode kcal,
-                                         JsonNode protein,
-                                         JsonNode fat,
-                                         JsonNode carbohydrates,
-                                         JsonNode fiber,
-                                         JsonNode image
+    private void checkIfFieldsAreNotNullAndSetValues(Product product,
+                                                     JsonNode foodId,
+                                                     JsonNode label,
+                                                     JsonNode kcal,
+                                                     JsonNode protein,
+                                                     JsonNode fat,
+                                                     JsonNode carbohydrates,
+                                                     JsonNode fiber,
+                                                     JsonNode image,
+                                                     String query
     ) {
 
         product.setProductId(foodId == null ? "" : foodId.asText());
@@ -108,5 +109,6 @@ public class ProductService {
         product.setCarbohydrates(carbohydrates == null ? 0 : carbohydrates.asDouble());
         product.setFiber(fiber == null ? 0 : fiber.asDouble());
         product.setImage(image == null ? "" : image.asText());
+        product.setQuery(query);
     }
 }

@@ -1,32 +1,28 @@
 package app.goal;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.Map;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
-@Controller
-@RequestMapping("/goals")
+
+@RestController
+@RequestMapping("/goal")
 public class GoalController {
 
     private final GoalService goalsService;
 
     @GetMapping("/")
-    public ResponseEntity<Map<String, Double>> getGoals(@CurrentSecurityContext(expression = "authentication")
+    public ResponseEntity<GoalResponseDto> getGoals(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication) {
         return goalsService.getGoal(authentication);
     }
 
     @PostMapping("/")
-    public ResponseEntity<Map<String, Double>> setGoals(@CurrentSecurityContext(expression = "authentication")
+    public ResponseEntity<GoalResponseDto> setGoals(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication,
                                                         @RequestBody GoalDto goalsDto) {
         return goalsService.setGoal(authentication, goalsDto);

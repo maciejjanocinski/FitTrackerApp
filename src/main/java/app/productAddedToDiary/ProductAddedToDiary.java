@@ -1,6 +1,7 @@
 package app.productAddedToDiary;
 
 import app.diary.Diary;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class ProductAddedToDiary {
     @ManyToOne
     @JoinColumn(name = "diary_id")
     @JsonIgnoreProperties("products")
+    @JsonIgnore
     private Diary diary;
 
     public ProductAddedToDiary(String productId,

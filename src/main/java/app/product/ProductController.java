@@ -1,5 +1,6 @@
 package app.product;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {

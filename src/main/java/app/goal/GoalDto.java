@@ -1,5 +1,6 @@
 package app.goal;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 

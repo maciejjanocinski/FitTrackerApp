@@ -1,6 +1,7 @@
 package app.diary;
 
 import app.productAddedToDiary.ProductAddedToDiary;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -8,6 +9,7 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
+
 @RestController
 @RequestMapping("/diary")
 class DiaryController {

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,6 +19,6 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     void deleteNotUsedProducts();
 
     Optional<Product> findProductEntityByProductIdAndName(String id, String name);
-    Optional<Product> findProductEntityByProductId(String id);
+    Optional<List<Product>> findAllByQuery(String query);
 
 }

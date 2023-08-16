@@ -18,7 +18,7 @@ public class Diary {
     @PrimaryKeyJoinColumn
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
-    private Long id;
+    private Long diaryId;
 
     private double sumKcal;
     private double sumProtein;
@@ -43,7 +43,7 @@ public class Diary {
     @JsonIgnoreProperties("diary")
     private List<ProductAddedToDiary> products;
 
-     void calculateNutrientsSum() {
+    public void calculateNutrientsSum() {
         this.sumKcal = this.products.stream().mapToDouble(ProductAddedToDiary::getKcal).sum();
         this.sumProtein = this.products.stream().mapToDouble(ProductAddedToDiary::getProtein).sum();
         this.sumCarbohydrates = this.products.stream().mapToDouble(ProductAddedToDiary::getCarbohydrates).sum();
@@ -51,7 +51,7 @@ public class Diary {
         this.sumFiber = this.products.stream().mapToDouble(ProductAddedToDiary::getFiber).sum();
     }
 
-     void calculateNutrientsLeft() {
+    public void calculateNutrientsLeft() {
         this.leftKcal = this.goalKcal - this.sumKcal;
         this.leftProtein = this.goalProtein - this.sumProtein;
         this.leftCarbohydrates = this.goalCarbohydrates - this.sumCarbohydrates;
