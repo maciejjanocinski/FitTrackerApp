@@ -28,9 +28,9 @@ public class ProductService {
     private final ObjectMapper objectMapper;
     private final FoodApiManager foodApiManager = new FoodApiManager();
 
-    public ResponseEntity<List<Product>> searchProducts(String product) throws IOException, InterruptedException {
-        if(foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product)) {
-            return ResponseEntity.ok(productsRepository.findAllByQuery(product).get());
+    public ResponseEntity<List<Product>> searchProducts(String product) {
+        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product)) {
+            return ResponseEntity.ok(productsRepository.findAllByQuery(product));
         }
         productsRepository.deleteNotUsedProducts();
         foodApiManager.setLastQuery(product);
@@ -45,48 +45,58 @@ public class ProductService {
         return ResponseEntity.ok(products);
     }
 
-    private String getProductsFromFoodApi(String id, String key, String product) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.edamam.com/api/food-database/v2/parser?app_id=" + id + "&app_key=" + key + "&ingr=" + product + "&nutrition-type=cooking"))
-                .GET()
-                .build();
-        HttpResponse<String> res = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        return res.body();
+    private String getProductsFromFoodApi(String id, String key, String product) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.edamam.com/api/food-database/v2/parser?app_id=" + id + "&app_key=" + key + "&ingr=" + product + "&nutrition-type=cooking"))
+                    .GET()
+                    .build();
+            HttpResponse<String> res = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            return res.body();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
     }
 
-    private List<Product> parseProductsFromJson(String json, String query) throws JsonProcessingException {
-        JsonNode rootNode = objectMapper.readTree(json);
-        JsonNode hintsNode = rootNode.get("hints");
-        List<Product> products = new ArrayList<>();
+    private List<Product> parseProductsFromJson(String json, String query) {
+        try {
+            JsonNode rootNode = objectMapper.readTree(json);
+            JsonNode hintsNode = rootNode.get("hints");
+            List<Product> products = new ArrayList<>();
 
-        for (JsonNode node : hintsNode) {
+            for (JsonNode node : hintsNode) {
 
-            JsonNode foodId = node.get("food").get("foodId");
-            JsonNode label = node.get("food").get("label");
-            JsonNode kcal = node.get("food").get("nutrients").get("ENERC_KCAL");
-            JsonNode protein = node.get("food").get("nutrients").get("PROCNT");
-            JsonNode fat = node.get("food").get("nutrients").get("FAT");
-            JsonNode carbohydrates = node.get("food").get("nutrients").get("CHOCDF");
-            JsonNode fiber = node.get("food").get("nutrients").get("FIBTG");
-            JsonNode image = node.get("food").get("image");
-            JsonNode measuresNodes = node.get("measures");
+                JsonNode foodId = node.get("food").get("foodId");
+                JsonNode label = node.get("food").get("label");
+                JsonNode kcal = node.get("food").get("nutrients").get("ENERC_KCAL");
+                JsonNode protein = node.get("food").get("nutrients").get("PROCNT");
+                JsonNode fat = node.get("food").get("nutrients").get("FAT");
+                JsonNode carbohydrates = node.get("food").get("nutrients").get("CHOCDF");
+                JsonNode fiber = node.get("food").get("nutrients").get("FIBTG");
+                JsonNode image = node.get("food").get("image");
+                JsonNode measuresNodes = node.get("measures");
 
-            Map<String, Double> measures = new HashMap<>();
-            for (JsonNode measureNode : measuresNodes
-            ) {
-                JsonNode measureLabel = measureNode.get("label");
-                JsonNode measureWeight = measureNode.get("weight");
-                measures.put(
-                        measureLabel == null ? "" : measureLabel.asText(),
-                        measureWeight == null ? 0 : measureWeight.asDouble());
+                Map<String, Double> measures = new HashMap<>();
+                for (JsonNode measureNode : measuresNodes
+                ) {
+                    JsonNode measureLabel = measureNode.get("label");
+                    JsonNode measureWeight = measureNode.get("weight");
+                    measures.put(
+                            (String) valueOrEmpty(measureLabel, false),
+                            (Double) valueOrEmpty(measureWeight, true));
+                }
+
+                Product product = new Product();
+                product.setMeasures(measures);
+                checkIfFieldsAreNotNullAndSetValues(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
+                products.add(product);
             }
-
-            Product product = new Product();
-            product.setMeasures(measures);
-            checkIfFieldsAreNotNullAndSetValues(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
-            products.add(product);
+            return products;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e.getMessage());
         }
-        return products;
+
     }
 
     private void checkIfFieldsAreNotNullAndSetValues(Product product,

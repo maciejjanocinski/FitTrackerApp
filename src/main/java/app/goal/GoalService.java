@@ -33,18 +33,11 @@ class GoalService {
 
     @Transactional
     public ResponseEntity<GoalResponseDto> setGoal(Authentication authentication, GoalDto goalsDto) {
+        validateGoalDto(goalsDto);
         User user = getUser(userRepository, authentication);
         Diary diary = user.getDiary();
 
-
-        if (goalsDto.kcal() <= 0 ||
-                goalsDto.proteinPercentage() +
-                        goalsDto.carbohydratesPercentage() +
-                        goalsDto.fatPercentage() != 100) {
-            throw new InvalidInputException("Kcal must be greater than 0 and sum of percentages must be equal to 100");
-        }
-
-        countAndSetGoal(goalsDto, user);
+        countAndSetGoal(goalsDto, diary, user.getGender());
         diary.calculateNutrientsLeft();
         diary.calculateNutrientsSum();
 
@@ -54,16 +47,25 @@ class GoalService {
         return ResponseEntity.ok(goal);
     }
 
-    private void countAndSetGoal(GoalDto goalsDto, User user) {
+    private void countAndSetGoal(GoalDto goalsDto, Diary diary, String gender) {
         double protein = goalsDto.kcal() * goalsDto.proteinPercentage() / 100 / 4;
         double carbohydrates = goalsDto.kcal() * goalsDto.carbohydratesPercentage() / 100 / 4;
         double fat = goalsDto.kcal() * goalsDto.fatPercentage() / 100 / 9;
-        double fiber = Objects.equals(user.getGender(), "M") ? 38 : 25;
+        double fiber = Objects.equals(gender, "M") ? 38 : 25;
 
-        user.getDiary().setGoalKcal(goalsDto.kcal());
-        user.getDiary().setGoalProtein(protein);
-        user.getDiary().setGoalCarbohydrates(carbohydrates);
-        user.getDiary().setGoalFat(fat);
-        user.getDiary().setGoalFiber(fiber);
+        diary.setGoalKcal(goalsDto.kcal());
+        diary.setGoalProtein(protein);
+        diary.setGoalCarbohydrates(carbohydrates);
+        diary.setGoalFat(fat);
+        diary.setGoalFiber(fiber);
+    }
+
+    private void validateGoalDto(GoalDto goalDto) {
+        if (goalDto.kcal() <= 0 ||
+                goalDto.proteinPercentage() +
+                        goalDto.carbohydratesPercentage() +
+                        goalDto.fatPercentage() != 100) {
+            throw new InvalidInputException("Kcal must be greater than 0 and sum of percentages must be equal to 100");
+        }
     }
 }

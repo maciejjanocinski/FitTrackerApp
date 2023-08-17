@@ -2,8 +2,6 @@ package app.authentication;
 
 import app.diary.Diary;
 import app.user.UserDto;
-import app.role.Role;
-import app.role.RoleRepository;
 import app.user.User;
 import app.user.UserRepository;
 import lombok.AllArgsConstructor;
@@ -42,7 +40,8 @@ class AuthenticationService {
         user.setUsername(body.username());
         user.setPassword(passwordEncoder.encode(body.password()));
 
-        Role userStandardRole = roleRepository.findByAuthority("USER_STANDARD").get();
+        Role userStandardRole = roleRepository.findByAuthority("USER_STANDARD")
+                .orElseThrow(() -> new RuntimeException("User standard role not found."));
         Set<Role> authorities = new HashSet<>();
         authorities.add(userStandardRole);
         user.setAuthorities(authorities);
@@ -56,20 +55,19 @@ class AuthenticationService {
     }
 
 
-    ResponseEntity<Object> login(LoginDto loginDto) {
+    ResponseEntity<LoginResponseDto> login(LoginDto loginDto) {
 
-        try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
             );
             String token = tokenService.generateJwt(auth);
 
-            LoginResponseDto responseDTO = new LoginResponseDto(userRepository.findByUsername(loginDto.username()).get(), token);
+            User user = userRepository.findByUsername(loginDto.username())
+                    .orElseThrow(() -> new RuntimeException("User not found."));
+
+            LoginResponseDto responseDTO = new LoginResponseDto(user, token);
             return ResponseEntity.ok(responseDTO);
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", "User with this credentials does not exist."));
-        }
     }
 
 

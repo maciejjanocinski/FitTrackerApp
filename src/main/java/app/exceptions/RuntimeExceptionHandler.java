@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-class HandleExceptions {
+class RuntimeExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     private ResponseEntity<String> handleMethodArgumentNotValidException(RuntimeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

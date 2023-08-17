@@ -8,11 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
-
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -20,7 +19,7 @@ public class ProductController {
     private final ProductService productsService;
 
     @GetMapping("/search")
-    public ResponseEntity<List<Product>> searchProducts(@RequestParam String product) throws IOException, InterruptedException {
+     ResponseEntity<List<Product>> searchProducts(@RequestParam String product) {
         return productsService.searchProducts(product);
     }
 }

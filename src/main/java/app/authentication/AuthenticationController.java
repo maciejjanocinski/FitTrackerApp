@@ -10,19 +10,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin("*")
-
 @AllArgsConstructor
 class AuthenticationController {
 
     AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    private ResponseEntity<User> register(@RequestBody @Valid UserDto user) {
+     ResponseEntity<User> register(@RequestBody @Valid UserDto user) {
         return authenticationService.register(user);
     }
 
     @PostMapping("/login")
-    private ResponseEntity<Object> login(@RequestBody @Valid LoginDto loginDto) {
+     ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginDto loginDto) {
         return authenticationService.login(loginDto);
     }
 

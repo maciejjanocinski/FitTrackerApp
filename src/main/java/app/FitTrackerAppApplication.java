@@ -1,7 +1,7 @@
 package app;
 
-import app.role.Role;
-import app.role.RoleRepository;
+import app.authentication.Role;
+import app.authentication.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

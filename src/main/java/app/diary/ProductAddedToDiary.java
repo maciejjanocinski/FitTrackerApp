@@ -1,16 +1,20 @@
-package app.productAddedToDiary;
+package app.diary;
 
 import app.diary.Diary;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class ProductAddedToDiary {
+@AllArgsConstructor
+@Builder
+ class ProductAddedToDiary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,28 +36,4 @@ public class ProductAddedToDiary {
     @JsonIgnoreProperties("products")
     @JsonIgnore
     private Diary diary;
-
-    public ProductAddedToDiary(String productId,
-                               String productName,
-                               double kcal,
-                               double protein,
-                               double carbohydrates,
-                               double fat,
-                               double fiber,
-                               String image,
-                               String measureLabel,
-                               double quantity,
-                               Diary diary) {
-        this.productId = productId;
-        this.productName = productName;
-        this.kcal = kcal;
-        this.protein = protein;
-        this.fat = fat;
-        this.carbohydrates = carbohydrates;
-        this.fiber = fiber;
-        this.image = image;
-        this.measureLabel = measureLabel;
-        this.quantity = quantity;
-        this.diary = diary;
-    }
 }

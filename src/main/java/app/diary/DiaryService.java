@@ -2,8 +2,6 @@ package app.diary;
 
 import app.product.Product;
 import app.product.ProductRepository;
-import app.productAddedToDiary.ProductAddedToDiary;
-import app.productAddedToDiary.ProductAddedToDiaryRepository;
 import app.user.User;
 import app.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -27,16 +25,15 @@ class DiaryService {
 
     @Transactional
     public ResponseEntity<Diary> getDiary(Authentication authentication) {
-        User user = getUser(userRepository, authentication);
-
-        user.getDiary().calculateNutrientsSum();
-        user.getDiary().calculateNutrientsLeft();
-        return ResponseEntity.ok(user.getDiary());
+        Diary diary = getUser(userRepository, authentication).getDiary();
+        diary.calculateNutrientsSum();
+        diary.calculateNutrientsLeft();
+        return ResponseEntity.ok(diary);
     }
 
     @Transactional
     public ResponseEntity<ProductAddedToDiary> addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
-        User user = getUser(userRepository, authentication);
+        Diary diary = getUser(userRepository, authentication).getDiary();
         Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
 
         if (product.isEmpty()) {
@@ -45,23 +42,23 @@ class DiaryService {
         product.get().setUsed(true);
 
         ProductAddedToDiary productAddedToDiary = generateNewProductAddedToDiary(
-                user.getDiary(),
+                diary,
                 product.get(),
                 addProductDto.measureLabel(),
                 addProductDto.quantity()
         );
 
-        user.getDiary().getProducts().add(productAddedToDiary);
+        diary.getProducts().add(productAddedToDiary);
 
-        user.getDiary().calculateNutrientsSum();
-        user.getDiary().calculateNutrientsLeft();
+        diary.calculateNutrientsSum();
+        diary.calculateNutrientsLeft();
 
         return ResponseEntity.ok(productAddedToDiary);
     }
 
     @Transactional
     public ResponseEntity<ProductAddedToDiary> editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
-        User user = getUser(userRepository, authentication);
+        Diary diary = getUser(userRepository, authentication).getDiary();
         ProductAddedToDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
@@ -76,17 +73,17 @@ class DiaryService {
                 editProductDto.quantity()
         );
 
+        productInDiary = ProductMapper.INSTANCE.ProductToProduct(productWithNewValues);
 
-        setNewValuesToProductInDiary(productInDiary, productWithNewValues);
-        user.getDiary().calculateNutrientsSum();
-        user.getDiary().calculateNutrientsLeft();
+        diary.calculateNutrientsSum();
+        diary.calculateNutrientsLeft();
 
-        return ResponseEntity.ok(productWithNewValues);
+        return ResponseEntity.ok(productInDiary);
     }
 
     @Transactional
     public ResponseEntity<String> deleteProductFromDiary(Long id, Authentication authentication) {
-        User user = getUser(userRepository, authentication);
+        Diary diary = getUser(userRepository, authentication).getDiary();
         ProductAddedToDiary productAddedToDiary = productsAddedToDiaryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         productsAddedToDiaryRepository.delete(productAddedToDiary);
@@ -100,8 +97,8 @@ class DiaryService {
             product.get().setUsed(false);
         }
 
-        user.getDiary().calculateNutrientsSum();
-        user.getDiary().calculateNutrientsLeft();
+        diary.calculateNutrientsSum();
+        diary.calculateNutrientsLeft();
 
         return ResponseEntity.ok("Product deleted from diary successfully");
     }
@@ -117,7 +114,21 @@ class DiaryService {
         double fiber = product.getFiber() / 100 * product.getMeasures().get(measureLabel) * quantity;
         String image = product.getImage();
 
-        return new ProductAddedToDiary(productId, productName, calories, proteins, carbs, fats, fiber, image, measureLabel, quantity, diary);
+        ProductAddedToDiary.ProductAddedToDiaryBuilder productAddedToDiary = ProductAddedToDiary.builder()
+                .diary(diary)
+                .productId(productId)
+                .productName(productName)
+                .kcal(calories)
+                .protein(proteins)
+                .fat(fats)
+                .carbohydrates(carbs)
+                .fiber(fiber)
+                .measureLabel(measureLabel)
+                .quantity(quantity)
+                .image(image);
+
+
+        return productAddedToDiary.build();
     }
 
     private void setNewValuesToProductInDiary(ProductAddedToDiary productAddedToDiary, ProductAddedToDiary productWithNewValues) {

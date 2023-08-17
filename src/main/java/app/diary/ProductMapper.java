@@ -1,4 +1,4 @@
-package app.util;
+package app.diary;
 
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -7,6 +7,6 @@ public interface ProductMapper {
 
     ProductMapper INSTANCE = Mappers.getMapper( ProductMapper.class );
 
-    @Mapping(source = "numberOfSeats", target = "seatCount")
-    Prodi carToCarDto(Car car);
+    @Mapping(target = "id", ignore = true)
+    ProductAddedToDiary ProductToProduct(ProductAddedToDiary productAddedToDiary);
 }
