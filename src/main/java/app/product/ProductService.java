@@ -101,14 +101,21 @@ public class ProductService {
                                                      String query
     ) {
 
-        product.setProductId(foodId == null ? "" : foodId.asText());
-        product.setName(label == null ? "" : label.asText());
-        product.setKcal(kcal == null ? 0 : kcal.asDouble());
-        product.setProtein(protein == null ? 0 : protein.asDouble());
-        product.setFat(fat == null ? 0 : fat.asDouble());
-        product.setCarbohydrates(carbohydrates == null ? 0 : carbohydrates.asDouble());
-        product.setFiber(fiber == null ? 0 : fiber.asDouble());
-        product.setImage(image == null ? "" : image.asText());
+        product.setProductId((String) valueOrEmpty(foodId, false));
+        product.setName((String) valueOrEmpty(label, false));
+        product.setKcal((Double) valueOrEmpty(kcal, true));
+        product.setProtein((Double) valueOrEmpty(protein, true));
+        product.setFat((Double) valueOrEmpty(fat, true));
+        product.setCarbohydrates((Double) valueOrEmpty(carbohydrates, true));
+        product.setFiber((Double) valueOrEmpty(fiber, true));
+        product.setImage((String) valueOrEmpty(image, false));
         product.setQuery(query);
+    }
+
+    private Object valueOrEmpty(JsonNode node, boolean isDouble) {
+        if (isDouble) {
+            return node == null ? 0 : node.asDouble();
+        }
+        return node == null ? "" : node.asText();
     }
 }
