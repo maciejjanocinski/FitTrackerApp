@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ProductAddedToDiaryRepository extends JpaRepository<ProductAddedToDiary, Long> {
-    Optional<List<ProductAddedToDiary>> findProductAddedToDiaryByProductName(String name);
+   List<ProductAddedToDiary> findProductAddedToDiaryByProductName(String name);
 }
