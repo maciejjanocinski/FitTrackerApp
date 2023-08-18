@@ -83,8 +83,8 @@ public class ProductService {
                     JsonNode measureLabel = measureNode.get("label");
                     JsonNode measureWeight = measureNode.get("weight");
                     measures.put(
-                            (String) valueOrEmpty(measureLabel, false),
-                            (Double) valueOrEmpty(measureWeight, true));
+                            stringOrEmpty(measureLabel),
+                            doubleOrEmpty(measureWeight));
                 }
 
                 Product product = new Product();
@@ -111,21 +111,22 @@ public class ProductService {
                                                      String query
     ) {
 
-        product.setProductId((String) valueOrEmpty(foodId, false));
-        product.setName((String) valueOrEmpty(label, false));
-        product.setKcal((Double) valueOrEmpty(kcal, true));
-        product.setProtein((Double) valueOrEmpty(protein, true));
-        product.setFat((Double) valueOrEmpty(fat, true));
-        product.setCarbohydrates((Double) valueOrEmpty(carbohydrates, true));
-        product.setFiber((Double) valueOrEmpty(fiber, true));
-        product.setImage((String) valueOrEmpty(image, false));
+        product.setProductId(stringOrEmpty(foodId));
+        product.setName(stringOrEmpty(label));
+        product.setKcal(doubleOrEmpty(kcal));
+        product.setProtein(doubleOrEmpty(protein));
+        product.setFat(doubleOrEmpty(fat));
+        product.setCarbohydrates(doubleOrEmpty(carbohydrates));
+        product.setFiber(doubleOrEmpty(fiber));
+        product.setImage(stringOrEmpty(image));
         product.setQuery(query);
     }
 
-    private Object valueOrEmpty(JsonNode node, boolean isDouble) {
-        if (isDouble) {
+    private double doubleOrEmpty(JsonNode node) {
             return node == null ? 0 : node.asDouble();
-        }
+    }
+
+    private String stringOrEmpty(JsonNode node) {
         return node == null ? "" : node.asText();
     }
 }
