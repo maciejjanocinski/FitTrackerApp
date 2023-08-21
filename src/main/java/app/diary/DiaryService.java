@@ -25,17 +25,20 @@ class DiaryService {
     private final UserRepository userRepository;
     private final ProductAddedToDiaryRepository productsAddedToDiaryRepository;
     private final ProductMapper productMapper;
+    private final DiaryMapper diaryMapper;
 
     @Transactional
-    public ResponseEntity<Diary> getDiary(Authentication authentication) {
+    public ResponseEntity<DiaryDto> getDiary(Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
-        return ResponseEntity.ok(diary);
+
+DiaryDto diaryDto = diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
+        return ResponseEntity.ok(diaryDto);
     }
 
     @Transactional
-    public ResponseEntity<ProductAddedToDiary> addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
+    public ResponseEntity<ProductAddedToDiaryDto> addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
 
@@ -56,11 +59,13 @@ class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return ResponseEntity.ok(productAddedToDiary);
+        ProductAddedToDiaryDto productAddedToDiaryDto = productMapper.INSTANCE.mapToProductAddedToDiaryDto(productAddedToDiary);
+
+        return ResponseEntity.ok(productAddedToDiaryDto);
     }
 
     @Transactional
-    public ResponseEntity<ProductAddedToDiary> editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
+    public ResponseEntity<ProductAddedToDiaryDto> editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         ProductAddedToDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -81,7 +86,9 @@ class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return ResponseEntity.ok(productInDiary);
+        ProductAddedToDiaryDto productAddedToDiaryDto = productMapper.INSTANCE.mapToProductAddedToDiaryDto(productInDiary);
+
+        return ResponseEntity.ok(productAddedToDiaryDto);
     }
 
     @Transactional

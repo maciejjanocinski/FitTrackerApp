@@ -26,7 +26,7 @@ public class UserService implements UserDetailsService {
 
     ResponseEntity<UserDto> getUser(Authentication authentication) {
         User user = getUser(userRepository, authentication);
-        UserDto userDto = userMapper.mapToProductAddedToDiary(user);
+        UserDto userDto = userMapper.INSTANCE.mapUserToUserDto(user);
         return ResponseEntity.ok(userDto);
     }
 

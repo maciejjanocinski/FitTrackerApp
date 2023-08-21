@@ -14,5 +14,6 @@ public interface ProductMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "diary", ignore = true)
     void mapToProductAddedToDiary(ProductAddedToDiary source, @MappingTarget ProductAddedToDiary destination);
+    ProductAddedToDiaryDto mapToProductAddedToDiaryDto(ProductAddedToDiary productAddedToDiary);
 
 }

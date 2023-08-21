@@ -20,14 +20,15 @@ import static app.user.UserService.getUser;
 class GoalService {
 
     private final UserRepository userRepository;
+    private final GoalMapper goalMapper;
 
     ResponseEntity<GoalResponseDto> getGoal(Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         diary.calculateNutrientsLeft();
         diary.calculateNutrientsSum();
 
-        GoalResponseDto goal = new GoalResponseDto(diary.getGoalKcal(), diary.getGoalProtein(), diary.getGoalCarbohydrates(),
-                diary.getGoalFat(), diary.getGoalFiber());
+        GoalResponseDto goal = goalMapper.INSTANCE.mapToGoalResponseDto(diary);
+
         return ResponseEntity.ok(goal);
     }
 
@@ -41,8 +42,7 @@ class GoalService {
         diary.calculateNutrientsLeft();
         diary.calculateNutrientsSum();
 
-      GoalResponseDto goal = new GoalResponseDto(diary.getGoalKcal(), diary.getGoalProtein(), diary.getGoalCarbohydrates(),
-                diary.getGoalFat(), diary.getGoalFiber());
+      GoalResponseDto goal = goalMapper.INSTANCE.mapToGoalResponseDto(diary);
 
         return ResponseEntity.ok(goal);
     }

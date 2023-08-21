@@ -13,7 +13,7 @@ public record UserDto(
         @Size(max = 20, message = "Username cannot have more than 20 characters.")
         @Column(unique = true)
         String username,
-        
+
         @NotEmpty(message = "You have to pass your name.")
         String name,
 

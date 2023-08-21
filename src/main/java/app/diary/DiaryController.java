@@ -16,20 +16,20 @@ class DiaryController {
     private final DiaryService diaryService;
 
     @GetMapping("/")
-     ResponseEntity<Diary> getDiary(@CurrentSecurityContext(expression = "authentication")
+     ResponseEntity<DiaryDto> getDiary(@CurrentSecurityContext(expression = "authentication")
                                            Authentication authentication) {
         return diaryService.getDiary(authentication);
     }
 
     @PostMapping("/product")
-     ResponseEntity<ProductAddedToDiary> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
+     ResponseEntity<ProductAddedToDiaryDto> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
                                                                   Authentication authentication,
                                                                   @RequestBody AddProductToDiaryDto addProductDto) {
         return diaryService.addProductToDiary(addProductDto, authentication);
     }
 
     @PatchMapping("/product")
-     ResponseEntity<ProductAddedToDiary> editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
+     ResponseEntity<ProductAddedToDiaryDto> editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
                                                                          Authentication authentication,
                                                                          @RequestBody EditProductInDiaryDto editProductDto) {
         return diaryService.editProductAmountInDiary(editProductDto, authentication);

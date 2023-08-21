@@ -28,7 +28,7 @@ class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    ResponseEntity<User> register(RegisterDto body) {
+    ResponseEntity<RegisterDto> register(RegisterDto body) {
         User user = new User();
 
         user.setName(body.name());
@@ -51,7 +51,7 @@ class AuthenticationService {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(body);
     }
 
 
@@ -62,10 +62,7 @@ class AuthenticationService {
             );
             String token = tokenService.generateJwt(auth);
 
-            User user = userRepository.findByUsername(loginDto.username())
-                    .orElseThrow(() -> new RuntimeException("User not found."));
-
-            LoginResponseDto responseDTO = new LoginResponseDto(user, token);
+            LoginResponseDto responseDTO = new LoginResponseDto(loginDto.username(), token);
             return ResponseEntity.ok(responseDTO);
 
     }
