@@ -6,6 +6,8 @@ import app.user.User;
 import app.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +24,7 @@ class DiaryService {
     private final ProductRepository productsRepository;
     private final UserRepository userRepository;
     private final ProductAddedToDiaryRepository productsAddedToDiaryRepository;
+    private final ProductMapper productMapper;
 
     @Transactional
     public ResponseEntity<Diary> getDiary(Authentication authentication) {
@@ -73,7 +76,7 @@ class DiaryService {
                 editProductDto.quantity()
         );
 
-        productInDiary = ProductMapper.INSTANCE.ProductToProduct(productWithNewValues);
+       productMapper.INSTANCE.mapToProductAddedToDiary(productWithNewValues , productInDiary);
 
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
@@ -129,16 +132,6 @@ class DiaryService {
 
 
         return productAddedToDiary.build();
-    }
-
-    private void setNewValuesToProductInDiary(ProductAddedToDiary productAddedToDiary, ProductAddedToDiary productWithNewValues) {
-        productAddedToDiary.setKcal(productWithNewValues.getKcal());
-        productAddedToDiary.setProtein(productWithNewValues.getProtein());
-        productAddedToDiary.setCarbohydrates(productWithNewValues.getCarbohydrates());
-        productAddedToDiary.setFat(productWithNewValues.getFat());
-        productAddedToDiary.setFiber(productWithNewValues.getFiber());
-        productAddedToDiary.setMeasureLabel(productWithNewValues.getMeasureLabel());
-        productAddedToDiary.setQuantity(productWithNewValues.getQuantity());
     }
 
 }

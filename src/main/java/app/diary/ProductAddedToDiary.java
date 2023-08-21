@@ -3,6 +3,7 @@ package app.diary;
 import app.diary.Diary;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,10 +31,8 @@ import lombok.NoArgsConstructor;
     private String measureLabel;
     private double quantity;
 
-
     @ManyToOne
     @JoinColumn(name = "diary_id")
-    @JsonIgnoreProperties("products")
-    @JsonIgnore
+    @JsonManagedReference
     private Diary diary;
 }

@@ -18,7 +18,7 @@ class UserController {
     private final UserService userService;
 
     @GetMapping("/")
-     ResponseEntity<User> getUser(@CurrentSecurityContext(expression = "authentication")
+     ResponseEntity<UserDto> getUser(@CurrentSecurityContext(expression = "authentication")
                                          Authentication authentication) {
         return userService.getUser(authentication);
     }

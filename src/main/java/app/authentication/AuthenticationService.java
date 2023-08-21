@@ -28,7 +28,7 @@ class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    ResponseEntity<User> register(UserDto body) {
+    ResponseEntity<User> register(RegisterDto body) {
         User user = new User();
 
         user.setName(body.name());

@@ -1,7 +1,6 @@
 package app.authentication;
 
 import app.user.User;
-import app.user.UserDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,7 @@ class AuthenticationController {
     AuthenticationService authenticationService;
 
     @PostMapping("/register")
-     ResponseEntity<User> register(@RequestBody @Valid UserDto user) {
+     ResponseEntity<User> register(@RequestBody @Valid RegisterDto user) {
         return authenticationService.register(user);
     }
 

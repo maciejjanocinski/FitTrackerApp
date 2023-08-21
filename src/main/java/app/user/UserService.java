@@ -17,16 +17,17 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final UserMapper userMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    ResponseEntity<User> getUser(Authentication authentication) {
+    ResponseEntity<UserDto> getUser(Authentication authentication) {
         User user = getUser(userRepository, authentication);
-        return ResponseEntity.ok(user);
+        UserDto userDto = userMapper.mapToProductAddedToDiary(user);
+        return ResponseEntity.ok(userDto);
     }
 
     @Transactional
@@ -71,7 +72,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-   private boolean setPasswordWithValidation(String password) {
+    private boolean setPasswordWithValidation(String password) {
         PasswordValidator passwordValidator = new PasswordValidator();
         return passwordValidator.isValidSetterCheck(password);
     }
