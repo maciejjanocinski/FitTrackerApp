@@ -8,7 +8,7 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
-
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/goal")
 public class GoalController {
@@ -16,13 +16,13 @@ public class GoalController {
     private final GoalService goalsService;
 
     @GetMapping("/")
-    public ResponseEntity<GoalResponseDto> getGoals(@CurrentSecurityContext(expression = "authentication")
+     ResponseEntity<GoalResponseDto> getGoals(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication) {
         return goalsService.getGoal(authentication);
     }
 
     @PostMapping("/")
-    public ResponseEntity<GoalResponseDto> setGoals(@CurrentSecurityContext(expression = "authentication")
+     ResponseEntity<GoalResponseDto> setGoals(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication,
                                                         @RequestBody GoalDto goalsDto) {
         return goalsService.setGoal(authentication, goalsDto);

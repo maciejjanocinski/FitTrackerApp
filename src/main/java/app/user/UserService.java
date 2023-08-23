@@ -17,45 +17,23 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final UserMapper userMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    ResponseEntity<User> getUser(Authentication authentication) {
+    ResponseEntity<UserDto> getUser(Authentication authentication) {
         User user = getUser(userRepository, authentication);
-
-        return ResponseEntity.ok(user);
+        UserDto userDto = userMapper.INSTANCE.mapUserToUserDto(user);
+        return ResponseEntity.ok(userDto);
     }
 
     @Transactional
     public ResponseEntity<String> updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
         User user = getUser(userRepository, authentication);
-
-        if (updateProfileInfoDto.updates().containsKey("username")) {
-            user.setUsername(updateProfileInfoDto.updates().get("username"));
-        }
-        if (updateProfileInfoDto.updates().containsKey("name")) {
-            user.setName(updateProfileInfoDto.updates().get("name"));
-        }
-        if (updateProfileInfoDto.updates().containsKey("surname")) {
-            user.setSurname(updateProfileInfoDto.updates().get("surname"));
-        }
-        if (updateProfileInfoDto.updates().containsKey("email")) {
-            user.setEmail(updateProfileInfoDto.updates().get("email"));
-        }
-        if (updateProfileInfoDto.updates().containsKey("phone")) {
-            user.setPhone(updateProfileInfoDto.updates().get("phone"));
-        }
-
-        user.setUsername(user.getUsername());
-        user.setName(user.getName());
-        user.setSurname(user.getSurname());
-        user.setEmail(user.getEmail());
-        user.setPhone(user.getPhone());
-
+        updateUserProfile(user, updateProfileInfoDto);
         return ResponseEntity.ok("Changes has been successfully approved");
     }
 
@@ -94,8 +72,17 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    boolean setPasswordWithValidation(String password) {
+    private boolean setPasswordWithValidation(String password) {
         PasswordValidator passwordValidator = new PasswordValidator();
         return passwordValidator.isValidSetterCheck(password);
+    }
+
+    private void updateUserProfile(User user, UpdateProfileInfoDto updateProfileInfoDto) {
+        user.setUsername(updateProfileInfoDto.username());
+        user.setName(updateProfileInfoDto.name());
+        user.setSurname(updateProfileInfoDto.surname());
+        user.setEmail(updateProfileInfoDto.email());
+        user.setPhone(updateProfileInfoDto.phone());
+        user.setGender(updateProfileInfoDto.gender());
     }
 }

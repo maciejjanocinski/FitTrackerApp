@@ -1,6 +1,4 @@
 package app.authentication;
 
-import app.user.User;
-
-record LoginResponseDto(User userEntity, String jwt) {
+record LoginResponseDto(String username, String jwt) {
 }

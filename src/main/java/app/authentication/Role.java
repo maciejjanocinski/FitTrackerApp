@@ -1,4 +1,4 @@
-package app.role;
+package app.authentication;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package app.user;
+package app.authentication;
 
 
 import app.util.passwordValidation.ValidPassword;
@@ -8,11 +8,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 
-public record UserDto(
+public record RegisterDto(
         @Size(min = 6, message = "Username must have at least 6 characters.")
         @Size(max = 20, message = "Username cannot have more than 20 characters.")
         @Column(unique = true)
         String username,
+
+        @ValidPassword
+        String password,
 
         @NotEmpty(message = "You have to pass your name.")
         String name,

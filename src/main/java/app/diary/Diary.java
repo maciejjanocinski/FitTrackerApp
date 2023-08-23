@@ -1,16 +1,19 @@
 package app.diary;
 
-import app.productAddedToDiary.ProductAddedToDiary;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Diary {
 
@@ -40,7 +43,7 @@ public class Diary {
 
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("diary")
+    @JsonBackReference
     private List<ProductAddedToDiary> products;
 
     public void calculateNutrientsSum() {
@@ -57,25 +60,5 @@ public class Diary {
         this.leftCarbohydrates = this.goalCarbohydrates - this.sumCarbohydrates;
         this.leftFat = this.goalFat - this.sumFat;
         this.leftFiber = this.goalFiber - this.sumFiber;
-    }
-
-    public Diary() {
-        this.sumKcal = 0;
-        this.sumProtein = 0;
-        this.sumCarbohydrates = 0;
-        this.sumFat = 0;
-        this.sumFiber = 0;
-
-        this.goalKcal = 0;
-        this.goalProtein = 0;
-        this.goalCarbohydrates = 0;
-        this.goalFat = 0;
-        this.goalFiber = 0;
-
-        this.leftKcal = 0;
-        this.leftProtein = 0;
-        this.leftCarbohydrates = 0;
-        this.leftFat = 0;
-        this.leftFiber = 0;
     }
 }

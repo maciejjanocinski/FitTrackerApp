@@ -1,7 +1,6 @@
 package app.authentication;
 
 import app.user.User;
-import app.user.UserDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,19 +9,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin("*")
-
 @AllArgsConstructor
 class AuthenticationController {
 
     AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    private ResponseEntity<User> register(@RequestBody @Valid UserDto user) {
+     ResponseEntity<RegisterDto> register(@RequestBody @Valid RegisterDto user) {
         return authenticationService.register(user);
     }
 
     @PostMapping("/login")
-    private ResponseEntity<Object> login(@RequestBody @Valid LoginDto loginDto) {
+     ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginDto loginDto) {
         return authenticationService.login(loginDto);
     }
 

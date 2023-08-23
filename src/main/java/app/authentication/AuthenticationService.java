@@ -2,8 +2,6 @@ package app.authentication;
 
 import app.diary.Diary;
 import app.user.UserDto;
-import app.role.Role;
-import app.role.RoleRepository;
 import app.user.User;
 import app.user.UserRepository;
 import lombok.AllArgsConstructor;
@@ -30,7 +28,7 @@ class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    ResponseEntity<User> register(UserDto body) {
+    ResponseEntity<RegisterDto> register(RegisterDto body) {
         User user = new User();
 
         user.setName(body.name());
@@ -42,7 +40,8 @@ class AuthenticationService {
         user.setUsername(body.username());
         user.setPassword(passwordEncoder.encode(body.password()));
 
-        Role userStandardRole = roleRepository.findByAuthority("USER_STANDARD").get();
+        Role userStandardRole = roleRepository.findByAuthority("USER_STANDARD")
+                .orElseThrow(() -> new RuntimeException("User standard role not found."));
         Set<Role> authorities = new HashSet<>();
         authorities.add(userStandardRole);
         user.setAuthorities(authorities);
@@ -52,24 +51,20 @@ class AuthenticationService {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(body);
     }
 
 
-    ResponseEntity<Object> login(LoginDto loginDto) {
+    ResponseEntity<LoginResponseDto> login(LoginDto loginDto) {
 
-        try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
             );
             String token = tokenService.generateJwt(auth);
 
-            LoginResponseDto responseDTO = new LoginResponseDto(userRepository.findByUsername(loginDto.username()).get(), token);
+            LoginResponseDto responseDTO = new LoginResponseDto(loginDto.username(), token);
             return ResponseEntity.ok(responseDTO);
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("message", "User with this credentials does not exist."));
-        }
     }
 
 
