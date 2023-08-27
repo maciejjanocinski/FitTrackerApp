@@ -1,8 +1,11 @@
 package app.diary;
 
+import app.diary.dto.AddProductToDiaryDto;
+import app.diary.dto.DiaryDto;
+import app.diary.dto.EditProductInDiaryDto;
+import app.diary.dto.ProductAddedToDiaryDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
@@ -16,27 +19,27 @@ class DiaryController {
     private final DiaryService diaryService;
 
     @GetMapping("/")
-     ResponseEntity<DiaryDto> getDiary(@CurrentSecurityContext(expression = "authentication")
+    DiaryDto getDiary(@CurrentSecurityContext(expression = "authentication")
                                            Authentication authentication) {
         return diaryService.getDiary(authentication);
     }
 
     @PostMapping("/product")
-     ResponseEntity<ProductAddedToDiaryDto> addProductToDiary(@CurrentSecurityContext(expression = "authentication")
+     ProductAddedToDiaryDto addProductToDiary(@CurrentSecurityContext(expression = "authentication")
                                                                   Authentication authentication,
                                                                   @RequestBody AddProductToDiaryDto addProductDto) {
         return diaryService.addProductToDiary(addProductDto, authentication);
     }
 
     @PatchMapping("/product")
-     ResponseEntity<ProductAddedToDiaryDto> editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
+    ProductAddedToDiaryDto editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
                                                                          Authentication authentication,
-                                                                         @RequestBody EditProductInDiaryDto editProductDto) {
+                                                    @RequestBody EditProductInDiaryDto editProductDto) {
         return diaryService.editProductAmountInDiary(editProductDto, authentication);
     }
 
     @DeleteMapping("/product")
-     ResponseEntity<String> deleteProductFromDiary(@CurrentSecurityContext(expression = "authentication")
+     String deleteProductFromDiary(@CurrentSecurityContext(expression = "authentication")
                                                           Authentication authentication,
                                                           @RequestBody Long usersProductsId) {
         return diaryService.deleteProductFromDiary(usersProductsId, authentication);

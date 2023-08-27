@@ -1,18 +1,21 @@
 package app.diary;
 
+import app.diary.dto.AddProductToDiaryDto;
+import app.diary.dto.DiaryDto;
+import app.diary.dto.EditProductInDiaryDto;
+import app.diary.dto.ProductAddedToDiaryDto;
 import app.product.Product;
 import app.product.ProductRepository;
-import app.user.User;
 import app.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 import static app.user.UserService.getUser;
@@ -28,17 +31,16 @@ class DiaryService {
     private final DiaryMapper diaryMapper;
 
     @Transactional
-    public ResponseEntity<DiaryDto> getDiary(Authentication authentication) {
+    public DiaryDto getDiary(Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-DiaryDto diaryDto = diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
-        return ResponseEntity.ok(diaryDto);
+        return diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
     }
 
     @Transactional
-    public ResponseEntity<ProductAddedToDiaryDto> addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
+    public ProductAddedToDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
 
@@ -59,13 +61,11 @@ DiaryDto diaryDto = diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        ProductAddedToDiaryDto productAddedToDiaryDto = productMapper.INSTANCE.mapToProductAddedToDiaryDto(productAddedToDiary);
-
-        return ResponseEntity.ok(productAddedToDiaryDto);
+        return productMapper.INSTANCE.mapToProductAddedToDiaryDto(productAddedToDiary);
     }
 
     @Transactional
-    public ResponseEntity<ProductAddedToDiaryDto> editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
+    public ProductAddedToDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         ProductAddedToDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -86,13 +86,11 @@ DiaryDto diaryDto = diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        ProductAddedToDiaryDto productAddedToDiaryDto = productMapper.INSTANCE.mapToProductAddedToDiaryDto(productInDiary);
-
-        return ResponseEntity.ok(productAddedToDiaryDto);
+        return productMapper.INSTANCE.mapToProductAddedToDiaryDto(productInDiary);
     }
 
     @Transactional
-    public ResponseEntity<String> deleteProductFromDiary(Long id, Authentication authentication) {
+    public String deleteProductFromDiary(Long id, Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         ProductAddedToDiary productAddedToDiary = productsAddedToDiaryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -110,18 +108,18 @@ DiaryDto diaryDto = diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return ResponseEntity.ok("Product deleted from diary successfully");
+        return "Product deleted from diary successfully";
     }
 
     private ProductAddedToDiary generateNewProductAddedToDiary(Diary diary, Product product, String measureLabel, double quantity) {
 
         String productId = product.getProductId();
         String productName = product.getName();
-        double calories = product.getKcal() / 100 * product.getMeasures().get(measureLabel) * quantity;
-        double proteins = product.getProtein() / 100 * product.getMeasures().get(measureLabel) * quantity;
-        double fats = product.getFat() / 100 * product.getMeasures().get(measureLabel) * quantity;
-        double carbs = product.getCarbohydrates() / 100 * product.getMeasures().get(measureLabel) * quantity;
-        double fiber = product.getFiber() / 100 * product.getMeasures().get(measureLabel) * quantity;
+        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
+        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
+        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
+        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(BigDecimal.valueOf(quantity)));
+        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
         String image = product.getImage();
 
         ProductAddedToDiary.ProductAddedToDiaryBuilder productAddedToDiary = ProductAddedToDiary.builder()
@@ -130,8 +128,8 @@ DiaryDto diaryDto = diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
                 .productName(productName)
                 .kcal(calories)
                 .protein(proteins)
-                .fat(fats)
                 .carbohydrates(carbs)
+                .fat(fats)
                 .fiber(fiber)
                 .measureLabel(measureLabel)
                 .quantity(quantity)

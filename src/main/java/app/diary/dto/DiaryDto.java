@@ -1,8 +1,8 @@
-package app.diary;
+package app.diary.dto;
 
 import java.util.List;
 
-record DiaryDto(
+public record DiaryDto(
         double sumKcal,
         double sumProtein,
         double sumCarbohydrates,

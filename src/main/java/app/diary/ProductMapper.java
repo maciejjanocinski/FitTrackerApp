@@ -1,12 +1,13 @@
 package app.diary;
 
+import app.diary.dto.ProductAddedToDiaryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-public interface ProductMapper {
+interface ProductMapper {
 
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
@@ -14,6 +15,7 @@ public interface ProductMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "diary", ignore = true)
     void mapToProductAddedToDiary(ProductAddedToDiary source, @MappingTarget ProductAddedToDiary destination);
+
     ProductAddedToDiaryDto mapToProductAddedToDiaryDto(ProductAddedToDiary productAddedToDiary);
 
 }
