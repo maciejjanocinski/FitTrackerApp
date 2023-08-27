@@ -1,9 +1,11 @@
 package app.goal;
 
-record GoalResponseDto(double kcalGoal,
-                       double proteinGoal,
-                       double carbohydratesGoal,
-                       double fatGoal,
-                       double fiberGoal
+import java.math.BigDecimal;
+
+record GoalResponseDto(BigDecimal kcalGoal,
+                       BigDecimal proteinGoal,
+                       BigDecimal carbohydratesGoal,
+                       BigDecimal fatGoal,
+                       BigDecimal fiberGoal
 ){}
 

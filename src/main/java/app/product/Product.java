@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Data
@@ -18,15 +19,15 @@ public class Product {
 
     private String name;
 
-    private double kcal;
+    private BigDecimal kcal;
 
-    private double protein;
+    private BigDecimal protein;
 
-    private double fat;
+    private BigDecimal fat;
 
-    private double carbohydrates;
+    private BigDecimal carbohydrates;
 
-    private double fiber;
+    private BigDecimal fiber;
 
     private String image;
 
@@ -36,6 +37,6 @@ public class Product {
 
     @ElementCollection
     @JsonIgnore
-    private Map<String, Double> measures;
+    private Map<String, BigDecimal> measures;
 }
 

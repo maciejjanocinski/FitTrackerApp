@@ -1,11 +1,11 @@
-package app.user;
+package app.user.dto;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
-record UpdateProfileInfoDto(
+public record UpdateProfileInfoDto(
         @Size(min = 6, message = "Username must have at least 6 characters.")
         @Size(max = 20, message = "Username cannot have more than 20 characters.")
         @Column(unique = true)

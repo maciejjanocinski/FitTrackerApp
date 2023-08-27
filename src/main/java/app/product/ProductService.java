@@ -6,31 +6,32 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 @AllArgsConstructor
+
 public class ProductService {
 
     private final Dotenv dotenv = Dotenv.load();
     private final ProductRepository productsRepository;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final FoodApiManager foodApiManager = new FoodApiManager();
 
-    public ResponseEntity<List<Product>> searchProducts(String product) {
+    public List<Product> searchProducts(String product) {
         if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product)) {
-            return ResponseEntity.ok(productsRepository.findAllByQuery(product));
+            return productsRepository.findAllByQuery(product);
         }
         productsRepository.deleteNotUsedProducts();
         foodApiManager.setLastQuery(product);
@@ -42,7 +43,7 @@ public class ProductService {
         List<Product> products = parseProductsFromJson(json, product);
 
         productsRepository.saveAll(products);
-        return ResponseEntity.ok(products);
+        return products;
     }
 
     private String getProductsFromFoodApi(String id, String key, String product) {
@@ -77,14 +78,14 @@ public class ProductService {
                 JsonNode image = node.get("food").get("image");
                 JsonNode measuresNodes = node.get("measures");
 
-                Map<String, Double> measures = new HashMap<>();
+                Map<String, BigDecimal> measures = new HashMap<>();
                 for (JsonNode measureNode : measuresNodes
                 ) {
                     JsonNode measureLabel = measureNode.get("label");
                     JsonNode measureWeight = measureNode.get("weight");
                     measures.put(
-                            stringOrEmpty(measureLabel),
-                            doubleOrEmpty(measureWeight));
+                            valueOrEmpty(measureLabel),
+                            valueOrZero(measureWeight));
                 }
 
                 Product product = new Product();
@@ -111,22 +112,22 @@ public class ProductService {
                                                      String query
     ) {
 
-        product.setProductId(stringOrEmpty(foodId));
-        product.setName(stringOrEmpty(label));
-        product.setKcal(doubleOrEmpty(kcal));
-        product.setProtein(doubleOrEmpty(protein));
-        product.setFat(doubleOrEmpty(fat));
-        product.setCarbohydrates(doubleOrEmpty(carbohydrates));
-        product.setFiber(doubleOrEmpty(fiber));
-        product.setImage(stringOrEmpty(image));
+        product.setProductId(valueOrEmpty(foodId));
+        product.setName(valueOrEmpty(label));
+        product.setKcal(valueOrZero(kcal));
+        product.setProtein(valueOrZero(protein));
+        product.setFat(valueOrZero(fat));
+        product.setCarbohydrates(valueOrZero(carbohydrates));
+        product.setFiber(valueOrZero(fiber));
+        product.setImage(valueOrEmpty(image));
         product.setQuery(query);
     }
 
-    private double doubleOrEmpty(JsonNode node) {
-            return node == null ? 0 : node.asDouble();
+    private BigDecimal valueOrZero(JsonNode node) {
+            return node == null ? BigDecimal.ONE : BigDecimal.valueOf(node.asDouble());
     }
 
-    private String stringOrEmpty(JsonNode node) {
+    private String valueOrEmpty(JsonNode node) {
         return node == null ? "" : node.asText();
     }
 }

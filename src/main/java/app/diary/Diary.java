@@ -2,13 +2,12 @@ package app.diary;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -23,23 +22,23 @@ public class Diary {
     @JsonIgnore
     private Long diaryId;
 
-    private double sumKcal;
-    private double sumProtein;
-    private double sumCarbohydrates;
-    private double sumFat;
-    private double sumFiber;
+    private BigDecimal sumKcal = BigDecimal.ZERO;
+    private BigDecimal sumProtein = BigDecimal.ZERO;
+    private BigDecimal sumCarbohydrates = BigDecimal.ZERO;
+    private BigDecimal sumFat = BigDecimal.ZERO;
+    private BigDecimal sumFiber = BigDecimal.ZERO;
 
-    private double goalKcal;
-    private double goalProtein;
-    private double goalFat;
-    private double goalCarbohydrates;
-    private double goalFiber;
+    private BigDecimal goalKcal = BigDecimal.ZERO;
+    private BigDecimal goalProtein = BigDecimal.ZERO;
+    private BigDecimal goalFat = BigDecimal.ZERO;
+    private BigDecimal goalCarbohydrates = BigDecimal.ZERO;
+    private BigDecimal goalFiber = BigDecimal.ZERO;
 
-    private double leftKcal;
-    private double leftProtein;
-    private double leftFat;
-    private double leftCarbohydrates;
-    private double leftFiber;
+    private BigDecimal leftKcal = BigDecimal.ZERO;
+    private BigDecimal leftProtein = BigDecimal.ZERO;
+    private BigDecimal leftFat = BigDecimal.ZERO;
+    private BigDecimal leftCarbohydrates = BigDecimal.ZERO;
+    private BigDecimal leftFiber = BigDecimal.ZERO;
 
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
@@ -47,18 +46,18 @@ public class Diary {
     private List<ProductAddedToDiary> products;
 
     public void calculateNutrientsSum() {
-        this.sumKcal = this.products.stream().mapToDouble(ProductAddedToDiary::getKcal).sum();
-        this.sumProtein = this.products.stream().mapToDouble(ProductAddedToDiary::getProtein).sum();
-        this.sumCarbohydrates = this.products.stream().mapToDouble(ProductAddedToDiary::getCarbohydrates).sum();
-        this.sumFat = this.products.stream().mapToDouble(ProductAddedToDiary::getFat).sum();
-        this.sumFiber = this.products.stream().mapToDouble(ProductAddedToDiary::getFiber).sum();
+        this.sumKcal = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getKcal().doubleValue()).sum());
+        this.sumProtein = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getProtein().doubleValue()).sum());
+        this.sumCarbohydrates = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getCarbohydrates().doubleValue()).sum());
+        this.sumFat = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getFat().doubleValue()).sum());
+        this.sumFiber = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getFiber().doubleValue()).sum());
     }
 
     public void calculateNutrientsLeft() {
-        this.leftKcal = this.goalKcal - this.sumKcal;
-        this.leftProtein = this.goalProtein - this.sumProtein;
-        this.leftCarbohydrates = this.goalCarbohydrates - this.sumCarbohydrates;
-        this.leftFat = this.goalFat - this.sumFat;
-        this.leftFiber = this.goalFiber - this.sumFiber;
+        this.leftKcal = this.goalKcal.subtract(this.sumKcal);
+        this.leftProtein = this.goalProtein.subtract(this.sumProtein);
+        this.leftCarbohydrates = this.goalCarbohydrates.subtract(this.sumCarbohydrates);
+        this.leftFat = this.goalFat.subtract(this.sumFat);
+        this.leftFiber = this.goalFiber.subtract(this.sumFiber);
     }
 }

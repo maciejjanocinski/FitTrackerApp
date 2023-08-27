@@ -1,11 +1,10 @@
 package app.goal;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.math.BigDecimal;
 
-
-record GoalDto(double kcal,
-               double proteinPercentage,
-               double carbohydratesPercentage,
-               double fatPercentage) {
+record GoalDto(
+        BigDecimal kcal,
+        int proteinPercentage,
+        int carbohydratesPercentage,
+        int fatPercentage) {
 }

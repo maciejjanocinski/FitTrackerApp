@@ -1,7 +1,6 @@
-package app.user;
+package app.user.dto;
 
 
-import app.util.passwordValidation.ValidPassword;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

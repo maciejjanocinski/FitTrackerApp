@@ -19,6 +19,8 @@ public class Role implements GrantedAuthority {
 
     private String authority;
 
+    private enum name {}
+
 
     @Override
     public String getAuthority() {

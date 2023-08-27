@@ -1,4 +1,4 @@
-package app.user;
+package app.user.dto;
 
 import app.util.passwordValidation.ValidPassword;
 

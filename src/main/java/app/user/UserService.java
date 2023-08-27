@@ -1,15 +1,19 @@
 package app.user;
 
+import app.exceptions.InvalidInputException;
+import app.user.dto.DeleteUserDto;
+import app.user.dto.UpdatePasswordDto;
+import app.user.dto.UpdateProfileInfoDto;
+import app.user.dto.UserDto;
 import app.util.passwordValidation.PasswordValidator;
 import jakarta.transaction.Transactional;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
@@ -24,21 +28,21 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    ResponseEntity<UserDto> getUser(Authentication authentication) {
+    UserDto getUser(Authentication authentication) {
         User user = getUser(userRepository, authentication);
         UserDto userDto = userMapper.INSTANCE.mapUserToUserDto(user);
-        return ResponseEntity.ok(userDto);
+        return userDto;
     }
 
     @Transactional
-    public ResponseEntity<String> updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
+    public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
         User user = getUser(userRepository, authentication);
         updateUserProfile(user, updateProfileInfoDto);
-        return ResponseEntity.ok("Changes has been successfully approved");
+        return "Changes has been successfully approved";
     }
 
     @Transactional
-    public ResponseEntity<String> updatePassword(Authentication authentication, UpdatePasswordDto password) {
+    public String updatePassword(Authentication authentication, UpdatePasswordDto password) {
         User user = getUser(userRepository, authentication);
 
         if (password.oldPassword().equals(password.confirmOldPassword()) &&
@@ -46,25 +50,25 @@ public class UserService implements UserDetailsService {
 
             if (setPasswordWithValidation(password.newPassword())) {
                 user.setPassword(passwordEncoder.encode(password.newPassword()));
-                return ResponseEntity.ok("Password has been successfully changed");
+                return "Password has been successfully changed";
             }
         } else if (!password.oldPassword().equals(password.confirmOldPassword())) {
-            return ResponseEntity.badRequest().body("Passwords are not the same.");
+            throw new InvalidInputException("Passwords are not the same.");
         }
 
-        return ResponseEntity.badRequest().body("You have passed wrong password.");
+      throw new InvalidInputException("You have passed wrong password.");
     }
 
-    ResponseEntity<String> deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
+    String deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
         User user = getUser(userRepository, authentication);
 
         if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword()) &&
                 deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
             userRepository.delete(user);
-            return ResponseEntity.ok("Profile with username \"" + user.getUsername() + "\" has been deleted.");
+            return "Profile with username \"" + user.getUsername() + "\" has been deleted.";
         }
 
-        return ResponseEntity.badRequest().body("You have passed wrong password");
+        throw new InvalidInputException("You have passed wrong password.");
     }
 
     public static User getUser(UserRepository userRepository, Authentication authentication) {
