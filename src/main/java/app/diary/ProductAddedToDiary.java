@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
- class ProductAddedToDiary {
+public
+class ProductAddedToDiary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

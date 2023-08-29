@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
@@ -18,14 +20,16 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 @Table
 public class User implements UserDetails {
 
     @Id
     @UuidGenerator
     @JsonIgnore
-    private String userId;
+    private Long userId;
 
     @Column(unique = true)
     @Size(min = 6, message = "Username must have at least 6 characters.")
