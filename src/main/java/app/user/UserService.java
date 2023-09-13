@@ -1,6 +1,6 @@
 package app.user;
 
-import app.exceptions.InvalidInputException;
+import app.exceptions.InvalidPasswordException;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
@@ -30,8 +30,7 @@ public class UserService implements UserDetailsService {
 
     UserDto getUser(Authentication authentication) {
         User user = getUser(userRepository, authentication);
-        UserDto userDto = userMapper.INSTANCE.mapUserToUserDto(user);
-        return userDto;
+        return userMapper.INSTANCE.mapUserToUserDto(user);
     }
 
     @Transactional
@@ -53,10 +52,10 @@ public class UserService implements UserDetailsService {
                 return "Password has been successfully changed";
             }
         } else if (!password.oldPassword().equals(password.confirmOldPassword())) {
-            throw new InvalidInputException("Passwords are not the same.");
+            throw new InvalidPasswordException("Passwords are not the same.");
         }
 
-      throw new InvalidInputException("You have passed wrong password.");
+      throw new InvalidPasswordException("You have passed wrong password.");
     }
 
     String deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
@@ -68,7 +67,7 @@ public class UserService implements UserDetailsService {
             return "Profile with username \"" + user.getUsername() + "\" has been deleted.";
         }
 
-        throw new InvalidInputException("You have passed wrong password.");
+        throw new InvalidPasswordException("You have passed wrong password.");
     }
 
     public static User getUser(UserRepository userRepository, Authentication authentication) {

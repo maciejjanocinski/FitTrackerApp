@@ -1,19 +1,18 @@
 package app.product;
 
+import app.exceptions.ProductsApiException;
 import app.util.FoodApiManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,20 +20,20 @@ import java.util.Map;
 
 @Service
 @AllArgsConstructor
-
 public class ProductService {
 
     private final Dotenv dotenv = Dotenv.load();
     private final ProductRepository productsRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final FoodApiManager foodApiManager = new FoodApiManager();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public List<Product> searchProducts(String product) {
-        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product)) {
+        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product.toLowerCase())) {
             return productsRepository.findAllByQuery(product);
         }
         productsRepository.deleteNotUsedProducts();
-        foodApiManager.setLastQuery(product);
+        foodApiManager.setLastQuery(product.toLowerCase());
 
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
@@ -46,19 +45,26 @@ public class ProductService {
         return products;
     }
 
+
     private String getProductsFromFoodApi(String id, String key, String product) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.edamam.com/api/food-database/v2/parser?app_id=" + id + "&app_key=" + key + "&ingr=" + product + "&nutrition-type=cooking"))
-                    .GET()
-                    .build();
-            HttpResponse<String> res = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            return res.body();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+        String apiUrl = "https://api.edamam.com/api/food-database/v2/parser";
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                .queryParam("app_id", id)
+                .queryParam("app_key", key)
+                .queryParam("ingr", product)
+                .queryParam("nutrition-type", "cooking");
+
+        ResponseEntity<String> response = restTemplate.getForEntity(builder.toUriString(), String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+           return response.getBody();
+        } else {
+            throw new ProductsApiException("Product not found");
         }
 
     }
+
+
 
     private List<Product> parseProductsFromJson(String json, String query) {
         try {

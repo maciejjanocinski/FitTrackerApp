@@ -5,9 +5,9 @@ import lombok.Builder;
 import java.math.BigDecimal;
 @Builder
 record GoalResponseDto(BigDecimal kcalGoal,
-                       BigDecimal proteinGoal,
-                       BigDecimal carbohydratesGoal,
-                       BigDecimal fatGoal,
-                       BigDecimal fiberGoal
+                       BigDecimal proteinInGram,
+                       BigDecimal carbohydratesInGram,
+                       BigDecimal fatInGram,
+                       BigDecimal fiberInGram
 ){}
 

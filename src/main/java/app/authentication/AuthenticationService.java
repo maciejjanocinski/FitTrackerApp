@@ -26,14 +26,14 @@ class AuthenticationService {
     RegisterDto register(RegisterDto registerDto) {
         User user = new User();
 
-        user.setName(registerDto.name());
-        user.setSurname(registerDto.surname());
-        user.setGender(registerDto.gender());
-        user.setEmail(registerDto.email());
-        user.setPhone(registerDto.phone());
+        user.setName(registerDto.name().trim());
+        user.setSurname(registerDto.surname().trim());
+        user.setGender(registerDto.gender().trim());
+        user.setEmail(registerDto.email().trim());
+        user.setPhone(registerDto.phone().trim());
 
-        user.setUsername(registerDto.username());
-        user.setPassword(passwordEncoder.encode(registerDto.password()));
+        user.setUsername(registerDto.username().trim());
+        user.setPassword(passwordEncoder.encode(registerDto.password().trim()));
 
         Role userStandardRole = roleRepository.findByAuthority(roles.USER_STANDARD.toString())
                 .orElseThrow(() -> new RuntimeException("User standard role not found."));
