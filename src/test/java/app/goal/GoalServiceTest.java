@@ -4,6 +4,7 @@ import app.diary.Diary;
 import app.exceptions.InvalidInputException;
 import app.user.User;
 import app.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,18 +21,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@RequiredArgsConstructor
 class GoalServiceTest {
 
     @InjectMocks
-    private GoalService goalService;
+    private  GoalService goalService;
     @Mock
-    private UserRepository userRepository;
+    private  UserRepository userRepository;
     @Mock
-    private final GoalMapper goalMapper = GoalMapper.INSTANCE;
+    private GoalMapper goalMapper;
     @Mock
-    Authentication authentication;
+    private  Authentication authentication;
     @Mock
-    Diary diary;
+    private  Diary diary;
 
     @Test
     void getGoal_inputDataOk() {
@@ -229,7 +231,7 @@ class GoalServiceTest {
         assertEquals(expectedMessage, ex3.getMessage());
     }
 
-    GoalDto buildGoalDto() {
+    private GoalDto buildGoalDto() {
         return GoalDto.builder()
                 .kcal(BigDecimal.valueOf(1000))
                 .proteinPercentage(30)
@@ -238,7 +240,7 @@ class GoalServiceTest {
                 .build();
     }
 
-    GoalValuesObj buildGoalValuesObjForMale() {
+    private GoalValuesObj buildGoalValuesObjForMale() {
         return GoalValuesObj.builder()
                 .kcal(BigDecimal.valueOf(1000))
                 .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
@@ -248,7 +250,7 @@ class GoalServiceTest {
                 .build();
     }
 
-    GoalValuesObj buildGoalValuesObjForFemale() {
+    private GoalValuesObj buildGoalValuesObjForFemale() {
         return GoalValuesObj.builder()
                 .kcal(BigDecimal.valueOf(1000))
                 .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))

@@ -6,6 +6,7 @@ import app.diary.dto.EditProductInDiaryDto;
 import app.diary.dto.ProductAddedToDiaryDto;
 import app.product.Product;
 import app.product.ProductRepository;
+import app.user.User;
 import app.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Optional;
 
@@ -32,17 +32,25 @@ class DiaryService {
 
     @Transactional
     public DiaryDto getDiary(Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
+        return diaryMapper.mapDiaryToDiaryDto(diary);
     }
 
     @Transactional
     public ProductAddedToDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
-        Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
+        Optional<Product> product = productsRepository
+                .findProductEntityByProductIdAndName(
+                        addProductDto.foodId(),
+                        addProductDto.name()
+                );
 
         if (product.isEmpty()) {
             throw new UsernameNotFoundException("Product not found");
@@ -61,7 +69,7 @@ class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return productMapper.INSTANCE.mapToProductAddedToDiaryDto(productAddedToDiary);
+        return productMapper.mapToProductAddedToDiaryDto(productAddedToDiary);
     }
 
     @Transactional
@@ -81,12 +89,12 @@ class DiaryService {
                 editProductDto.quantity()
         );
 
-       productMapper.INSTANCE.mapToProductAddedToDiary(productWithNewValues , productInDiary);
+        productMapper.mapToProductAddedToDiary(productWithNewValues, productInDiary);
 
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return productMapper.INSTANCE.mapToProductAddedToDiaryDto(productInDiary);
+        return productMapper.mapToProductAddedToDiaryDto(productInDiary);
     }
 
     @Transactional
@@ -111,15 +119,15 @@ class DiaryService {
         return "Product deleted from diary successfully";
     }
 
-    private ProductAddedToDiary generateNewProductAddedToDiary(Diary diary, Product product, String measureLabel, double quantity) {
+    ProductAddedToDiary generateNewProductAddedToDiary(Diary diary, Product product, String measureLabel, BigDecimal quantity) {
 
         String productId = product.getProductId();
         String productName = product.getName();
-        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
-        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
-        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
-        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(BigDecimal.valueOf(quantity)));
-        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
+        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(quantity));
+        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
         String image = product.getImage();
 
         ProductAddedToDiary.ProductAddedToDiaryBuilder productAddedToDiary = ProductAddedToDiary.builder()

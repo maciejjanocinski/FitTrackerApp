@@ -1,7 +1,13 @@
 package app.diary.dto;
 
-public record AddProductToDiaryDto(String foodId,
-                                   String name,
-                                   String measureLabel,
-                                   Double quantity) {
+import lombok.Builder;
+
+import java.math.BigDecimal;
+
+@Builder
+public record AddProductToDiaryDto(
+        String foodId,
+        String name,
+        String measureLabel,
+        BigDecimal quantity) {
 }

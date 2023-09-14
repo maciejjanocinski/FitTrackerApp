@@ -2,13 +2,17 @@ package app.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,5 +42,34 @@ public class Product {
     @ElementCollection
     @JsonIgnore
     private Map<String, BigDecimal> measures;
+
+
+    public Product(
+            Long id,
+            String foodA3049hmbqj5wstaeeb3udaz6uaqv,
+            String name,
+            BigDecimal bigDecimal,
+            BigDecimal bigDecimal1,
+            BigDecimal bigDecimal2,
+            BigDecimal bigDecimal3,
+            BigDecimal bigDecimal4,
+            String image,
+            String query,
+            boolean b,
+            Map<String, BigDecimal> measures
+    ) {
+                this.id = id;
+                this.productId = foodA3049hmbqj5wstaeeb3udaz6uaqv;
+                this.name = name;
+                this.kcal = bigDecimal;
+                this.protein = bigDecimal1;
+                this.fat = bigDecimal2;
+                this.carbohydrates = bigDecimal3;
+                this.fiber = bigDecimal4;
+                this.image = image;
+                this.query = query;
+                this.isUsed = b;
+                this.measures = measures;
+    }
 }
 
