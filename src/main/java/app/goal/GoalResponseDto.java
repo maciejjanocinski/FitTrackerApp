@@ -9,5 +9,6 @@ record GoalResponseDto(BigDecimal kcalGoal,
                        BigDecimal carbohydratesInGram,
                        BigDecimal fatInGram,
                        BigDecimal fiberInGram
-){}
+){
+}
 

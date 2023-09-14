@@ -1,7 +1,6 @@
 package app.goal;
 
 import app.diary.Diary;
-import app.diary.ProductAddedToDiary;
 import app.exceptions.InvalidInputException;
 import app.user.User;
 import app.user.UserRepository;
@@ -15,7 +14,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,272 +21,250 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GoalServiceTest {
+
     @InjectMocks
     private GoalService goalService;
     @Mock
     private UserRepository userRepository;
-
-
+    @Mock
+    private final GoalMapper goalMapper = GoalMapper.INSTANCE;
+    @Mock
+    Authentication authentication;
+    @Mock
+    Diary diary;
 
     @Test
-    void inputDataOk_getGoal() {
+    void getGoal_inputDataOk() {
         //given
-        Authentication authentication = mock(Authentication.class);
-        User user = User.builder().username("username").build();
-        Diary diary = buildDiary();
-        user.setDiary(diary);
+        String username = "username";
+        GoalResponseDto expectedResponse = buildGoalResponseDto();
+        User user = User.builder()
+                .username(username)
+                .diary(diary)
+                .build();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(goalMapper.mapToGoalResponseDto(diary)).thenReturn(expectedResponse);
 
         //when
-        when(authentication.getName()).thenReturn(user.getUsername());
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-
-        //then
         GoalResponseDto goalResponseDto = goalService.getGoal(authentication);
-        verify(userRepository).findByUsername(user.getUsername());
+
+        //then
         verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(diary).calculateNutrientsLeft();
+        verify(diary).calculateNutrientsSum();
+        verify(goalMapper).mapToGoalResponseDto(diary);
 
-        assertNotNull(goalResponseDto);
-        assertEquals(BigDecimal.valueOf(2000), goalResponseDto.kcalGoal());
-        assertEquals(BigDecimal.valueOf(150), goalResponseDto.proteinInGram());
-        assertEquals(BigDecimal.valueOf(200), goalResponseDto.carbohydratesInGram());
-        assertEquals(BigDecimal.valueOf(100), goalResponseDto.fatInGram());
-        assertEquals(BigDecimal.valueOf(10), goalResponseDto.fiberInGram());
+        assertEquals(expectedResponse, goalResponseDto);
     }
 
     @Test
-    void userNotExists_getGoal() {
+    void getGoal_throwsException() {
         //given
-        User user = User.builder().username("username").build();
-        Authentication authentication = mock(Authentication.class);
+        String username = "username";
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
         //when
-        when(authentication.getName()).thenReturn(user.getUsername());
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
+        Exception ex = assertThrows(UsernameNotFoundException.class,
+                () -> goalService.getGoal(authentication));
 
         //then
-        Optional<User> optionalUser = userRepository.findByUsername(user.getUsername());
-        verify(userRepository).findByUsername(user.getUsername());
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+        verify(goalMapper, never()).mapToGoalResponseDto(diary);
 
-        assertTrue(optionalUser.isEmpty());
-        assertThrows(UsernameNotFoundException.class, () -> goalService.getGoal(authentication));
+        assertEquals("User not found", ex.getMessage());
     }
 
     @Test
-    void inputDataOk_setGoal() {
+    void setGoal_inputDataOk() {
         //given
-        Diary diary = buildDiary();
+        String username = "username";
+        GoalResponseDto expectedResponse = buildGoalResponseDto();
         GoalDto goalDto = buildGoalDto();
-        User user = User.builder().username("username").gender("M").diary(diary).build();
-        Authentication authentication = mock(Authentication.class);
+        User user = User.builder()
+                .username(username)
+                .gender("F")
+                .diary(diary)
+                .build();
 
-        BigDecimal expectedKcalGoal = goalDto.kcal();
-
-        BigDecimal expectedProteinGoal = expectedKcalGoal
-                .multiply(BigDecimal.valueOf(goalDto.proteinPercentage()))
-                .divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
-
-        BigDecimal expectedCarbohydratesGoal = expectedKcalGoal
-                .multiply(BigDecimal.valueOf(goalDto.carbohydratesPercentage()))
-                .divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
-
-        BigDecimal expectedFatGoal = expectedKcalGoal
-                .multiply(BigDecimal.valueOf(goalDto.fatPercentage()))
-                .divide(BigDecimal.valueOf(900), 2, RoundingMode.HALF_UP);
-
-        BigDecimal expectedFiberGoal = BigDecimal.valueOf(38);
-
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(goalMapper.mapToGoalResponseDto(diary)).thenReturn(expectedResponse);
 
         //when
-        when(authentication.getName()).thenReturn(user.getUsername());
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-
-        //then
         GoalResponseDto goalResponseDto = goalService.setGoal(authentication, goalDto);
 
-        verify(userRepository).findByUsername(user.getUsername());
+        //then
         verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(diary).calculateNutrientsLeft();
+        verify(diary).calculateNutrientsSum();
+        verify(goalMapper).mapToGoalResponseDto(diary);
 
-        assertEquals(expectedKcalGoal, goalResponseDto.kcalGoal());
-        assertEquals(expectedProteinGoal, goalResponseDto.proteinInGram());
-        assertEquals(expectedCarbohydratesGoal, goalResponseDto.carbohydratesInGram());
-        assertEquals(expectedFatGoal, goalResponseDto.fatInGram());
-        assertEquals(expectedFiberGoal, goalResponseDto.fiberInGram());
+        assertEquals(expectedResponse, goalResponseDto);
     }
 
-
     @Test
-    void testCalculateNutrientsLeft() {
+    void setGoal_throwsException() {
         //given
-        Diary diary = buildDiary();
-        BigDecimal expectedLeftKcal = diary.getGoalKcal().subtract(diary.getSumKcal());
-        BigDecimal expectedLeftProtein = diary.getGoalProtein().subtract(diary.getSumProtein());
-        BigDecimal expectedLeftCarbohydrates = diary.getGoalCarbohydrates().subtract(diary.getSumCarbohydrates());
-        BigDecimal expectedLeftFat = diary.getGoalFat().subtract(diary.getSumFat());
-        BigDecimal expectedLeftFiber = diary.getGoalFiber().subtract(diary.getSumFiber());
+        String username = "username";
+        GoalDto goalDto = buildGoalDto();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         //when
-        diary.calculateNutrientsLeft();
+        Exception ex = assertThrows(UsernameNotFoundException.class,
+                () -> goalService.setGoal(authentication, goalDto));
 
         //then
-        assertEquals(expectedLeftKcal, diary.getLeftKcal());
-        assertEquals(expectedLeftProtein, diary.getLeftProtein());
-        assertEquals(expectedLeftCarbohydrates, diary.getLeftCarbohydrates());
-        assertEquals(expectedLeftFat, diary.getLeftFat());
-        assertEquals(expectedLeftFiber, diary.getLeftFiber());
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+        verify(goalMapper, never()).mapToGoalResponseDto(diary);
 
+        assertEquals("User not found", ex.getMessage());
     }
 
     @Test
-    void testCalculateNutrientsSum() {
-        //given
-        Diary diary = buildDiary();
-        addProductsToDiary(diary);
-        BigDecimal expectedSumKcal = BigDecimal.valueOf(500.0);
-        BigDecimal expectedSumProtein = BigDecimal.valueOf(50.0);
-        BigDecimal expectedSumCarbohydrates = BigDecimal.valueOf(50.0);
-        BigDecimal expectedSumFat = BigDecimal.valueOf(50.0);
-        BigDecimal expectedSumFiber = BigDecimal.valueOf(50.0);
-
-        //when
-        diary.calculateNutrientsSum();
-
-        //then
-        assertEquals(expectedSumKcal, diary.getSumKcal());
-        assertEquals(expectedSumProtein, diary.getSumProtein());
-        assertEquals(expectedSumCarbohydrates, diary.getSumCarbohydrates());
-        assertEquals(expectedSumFat, diary.getSumFat());
-        assertEquals(expectedSumFiber, diary.getSumFiber());
-
-    }
-
-
-    @Test
-    void testCountAndSetGoal() {
+    void countGoal_male() {
         //given
         GoalDto goalDto = buildGoalDto();
-        Diary diary = buildDiary();
+        GoalValuesObj expectedGoalValuesObj = buildGoalValuesObjForMale();
 
-        BigDecimal expectedKcalGoal = goalDto.kcal();
-
-        BigDecimal expectedProteinGoal = expectedKcalGoal
-                .multiply(BigDecimal.valueOf(goalDto.proteinPercentage()))
-                .divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
-
-        BigDecimal expectedCarbohydratesGoal = expectedKcalGoal
-                .multiply(BigDecimal.valueOf(goalDto.carbohydratesPercentage()))
-                .divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
-
-        BigDecimal expectedFatGoal = expectedKcalGoal
-                .multiply(BigDecimal.valueOf(goalDto.fatPercentage()))
-                .divide(BigDecimal.valueOf(900), 2, RoundingMode.HALF_UP);
-
-        BigDecimal expectedFiberGoal = BigDecimal.valueOf(25);
+        //when
+        GoalValuesObj goalValuesObj = goalService.countGoal(goalDto, "M");
 
         //then
-        goalService.countAndSetGoal(goalDto, diary, "F");
-
-        assertEquals(expectedKcalGoal, diary.getGoalKcal());
-        assertEquals(expectedProteinGoal, diary.getGoalProtein());
-        assertEquals(expectedCarbohydratesGoal, diary.getGoalCarbohydrates());
-        assertEquals(expectedFatGoal, diary.getGoalFat());
-        assertEquals(expectedFiberGoal, diary.getGoalFiber());
-
-        goalService.countAndSetGoal(goalDto, diary, "M");
-        assertEquals(expectedKcalGoal, diary.getGoalKcal());
-        assertEquals(expectedProteinGoal, diary.getGoalProtein());
-        assertEquals(expectedCarbohydratesGoal, diary.getGoalCarbohydrates());
-        assertEquals(expectedFatGoal, diary.getGoalFat());
-        assertEquals(BigDecimal.valueOf(38), diary.getGoalFiber());
+        assertEquals(expectedGoalValuesObj, goalValuesObj);
     }
 
     @Test
-    void testValidateGoalDto_throwsException() {
-        assertThrows(InvalidInputException.class, () -> goalService.validateGoalDto(GoalDto.builder()
-                .kcal(BigDecimal.valueOf(0))
-                .proteinPercentage(30)
-                .carbohydratesPercentage(40)
-                .fatPercentage(30)
-                .build()));
+    void countGoal_female() {
+        //given
+        GoalDto goalDto = buildGoalDto();
+        GoalValuesObj expectedGoalValuesObj = buildGoalValuesObjForFemale();
 
-        assertThrows(InvalidInputException.class, () -> goalService.validateGoalDto(GoalDto.builder()
-                .kcal(BigDecimal.valueOf(1000))
-                .proteinPercentage(35)
-                .carbohydratesPercentage(40)
-                .fatPercentage(30)
-                .build()));
+        //when
+        GoalValuesObj goalValuesObj = goalService.countGoal(goalDto, "F");
+
+        //then
+        assertEquals(expectedGoalValuesObj, goalValuesObj);
     }
 
     @Test
-    void testValidateGoalDto_DoesntThrowException() {
+    void setGoalValuesToDiary() {
+        //given
+        GoalValuesObj goalValuesObj = buildGoalValuesObjForMale();
+
+        //when
+        goalService.setGoalValuesToDiary(goalValuesObj, diary);
+
+        //then
+        verify(diary).setGoalKcal(goalValuesObj.kcal());
+        verify(diary).setGoalProtein(goalValuesObj.protein());
+        verify(diary).setGoalCarbohydrates(goalValuesObj.carbohydrates());
+        verify(diary).setGoalFat(goalValuesObj.fat());
+        verify(diary).setGoalFiber(goalValuesObj.fiber());
+    }
+
+    @Test
+    void validateGoalDto_inputDataOk() {
+        //given
+        GoalDto goalDto = buildGoalDto();
+
+        //when
+        goalService.validateGoalDto(goalDto);
+
+        //then
         assertDoesNotThrow(() -> goalService.validateGoalDto(buildGoalDto()));
+        assertTrue(goalDto.kcal().compareTo(BigDecimal.ZERO) >= 0);
+        assertEquals(
+                100,
+                goalDto.proteinPercentage() + goalDto.carbohydratesPercentage() + goalDto.fatPercentage()
+        );
     }
 
-    Diary buildDiary() {
-        return Diary
-                .builder()
-                .sumKcal(BigDecimal.valueOf(2000))
-                .sumProtein(BigDecimal.valueOf(200))
-                .sumCarbohydrates(BigDecimal.valueOf(200))
-                .sumFat(BigDecimal.valueOf(200))
-                .sumFiber(BigDecimal.valueOf(200))
-                .goalKcal(BigDecimal.valueOf(2000))
-                .goalProtein(BigDecimal.valueOf(150))
-                .goalCarbohydrates(BigDecimal.valueOf(200))
-                .goalFat(BigDecimal.valueOf(100))
-                .goalFiber(BigDecimal.valueOf(10))
-                .leftKcal(BigDecimal.valueOf(0))
-                .leftProtein(BigDecimal.valueOf(0))
-                .leftCarbohydrates(BigDecimal.valueOf(0))
-                .leftFat(BigDecimal.valueOf(0))
-                .leftFiber(BigDecimal.valueOf(0))
-                .products(new ArrayList<>())
-                .build();
+    @Test
+    void validateGoalDto_throwsException() {
+        String expectedMessage = "Kcal must be greater than 0 and sum of percentages must be equal to 100";
+
+        //kcal = 0
+        Exception ex1 = assertThrows(InvalidInputException.class,
+                () -> goalService.validateGoalDto(GoalDto.builder()
+                        .kcal(BigDecimal.valueOf(0))
+                        .proteinPercentage(30)
+                        .carbohydratesPercentage(40)
+                        .fatPercentage(30)
+                        .build()));
+
+        //sum of percentages != 100
+        Exception ex2 = assertThrows(InvalidInputException.class,
+                () -> goalService.validateGoalDto(GoalDto.builder()
+                        .kcal(BigDecimal.valueOf(1000))
+                        .proteinPercentage(35)
+                        .carbohydratesPercentage(40)
+                        .fatPercentage(30)
+                        .build()));
+
+        //both
+        Exception ex3 = assertThrows(InvalidInputException.class,
+                () -> goalService.validateGoalDto(GoalDto.builder()
+                        .kcal(BigDecimal.valueOf(0))
+                        .proteinPercentage(35)
+                        .carbohydratesPercentage(40)
+                        .fatPercentage(30)
+                        .build()));
+
+        assertEquals(expectedMessage, ex1.getMessage());
+        assertEquals(expectedMessage, ex2.getMessage());
+        assertEquals(expectedMessage, ex3.getMessage());
     }
 
     GoalDto buildGoalDto() {
         return GoalDto.builder()
                 .kcal(BigDecimal.valueOf(1000))
                 .proteinPercentage(30)
-                .carbohydratesPercentage(40)
-                .fatPercentage(30)
+                .carbohydratesPercentage(25)
+                .fatPercentage(45)
                 .build();
     }
 
-    void addProductsToDiary(Diary diary) {
+    GoalValuesObj buildGoalValuesObjForMale() {
+        return GoalValuesObj.builder()
+                .kcal(BigDecimal.valueOf(1000))
+                .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
+                .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
+                .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
+                .fiber(BigDecimal.valueOf(38))
+                .build();
+    }
 
-        diary.getProducts().add(ProductAddedToDiary.builder()
-                .kcal(BigDecimal.valueOf(100))
-                .protein(BigDecimal.valueOf(10))
-                .carbohydrates(BigDecimal.valueOf(10))
-                .fat(BigDecimal.valueOf(10))
-                .fiber(BigDecimal.valueOf(10))
-                .build());
-        diary.getProducts().add(ProductAddedToDiary.builder()
-                .kcal(BigDecimal.valueOf(100))
-                .protein(BigDecimal.valueOf(10))
-                .carbohydrates(BigDecimal.valueOf(10))
-                .fat(BigDecimal.valueOf(10))
-                .fiber(BigDecimal.valueOf(10))
-                .build());
-        diary.getProducts().add(ProductAddedToDiary.builder()
-                .kcal(BigDecimal.valueOf(100))
-                .protein(BigDecimal.valueOf(10))
-                .carbohydrates(BigDecimal.valueOf(10))
-                .fat(BigDecimal.valueOf(10))
-                .fiber(BigDecimal.valueOf(10))
-                .build());
-        diary.getProducts().add(ProductAddedToDiary.builder()
-                .kcal(BigDecimal.valueOf(100))
-                .protein(BigDecimal.valueOf(10))
-                .carbohydrates(BigDecimal.valueOf(10))
-                .fat(BigDecimal.valueOf(10))
-                .fiber(BigDecimal.valueOf(10))
-                .build());
-        diary.getProducts().add(ProductAddedToDiary.builder()
-                .kcal(BigDecimal.valueOf(100))
-                .protein(BigDecimal.valueOf(10))
-                .carbohydrates(BigDecimal.valueOf(10))
-                .fat(BigDecimal.valueOf(10))
-                .fiber(BigDecimal.valueOf(10))
-                .build());
+    GoalValuesObj buildGoalValuesObjForFemale() {
+        return GoalValuesObj.builder()
+                .kcal(BigDecimal.valueOf(1000))
+                .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
+                .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
+                .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
+                .fiber(BigDecimal.valueOf(25))
+                .build();
+    }
+
+    private GoalResponseDto buildGoalResponseDto() {
+        return GoalResponseDto.builder()
+                .kcalGoal(BigDecimal.valueOf(1000))
+                .proteinInGram(BigDecimal.valueOf(75))
+                .carbohydratesInGram(BigDecimal.valueOf(63))
+                .fatInGram(BigDecimal.valueOf(50))
+                .fiberInGram(BigDecimal.valueOf(25))
+                .build();
     }
 }
