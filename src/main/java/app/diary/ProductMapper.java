@@ -14,8 +14,8 @@ interface ProductMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "diary", ignore = true)
-    void mapToProductAddedToDiary(ProductAddedToDiary source, @MappingTarget ProductAddedToDiary destination);
+    void mapToProductAddedToDiary(ProductInDiary source, @MappingTarget ProductInDiary destination);
 
-    ProductAddedToDiaryDto mapToProductAddedToDiaryDto(ProductAddedToDiary productAddedToDiary);
+    ProductAddedToDiaryDto mapToProductAddedToDiaryDto(ProductInDiary productInDiary);
 
 }

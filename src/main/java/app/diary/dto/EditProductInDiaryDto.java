@@ -1,7 +1,9 @@
 package app.diary.dto;
 
 
+import java.math.BigDecimal;
+
 public record EditProductInDiaryDto(long id,
                                     String measureLabel,
-                                    double quantity) {
+                                    BigDecimal quantity) {
 }

@@ -1,5 +1,6 @@
 package app.diary;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public
-class ProductAddedToDiary {
+class ProductInDiary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,10 +30,11 @@ class ProductAddedToDiary {
     private BigDecimal fiber;
     private String image;
     private String measureLabel;
-    private double quantity;
+    private BigDecimal quantity;
 
     @ManyToOne
     @JoinColumn(name = "diary_id")
     @JsonManagedReference
+    @JsonIgnore
     private Diary diary;
 }

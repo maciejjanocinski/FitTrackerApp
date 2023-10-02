@@ -1,24 +1,22 @@
 package app.diary;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class DiaryTest {
-    Diary diary = new Diary();
-
-    @BeforeEach
-    void setUp() {
-        this.diary = new Diary();
-    }
+    Diary diary = Diary.builder()
+            .products(new ArrayList<>())
+            .build();
 
     @Test
     void calculateNutrientsSum() {
@@ -63,7 +61,7 @@ class DiaryTest {
     }
 
     private void addProductsToDiary() {
-        ProductAddedToDiary product = ProductAddedToDiary.builder()
+        ProductInDiary product = ProductInDiary.builder()
                 .kcal(BigDecimal.valueOf(100))
                 .protein(BigDecimal.valueOf(10))
                 .carbohydrates(BigDecimal.valueOf(20))
@@ -71,6 +69,8 @@ class DiaryTest {
                 .fiber(BigDecimal.valueOf(40))
                 .build();
 
-        diary.getProducts().addAll(List.of(product, product, product, product, product));
+        for (int i = 0; i < 5; i++){
+        diary.addProduct(product);
+        }
     }
 }

@@ -38,7 +38,7 @@ public class ProductService {
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
-        String json = getProductsFromFoodApi(id, key, product);
+        FoodResponse json = getProductsFromFoodApi(id, key, product);
         List<Product> products = parseProductsFromJson(json, product);
 
         productsRepository.saveAll(products);
@@ -46,7 +46,7 @@ public class ProductService {
     }
 
 
-    private String getProductsFromFoodApi(String id, String key, String product) {
+    private FoodResponse getProductsFromFoodApi(String id, String key, String product) {
         String apiUrl = "https://api.edamam.com/api/food-database/v2/parser";
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
                 .queryParam("app_id", id)
@@ -54,7 +54,8 @@ public class ProductService {
                 .queryParam("ingr", product)
                 .queryParam("nutrition-type", "cooking");
 
-        ResponseEntity<String> response = restTemplate.getForEntity(builder.toUriString(), String.class);
+
+        ResponseEntity<FoodResponse> response = restTemplate.getForEntity(builder.toUriString(), FoodResponse.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
            return response.getBody();
@@ -66,9 +67,9 @@ public class ProductService {
 
 
 
-    private List<Product> parseProductsFromJson(String json, String query) {
+    private List<Product> parseProductsFromJson(FoodResponse json, String query) {
         try {
-            JsonNode rootNode = objectMapper.readTree(json);
+            JsonNode rootNode = objectMapper.readTree(json.toString());
             JsonNode hintsNode = rootNode.get("hints");
             List<Product> products = new ArrayList<>();
 
@@ -96,7 +97,7 @@ public class ProductService {
 
                 Product product = new Product();
                 product.setMeasures(measures);
-                checkIfFieldsAreNotNullAndSetValues(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
+                setValuesToProduct(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
                 products.add(product);
             }
             return products;
@@ -106,16 +107,16 @@ public class ProductService {
 
     }
 
-    private void checkIfFieldsAreNotNullAndSetValues(Product product,
-                                                     JsonNode foodId,
-                                                     JsonNode label,
-                                                     JsonNode kcal,
-                                                     JsonNode protein,
-                                                     JsonNode fat,
-                                                     JsonNode carbohydrates,
-                                                     JsonNode fiber,
-                                                     JsonNode image,
-                                                     String query
+    private void setValuesToProduct(Product product,
+                                    JsonNode foodId,
+                                    JsonNode label,
+                                    JsonNode kcal,
+                                    JsonNode protein,
+                                    JsonNode fat,
+                                    JsonNode carbohydrates,
+                                    JsonNode fiber,
+                                    JsonNode image,
+                                    String query
     ) {
 
         product.setProductId(valueOrEmpty(foodId));

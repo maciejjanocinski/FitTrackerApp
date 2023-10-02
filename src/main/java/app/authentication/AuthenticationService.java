@@ -24,28 +24,25 @@ class AuthenticationService {
     private final TokenService tokenService;
 
     RegisterDto register(RegisterDto registerDto) {
-        User user = new User();
-
-        user.setName(registerDto.name().trim());
-        user.setSurname(registerDto.surname().trim());
-        user.setGender(registerDto.gender().trim());
-        user.setEmail(registerDto.email().trim());
-        user.setPhone(registerDto.phone().trim());
-
-        user.setUsername(registerDto.username().trim());
-        user.setPassword(passwordEncoder.encode(registerDto.password().trim()));
 
         Role userStandardRole = roleRepository.findByAuthority(roles.USER_STANDARD.toString())
                 .orElseThrow(() -> new RuntimeException("User standard role not found."));
         Set<Role> authorities = new HashSet<>();
         authorities.add(userStandardRole);
-        user.setAuthorities(authorities);
-
-        Diary diary = new Diary();
-        user.setDiary(diary);
+        Diary diary = Diary.builder().build();
+        User user = User.builder()
+                .name(registerDto.name().trim())
+                .surname(registerDto.surname().trim())
+                .username(registerDto.username().trim())
+                .password(passwordEncoder.encode(registerDto.password().trim()))
+                .gender(registerDto.gender().trim())
+                .email(registerDto.email().trim())
+                .phone(registerDto.phone().trim())
+                .diary(diary)
+                .authorities(authorities)
+                .build();
 
         userRepository.save(user);
-
         return registerDto;
     }
 
