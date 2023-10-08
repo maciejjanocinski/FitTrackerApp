@@ -43,5 +43,9 @@ class RuntimeExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(ProductNotFoundException.class)
+    private ResponseEntity<String> handleProductNotFoundException(ProductsApiException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 
 }

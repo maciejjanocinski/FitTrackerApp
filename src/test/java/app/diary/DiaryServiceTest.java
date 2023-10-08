@@ -2,7 +2,9 @@ package app.diary;
 
 import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DiaryDto;
+import app.diary.dto.EditProductInDiaryDto;
 import app.diary.dto.ProductInDiaryDto;
+import app.exceptions.ProductNotFoundException;
 import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;
@@ -12,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -22,7 +22,8 @@ import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,19 +44,13 @@ class DiaryServiceTest {
     Authentication authentication;
     @Mock
     Diary diary = mock(Diary.class);
-    @Mock
-    ProductInDiary productInDiary = mock(ProductInDiary.class);
 
     @Test
-    void getDiary_inputDataOk() {
+    void getDiary_inputDataOk_returnsDiaryDto() {
         //given
         String username = "username";
         DiaryDto expectedResponse = buildDiaryDto();
-
-        User user = User.builder()
-                .username(username)
-                .diary(diary)
-                .build();
+        User user = buildUser(username);
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
@@ -75,7 +70,7 @@ class DiaryServiceTest {
     }
 
     @Test
-    void getDiary_throwsException() {
+    void getDiary_userNotFound_throwsUserNotFoundException() {
         //given
         String username = "username";
 
@@ -98,23 +93,12 @@ class DiaryServiceTest {
 
 
     @Test
-    void addProductToDiary() {
+    void addProductToDiary_inputDataOk_returnsProductInDiaryDto() {
         //given
         String username = "username";
-        AddProductToDiaryDto addProductDto = AddProductToDiaryDto.builder()
-                .foodId("foodId")
-                .name("name")
-                .measureLabel("measureLabel")
-                .quantity(BigDecimal.valueOf(100))
-                .build();
+        AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
         Product product = buildProduct(addProductDto.foodId());
-
-
-        User user = User.builder()
-                .username(username)
-                .diary(diary)
-                .build();
-
+        User user = buildUser(username);
         ProductInDiaryDto expectedResponse = buildProductInDiaryDto();
 
         when(authentication.getName()).thenReturn(username);
@@ -130,8 +114,317 @@ class DiaryServiceTest {
         //then
         assertEquals(expectedResponse, productInDiaryDto);
 
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsRepository).findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+        verify(diary).addProduct(any(ProductInDiary.class));
+        verify(diary).calculateNutrientsLeft();
+        verify(diary).calculateNutrientsSum();
+        verify(productMapper).mapToProductInDiaryDto(any(ProductInDiary.class));
     }
 
+    @Test
+    void addProductToDiary_userNotFound_throwsUserNotFoundException() {
+        //given
+        String username = "username";
+        AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        //when
+        Exception ex = assertThrows(UsernameNotFoundException.class,
+                () -> diaryService.addProductToDiary(addProductDto, authentication));
+
+        //then
+        assertEquals("User not found", ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsRepository, never()).findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+        verify(diary, never()).addProduct(any(ProductInDiary.class));
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+        verify(productMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
+    }
+
+    @Test
+    void addProductToDiary_productNotFound_throwsProductNotFoundException() {
+        //given
+        String username = "username";
+        AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
+        User user = buildUser(username);
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name()))
+                .thenReturn(Optional.empty());
+
+        //when
+        Exception ex = assertThrows(ProductNotFoundException.class,
+                () -> diaryService.addProductToDiary(addProductDto, authentication));
+
+        //then
+        assertEquals("Product not found", ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsRepository).findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+        verify(diary, never()).addProduct(any(ProductInDiary.class));
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+        verify(productMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
+    }
+
+    @Test
+    void editProductAmountInDiary_inputDataOk_returnsProductInDiaryDto() {
+        //given
+        String username = "username";
+        AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
+        Product product = buildProduct(addProductDto.foodId());
+        User user = buildUser(username);
+        ProductInDiaryDto expectedResponse = buildProductInDiaryDto();
+        EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
+        ProductInDiary productInDiary = buildProductInDiary();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(productsAddedToDiaryRepository.findById(editProductInDiaryDto.id()))
+                .thenReturn(Optional.of(productInDiary));
+        when(productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName()))
+                .thenReturn(Optional.of(product));
+        when(productMapper.mapToProductInDiaryDto(any(ProductInDiary.class)))
+                .thenReturn(buildProductInDiaryDto());
+
+        //when
+        ProductInDiaryDto productInDiaryDto = diaryService.editProductAmountInDiary(editProductInDiaryDto, authentication);
+
+        //then
+        assertEquals(expectedResponse, productInDiaryDto);
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository).findById(editProductInDiaryDto.id());
+        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productMapper).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
+        verify(diary).calculateNutrientsLeft();
+        verify(diary).calculateNutrientsSum();
+        verify(productMapper).mapToProductInDiaryDto(any(ProductInDiary.class));
+    }
+
+    @Test
+    void editProductAmountInDiary_userNotFound_throwsUserNotFoundException() {
+        //given
+        String username = "username";
+        //TODO Exception message to constant variable
+        EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
+        ProductInDiary productInDiary = buildProductInDiary();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        //when
+        Exception ex = assertThrows(UsernameNotFoundException.class,
+                () -> diaryService.editProductAmountInDiary(editProductInDiaryDto, authentication));
+
+        //then
+        assertEquals("User not found", ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository, never()).findById(editProductInDiaryDto.id());
+        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+        verify(productMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
+    }
+
+    @Test
+    void editProductAmountInDiary_productInDiaryNotFound_throwsProductNotFoundException() {
+        //given
+        String username = "username";
+        EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
+        ProductInDiary productInDiary = buildProductInDiary();
+        User user = buildUser(username);
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(productsAddedToDiaryRepository.findById(editProductInDiaryDto.id()))
+                .thenReturn(Optional.empty());
+
+        //when
+        Exception ex = assertThrows(ProductNotFoundException.class,
+                () -> diaryService.editProductAmountInDiary(editProductInDiaryDto, authentication));
+
+        //then
+        assertEquals("Product not found", ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository).findById(editProductInDiaryDto.id());
+        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+        verify(productMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
+    }
+
+    @Test
+    void editProductAmountInDiary_productNotFound_throwsProductNotFoundException() {
+        //given
+        String username = "username";
+        EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
+        ProductInDiary productInDiary = buildProductInDiary();
+        User user = buildUser(username);
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(productsAddedToDiaryRepository.findById(editProductInDiaryDto.id()))
+                .thenReturn(Optional.of(productInDiary));
+        when(productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName()))
+                .thenReturn(Optional.empty());
+
+        //when
+        Exception ex = assertThrows(ProductNotFoundException.class,
+                () -> diaryService.editProductAmountInDiary(editProductInDiaryDto, authentication));
+
+        //then
+        assertEquals("Product not found", ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository).findById(editProductInDiaryDto.id());
+        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+        verify(productMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
+    }
+
+    @Test
+    void deleteProductFromDiary_inputDataOk_returnsString() {
+        //given
+        String username = "username";
+        String expectedResponse = "Product deleted from diary successfully";
+        AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
+        Product product = buildProduct(addProductDto.foodId());
+        User user = buildUser(username);
+        EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
+        ProductInDiary productInDiary = buildProductInDiary();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(productsAddedToDiaryRepository.findById(1L))
+                .thenReturn(Optional.of(productInDiary));
+        when(productsRepository.findProductEntityByProductIdAndName(
+                productInDiary.getProductId(),
+                productInDiary.getProductName())
+        )
+                .thenReturn(Optional.of(product));
+
+        //when
+        String response = diaryService.deleteProductFromDiary(1L, authentication);
+
+        //then
+        assertEquals(expectedResponse, response);
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository).findById(1L);
+        verify(productsAddedToDiaryRepository).delete(productInDiary);
+        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(diary).calculateNutrientsLeft();
+        verify(diary).calculateNutrientsSum();
+    }
+
+    @Test
+    void deleteProductFromDiary_userNotFound_throwsUserNotFoundException() {
+        //given
+        String username = "username";
+        String expectedResponse = "User not found";
+        ProductInDiary productInDiary = buildProductInDiary();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        //when
+        Exception ex = assertThrows(UsernameNotFoundException.class,
+                () -> diaryService.deleteProductFromDiary(1L, authentication));
+
+        //then
+        assertEquals(expectedResponse, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository, never()).findById(1L);
+        verify(productsAddedToDiaryRepository, never()).delete(productInDiary);
+        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+    }
+
+    @Test
+    void deleteProductFromDiary_productInDiaryNotFound_throwsProductNotFoundException() {
+        //given
+        String username = "username";
+        String expectedResponse = "Product not found";
+        User user = buildUser(username);
+        ProductInDiary productInDiary = buildProductInDiary();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(productsAddedToDiaryRepository.findById(1L))
+                .thenReturn(Optional.empty());
+        //when
+        Exception ex = assertThrows(ProductNotFoundException.class,
+                () -> diaryService.deleteProductFromDiary(1L, authentication));
+
+        //then
+        assertEquals(expectedResponse, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository).findById(1L);
+        verify(productsAddedToDiaryRepository, never()).delete(productInDiary);
+        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+    }
+
+    @Test
+    void deleteProductFromDiary_productNotFound_throwsProductNotFoundException() {
+        //given
+        String username = "username";
+        String expectedResponse = "Product not found";
+        User user = buildUser(username);
+        ProductInDiary productInDiary = buildProductInDiary();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(productsAddedToDiaryRepository.findById(1L))
+                .thenReturn(Optional.of(productInDiary));
+        when(productsRepository.findProductEntityByProductIdAndName
+                (
+                        productInDiary.getProductId(),
+                        productInDiary.getProductName())
+        )
+                .thenReturn(Optional.empty());
+        //when
+        Exception ex = assertThrows(ProductNotFoundException.class,
+                () -> diaryService.deleteProductFromDiary(1L, authentication));
+
+        //then
+        assertEquals(expectedResponse, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(productsAddedToDiaryRepository).findById(1L);
+        verify(productsAddedToDiaryRepository).delete(productInDiary);
+        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(diary, never()).calculateNutrientsLeft();
+        verify(diary, never()).calculateNutrientsSum();
+    }
 
     private DiaryDto buildDiaryDto() {
         return DiaryDto.builder().
@@ -153,6 +446,12 @@ class DiaryServiceTest {
                 .build();
     }
 
+    private User buildUser(String username) {
+        return User.builder()
+                .username(username)
+                .diary(diary)
+                .build();
+    }
 
     private ProductInDiaryDto buildProductInDiaryDto() {
         return ProductInDiaryDto.builder()
@@ -166,6 +465,23 @@ class DiaryServiceTest {
                 .image("image")
                 .measureLabel("measureLabel")
                 .quantity(100)
+                .build();
+    }
+
+    private ProductInDiary buildProductInDiary() {
+        return ProductInDiary.builder()
+                .id(1L)
+                .productId("foodId")
+                .productName("name")
+                .kcal(BigDecimal.valueOf(100))
+                .protein(BigDecimal.valueOf(100))
+                .carbohydrates(BigDecimal.valueOf(100))
+                .fat(BigDecimal.valueOf(100))
+                .fiber(BigDecimal.valueOf(100))
+                .image("image")
+                .measureLabel("measureLabel")
+                .quantity(BigDecimal.valueOf(100))
+                .diary(diary)
                 .build();
     }
 
@@ -185,5 +501,22 @@ class DiaryServiceTest {
                 false,
                 Map.of("measureLabel", BigDecimal.valueOf(100))
         );
+    }
+
+    private AddProductToDiaryDto buildAddProductToDiaryDto() {
+        return AddProductToDiaryDto.builder()
+                .foodId("foodId")
+                .name("name")
+                .measureLabel("measureLabel")
+                .quantity(BigDecimal.valueOf(100))
+                .build();
+    }
+
+    private EditProductInDiaryDto buildEditProductInDiaryDto() {
+        return EditProductInDiaryDto.builder()
+                .id(1L)
+                .measureLabel("measureLabel")
+                .quantity(BigDecimal.valueOf(100))
+                .build();
     }
 }

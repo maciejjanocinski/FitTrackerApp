@@ -4,6 +4,7 @@ import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DiaryDto;
 import app.diary.dto.EditProductInDiaryDto;
 import app.diary.dto.ProductInDiaryDto;
+import app.exceptions.ProductNotFoundException;
 import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;
@@ -46,20 +47,17 @@ class DiaryService {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Diary diary = user.getDiary();
-        Optional<Product> product = productsRepository
+        Product product = productsRepository
                 .findProductEntityByProductIdAndName(
                         addProductDto.foodId(),
-                        addProductDto.name()
-                );
+                        addProductDto.name())
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        if (product.isEmpty()) {
-            throw new UsernameNotFoundException("Product not found");
-        }
-        product.get().setUsed(true);
+        product.setUsed(true);
 
-        ProductInDiary productInDiary = generateNewProductAddedToDiary(
+        ProductInDiary productInDiary = generateNewProductInDiary(
                 diary,
-                product.get(),
+                product,
                 addProductDto.measureLabel(),
                 addProductDto.quantity()
         );
@@ -73,22 +71,26 @@ class DiaryService {
 
     @Transactional
     public ProductInDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
         ProductInDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
-        if (product.isEmpty()) {
-            throw new RuntimeException("Product not found");
-        }
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        Product product = productsRepository.findProductEntityByProductIdAndName
+                        (
+                                productInDiary.getProductId(),
+                                productInDiary.getProductName()
+                        )
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        ProductInDiary productWithNewValues = generateNewProductAddedToDiary(
+        ProductInDiary productWithNewValues = generateNewProductInDiary(
                 productInDiary.getDiary(),
-                product.get(),
+                product,
                 editProductDto.measureLabel(),
                 editProductDto.quantity()
         );
 
-        productMapper.mapToProductAddedToDiary(productWithNewValues, productInDiary);
+        productMapper.mapToProductInDiary(productWithNewValues, productInDiary);
 
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
@@ -98,19 +100,20 @@ class DiaryService {
 
     @Transactional
     public String deleteProductFromDiary(Long id, Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
         ProductInDiary productInDiary = productsAddedToDiaryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
         productsAddedToDiaryRepository.delete(productInDiary);
 
-        Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
-        if (product.isEmpty()) {
-            throw new RuntimeException("Product not found");
-        }
+        Product product = productsRepository.findProductEntityByProductIdAndName(
+                productInDiary.getProductId(),
+                productInDiary.getProductName()
+        )
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        if (productsAddedToDiaryRepository.findProductAddedToDiaryByProductName(productInDiary.getProductName()).isEmpty()) {
-            product.get().setUsed(false);
-        }
+        product.setUsed(false);
 
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
@@ -118,7 +121,7 @@ class DiaryService {
         return "Product deleted from diary successfully";
     }
 
-    ProductInDiary generateNewProductAddedToDiary(Diary diary, Product product, String measureLabel, BigDecimal quantity) {
+    ProductInDiary generateNewProductInDiary(Diary diary, Product product, String measureLabel, BigDecimal quantity) {
 
         String productId = product.getProductId();
         String productName = product.getName();
@@ -129,7 +132,7 @@ class DiaryService {
         BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
         String image = product.getImage();
 
-        ProductInDiary.ProductInDiaryBuilder productAddedToDiary = ProductInDiary.builder()
+        ProductInDiary.ProductInDiaryBuilder productInDiary = ProductInDiary.builder()
                 .diary(diary)
                 .productId(productId)
                 .productName(productName)
@@ -143,7 +146,7 @@ class DiaryService {
                 .image(image);
 
 
-        return productAddedToDiary.build();
+        return productInDiary.build();
     }
 
 }
