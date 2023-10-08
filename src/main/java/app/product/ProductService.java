@@ -1,18 +1,19 @@
 package app.product;
 
-import app.exceptions.ProductsApiException;
 import app.util.FoodApiManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,56 +21,48 @@ import java.util.Map;
 
 @Service
 @AllArgsConstructor
+
 public class ProductService {
 
     private final Dotenv dotenv = Dotenv.load();
     private final ProductRepository productsRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final FoodApiManager foodApiManager = new FoodApiManager();
-    private final RestTemplate restTemplate = new RestTemplate();
 
     public List<Product> searchProducts(String product) {
-        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product.toLowerCase())) {
+        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product)) {
             return productsRepository.findAllByQuery(product);
         }
         productsRepository.deleteNotUsedProducts();
-        foodApiManager.setLastQuery(product.toLowerCase());
+        foodApiManager.setLastQuery(product);
 
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
-        FoodResponse json = getProductsFromFoodApi(id, key, product);
+        String json = getProductsFromFoodApi(id, key, product);
         List<Product> products = parseProductsFromJson(json, product);
 
         productsRepository.saveAll(products);
         return products;
     }
 
-
-    private FoodResponse getProductsFromFoodApi(String id, String key, String product) {
-        String apiUrl = "https://api.edamam.com/api/food-database/v2/parser";
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                .queryParam("app_id", id)
-                .queryParam("app_key", key)
-                .queryParam("ingr", product)
-                .queryParam("nutrition-type", "cooking");
-
-
-        ResponseEntity<FoodResponse> response = restTemplate.getForEntity(builder.toUriString(), FoodResponse.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-           return response.getBody();
-        } else {
-            throw new ProductsApiException("Product not found");
+    private String getProductsFromFoodApi(String id, String key, String product) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.edamam.com/api/food-database/v2/parser?app_id=" + id + "&app_key=" + key + "&ingr=" + product + "&nutrition-type=cooking"))
+                    .GET()
+                    .build();
+            HttpResponse<String> res = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            return res.body();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e.getMessage());
         }
 
     }
 
-
-
-    private List<Product> parseProductsFromJson(FoodResponse json, String query) {
+    private List<Product> parseProductsFromJson(String json, String query) {
         try {
-            JsonNode rootNode = objectMapper.readTree(json.toString());
+            JsonNode rootNode = objectMapper.readTree(json);
             JsonNode hintsNode = rootNode.get("hints");
             List<Product> products = new ArrayList<>();
 
@@ -97,7 +90,7 @@ public class ProductService {
 
                 Product product = new Product();
                 product.setMeasures(measures);
-                setValuesToProduct(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
+                checkIfFieldsAreNotNullAndSetValues(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
                 products.add(product);
             }
             return products;
@@ -107,16 +100,16 @@ public class ProductService {
 
     }
 
-    private void setValuesToProduct(Product product,
-                                    JsonNode foodId,
-                                    JsonNode label,
-                                    JsonNode kcal,
-                                    JsonNode protein,
-                                    JsonNode fat,
-                                    JsonNode carbohydrates,
-                                    JsonNode fiber,
-                                    JsonNode image,
-                                    String query
+    private void checkIfFieldsAreNotNullAndSetValues(Product product,
+                                                     JsonNode foodId,
+                                                     JsonNode label,
+                                                     JsonNode kcal,
+                                                     JsonNode protein,
+                                                     JsonNode fat,
+                                                     JsonNode carbohydrates,
+                                                     JsonNode fiber,
+                                                     JsonNode image,
+                                                     String query
     ) {
 
         product.setProductId(valueOrEmpty(foodId));

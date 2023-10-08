@@ -1,8 +1,10 @@
 package app.product;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -41,12 +43,13 @@ public class Product {
 
     @ElementCollection
     @JsonIgnore
+    @JsonBackReference
     private Map<String, BigDecimal> measures;
 
 
     public Product(
             Long id,
-            String foodA3049hmbqj5wstaeeb3udaz6uaqv,
+            String foodId,
             String name,
             BigDecimal bigDecimal,
             BigDecimal bigDecimal1,
@@ -59,7 +62,7 @@ public class Product {
             Map<String, BigDecimal> measures
     ) {
                 this.id = id;
-                this.productId = foodA3049hmbqj5wstaeeb3udaz6uaqv;
+                this.productId = foodId;
                 this.name = name;
                 this.kcal = bigDecimal;
                 this.protein = bigDecimal1;

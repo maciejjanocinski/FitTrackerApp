@@ -3,7 +3,7 @@ package app.diary;
 import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DiaryDto;
 import app.diary.dto.EditProductInDiaryDto;
-import app.diary.dto.ProductAddedToDiaryDto;
+import app.diary.dto.ProductInDiaryDto;
 import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;
@@ -42,7 +42,7 @@ class DiaryService {
     }
 
     @Transactional
-    public ProductAddedToDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
+    public ProductInDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Diary diary = user.getDiary();
@@ -68,11 +68,11 @@ class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return productMapper.mapToProductAddedToDiaryDto(productInDiary);
+        return productMapper.mapToProductInDiaryDto(productInDiary);
     }
 
     @Transactional
-    public ProductAddedToDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
+    public ProductInDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
         Diary diary = getUser(userRepository, authentication).getDiary();
         ProductInDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -93,7 +93,7 @@ class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return productMapper.mapToProductAddedToDiaryDto(productInDiary);
+        return productMapper.mapToProductInDiaryDto(productInDiary);
     }
 
     @Transactional

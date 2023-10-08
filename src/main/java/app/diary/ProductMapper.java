@@ -1,6 +1,6 @@
 package app.diary;
 
-import app.diary.dto.ProductAddedToDiaryDto;
+import app.diary.dto.ProductInDiaryDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -16,6 +16,6 @@ interface ProductMapper {
     @Mapping(target = "diary", ignore = true)
     void mapToProductAddedToDiary(ProductInDiary source, @MappingTarget ProductInDiary destination);
 
-    ProductAddedToDiaryDto mapToProductAddedToDiaryDto(ProductInDiary productInDiary);
+    ProductInDiaryDto mapToProductInDiaryDto(ProductInDiary productInDiary);
 
 }

@@ -1,6 +1,8 @@
 package app.diary;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,11 +10,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Entity
 public class Diary {
@@ -42,7 +44,8 @@ public class Diary {
 
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
-    @JsonBackReference
+    @JsonManagedReference
+    @JsonIgnore
     private List<ProductInDiary> products;
 
     public void addProduct(ProductInDiary product) {
@@ -63,5 +66,24 @@ public class Diary {
         this.leftCarbohydrates = this.goalCarbohydrates.subtract(this.sumCarbohydrates);
         this.leftFat = this.goalFat.subtract(this.sumFat);
         this.leftFiber = this.goalFiber.subtract(this.sumFiber);
+    }
+
+    public Diary() {
+        this.sumKcal = BigDecimal.ZERO;
+        this.sumProtein = BigDecimal.ZERO;
+        this.sumCarbohydrates = BigDecimal.ZERO;
+        this.sumFat = BigDecimal.ZERO;
+        this.sumFiber = BigDecimal.ZERO;
+        this.leftKcal = BigDecimal.ZERO;
+        this.leftProtein = BigDecimal.ZERO;
+        this.leftCarbohydrates = BigDecimal.ZERO;
+        this.leftFat = BigDecimal.ZERO;
+        this.leftFiber = BigDecimal.ZERO;
+        this.goalKcal = BigDecimal.ZERO;
+        this.goalProtein = BigDecimal.ZERO;
+        this.goalCarbohydrates = BigDecimal.ZERO;
+        this.goalFat = BigDecimal.ZERO;
+        this.goalFiber = BigDecimal.ZERO;
+        this.products = new ArrayList<>();
     }
 }

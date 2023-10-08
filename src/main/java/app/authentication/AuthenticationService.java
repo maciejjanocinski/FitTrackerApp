@@ -29,7 +29,7 @@ class AuthenticationService {
                 .orElseThrow(() -> new RuntimeException("User standard role not found."));
         Set<Role> authorities = new HashSet<>();
         authorities.add(userStandardRole);
-        Diary diary = Diary.builder().build();
+        Diary diary = new Diary();
         User user = User.builder()
                 .name(registerDto.name().trim())
                 .surname(registerDto.surname().trim())

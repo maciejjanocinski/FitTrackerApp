@@ -1,5 +1,6 @@
 package app.diary;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -35,6 +36,7 @@ class ProductInDiary {
     @ManyToOne
     @JoinColumn(name = "diary_id")
     @JsonManagedReference
+    @JsonBackReference
     @JsonIgnore
     private Diary diary;
 }

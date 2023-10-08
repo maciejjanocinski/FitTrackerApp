@@ -22,5 +22,5 @@ public record DiaryDto(
         BigDecimal leftFat,
         BigDecimal leftCarbohydrates,
         BigDecimal leftFiber,
-        List<ProductAddedToDiaryDto> products) {
+        List<ProductInDiaryDto> products) {
 }
