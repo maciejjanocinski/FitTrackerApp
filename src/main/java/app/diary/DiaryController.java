@@ -4,10 +4,14 @@ import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DiaryDto;
 import app.diary.dto.EditProductInDiaryDto;
 import app.diary.dto.ProductInDiaryDto;
+import app.user.User;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -43,5 +47,10 @@ class DiaryController {
                                                           Authentication authentication,
                                                           @RequestBody Long usersProductsId) {
         return diaryService.deleteProductFromDiary(usersProductsId, authentication);
+    }
+
+    @GetMapping("/user")
+    public Object fetchUser() {
+        return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+
 class DiaryServiceTest {
     @InjectMocks
     private DiaryService diaryService;
@@ -43,7 +43,7 @@ class DiaryServiceTest {
     @Mock
     Authentication authentication;
     @Mock
-    Diary diary = mock(Diary.class);
+    Diary diary;
 
     @Test
     void getDiary_inputDataOk_returnsDiaryDto() {

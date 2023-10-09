@@ -29,20 +29,23 @@ public class UserService implements UserDetailsService {
     }
 
     UserDto getUser(Authentication authentication) {
-        User user = getUser(userRepository, authentication);
-        return userMapper.INSTANCE.mapUserToUserDto(user);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userMapper.mapUserToUserDto(user);
     }
 
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
-        User user = getUser(userRepository, authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         updateUserProfile(user, updateProfileInfoDto);
         return "Changes has been successfully approved";
     }
 
     @Transactional
     public String updatePassword(Authentication authentication, UpdatePasswordDto password) {
-        User user = getUser(userRepository, authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (password.oldPassword().equals(password.confirmOldPassword()) &&
                 passwordEncoder.matches(password.oldPassword(), user.getPassword())) {
@@ -59,7 +62,8 @@ public class UserService implements UserDetailsService {
     }
 
     String deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
-        User user = getUser(userRepository, authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword()) &&
                 deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
@@ -68,11 +72,6 @@ public class UserService implements UserDetailsService {
         }
 
         throw new InvalidPasswordException("You have passed wrong password.");
-    }
-
-    public static User getUser(UserRepository userRepository, Authentication authentication) {
-        return userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     private boolean setPasswordWithValidation(String password) {

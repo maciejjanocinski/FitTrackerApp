@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Optional;
 
-import static app.user.UserService.getUser;
 
 @Service
 @AllArgsConstructor
@@ -108,9 +106,9 @@ class DiaryService {
         productsAddedToDiaryRepository.delete(productInDiary);
 
         Product product = productsRepository.findProductEntityByProductIdAndName(
-                productInDiary.getProductId(),
-                productInDiary.getProductName()
-        )
+                        productInDiary.getProductId(),
+                        productInDiary.getProductName()
+                )
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
         product.setUsed(false);
