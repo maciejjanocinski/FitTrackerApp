@@ -47,14 +47,14 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (password.oldPassword().equals(password.confirmOldPassword()) &&
+        if (password.newPassword().equals(password.confirmNewPassword()) &&
                 passwordEncoder.matches(password.oldPassword(), user.getPassword())) {
 
             if (setPasswordWithValidation(password.newPassword())) {
                 user.setPassword(passwordEncoder.encode(password.newPassword()));
                 return "Password has been successfully changed";
             }
-        } else if (!password.oldPassword().equals(password.confirmOldPassword())) {
+        } else if (!password.newPassword().equals(password.confirmNewPassword())) {
             throw new InvalidPasswordException("Passwords are not the same.");
         }
 
@@ -74,12 +74,12 @@ public class UserService implements UserDetailsService {
         throw new InvalidPasswordException("You have passed wrong password.");
     }
 
-    private boolean setPasswordWithValidation(String password) {
+     boolean setPasswordWithValidation(String password) {
         PasswordValidator passwordValidator = new PasswordValidator();
         return passwordValidator.isValidSetterCheck(password);
     }
 
-    private void updateUserProfile(User user, UpdateProfileInfoDto updateProfileInfoDto) {
+     void updateUserProfile(User user, UpdateProfileInfoDto updateProfileInfoDto) {
         user.setUsername(updateProfileInfoDto.username());
         user.setName(updateProfileInfoDto.name());
         user.setSurname(updateProfileInfoDto.surname());

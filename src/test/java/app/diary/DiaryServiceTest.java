@@ -497,8 +497,8 @@ class DiaryServiceTest {
                 BigDecimal.valueOf(100),
                 BigDecimal.valueOf(100),
                 "image",
-                "query",
                 false,
+                "query",
                 Map.of("measureLabel", BigDecimal.valueOf(100))
         );
     }

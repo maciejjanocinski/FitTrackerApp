@@ -1,8 +1,10 @@
 package app.user;
 
+import app.exceptions.InvalidPasswordException;
+import app.user.dto.DeleteUserDto;
+import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
 import app.user.dto.UserDto;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,9 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,7 +110,7 @@ class UserServiceTest {
         String username = "username";
         String expectedMessage = "Changes has been successfully approved";
         User user = buildUser(username);
-        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto();
+        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto(username);
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
@@ -127,11 +127,11 @@ class UserServiceTest {
     }
 
     @Test
-    void updateProfile_usernameNotFound_throwsusernameNotFoundException() {
+    void updateProfile_usernameNotFound_throwsUsernameNotFoundException() {
         //given
         String username = "username";
         String expectedMessage = "User not found";
-        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto();
+        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto(username);
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
@@ -147,23 +147,257 @@ class UserServiceTest {
         verify(userRepository).findByUsername(username);
     }
 
+    @Test
+    void updatePassword_inputDataOk_returnsString() {
+        //given
+        String username = "username";
+        String expectedMessage = "Password has been successfully changed";
+        User user = buildUser(username);
+        UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(updatePasswordDto.oldPassword(), user.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(updatePasswordDto.newPassword())).thenReturn("encodedPassword");
+
+        //when
+        String actualMessage = userService.updatePassword(authentication, updatePasswordDto);
+
+        //then
+        assertEquals(expectedMessage, actualMessage);
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(passwordEncoder).encode(updatePasswordDto.newPassword());
+    }
+
+    @Test
+    void updatePassword_usernameNotFound_throwsUsernameNotFoundException() {
+        //given
+        String username = "username";
+        String expectedMessage = "User not found";
+        UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        //when
+
+        Exception ex = assertThrows(UsernameNotFoundException.class,
+                () -> userService.updatePassword(authentication, updatePasswordDto));
+
+        //then
+        assertEquals(expectedMessage, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(passwordEncoder, never()).encode(updatePasswordDto.newPassword());
+    }
+
+    @Test
+    void updatePassword_passwordsAreNotTheSame_throwsInvalidPasswordException() {
+        //given
+        String username = "username";
+        User user = buildUser(username);
+        String expectedMessage = "Passwords are not the same.";
+        UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto_passwordsNotTheSame();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        //when
+
+        Exception ex = assertThrows(InvalidPasswordException.class,
+                () -> userService.updatePassword(authentication, updatePasswordDto));
+
+        //then
+        assertEquals(expectedMessage, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(passwordEncoder, never()).encode(updatePasswordDto.newPassword());
+    }
+
+    @Test
+    void updatePassword_passedWrongPassword_throwsInvalidPasswordException() {
+        //given
+        String username = "username";
+        User user = buildUser(username);
+        String expectedMessage = "You have passed wrong password.";
+        UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto_wrongPassword();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        //when
+
+        Exception ex = assertThrows(InvalidPasswordException.class,
+                () -> userService.updatePassword(authentication, updatePasswordDto));
+
+        //then
+        assertEquals(expectedMessage, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(passwordEncoder, never()).encode(updatePasswordDto.newPassword());
+    }
+
+    @Test
+    void deleteProfile_inputDataOk_returnsString() {
+        //given
+        String username = "username";
+        User user = buildUser(username);
+        String expectedMessage = "Profile with username \"" + user.getUsername() + "\" has been deleted.";
+        DeleteUserDto deleteUserDto = buildDeleteUserDto();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(deleteUserDto.password(), user.getPassword())).thenReturn(true);
+
+        //when
+        String actualMessage = userService.deleteProfile(authentication, deleteUserDto);
+
+        //then
+        assertEquals(expectedMessage, actualMessage);
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(passwordEncoder).matches(deleteUserDto.password(), user.getPassword());
+        verify(userRepository).delete(user);
+    }
+
+    @Test
+    void deleteProfile_usernameNotFound_throwsUsernameNotFoundException() {
+        //given
+        String username = "username";
+        User user = buildUser(username);
+        String expectedMessage = "User not found";
+        DeleteUserDto deleteUserDto = buildDeleteUserDto();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        //when
+        Exception ex = assertThrows(UsernameNotFoundException.class,
+                () -> userService.deleteProfile(authentication, deleteUserDto));
+
+        //then
+        assertEquals(expectedMessage, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(passwordEncoder, never()).matches(deleteUserDto.password(), user.getPassword());
+        verify(userRepository, never()).delete(user);
+    }
+
+    @Test
+    void deleteProfile_passedWrongPassword_throwsInvalidPasswordException() {
+        //given
+        String username = "username";
+        User user = buildUser(username);
+        String expectedMessage = "You have passed wrong password.";
+        DeleteUserDto deleteUserDto = buildDeleteUserDto_wrongPassword();
+
+        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(deleteUserDto.password(), user.getPassword())).thenReturn(false);
+
+        //when
+        Exception ex = assertThrows(InvalidPasswordException.class,
+                () -> userService.deleteProfile(authentication, deleteUserDto));
+
+        //then
+        assertEquals(expectedMessage, ex.getMessage());
+
+        verify(authentication).getName();
+        verify(userRepository).findByUsername(username);
+        verify(passwordEncoder).matches(deleteUserDto.password(), user.getPassword());
+        verify(userRepository, never()).delete(user);
+    }
+
+    @Test
+    void setPasswordWithValidation_inputDataOk_returnsTrue() {
+        //given
+        String password = "Password123@";
+
+        //when
+        boolean actualResult = userService.setPasswordWithValidation(password);
+
+        //then
+        assertTrue(actualResult);
+    }
+
+    @Test
+    void setPasswordWithValidation_passedWrongPassword_throwsException() {
+        //given
+        String password = "Password123";
+        String expectedMessage = "Password must have at least one special character like ! @ # & ( ).";
+
+        //when
+        Exception ex = assertThrows(InvalidPasswordException.class,
+                () -> userService.setPasswordWithValidation(password));
+
+        //then
+        assertEquals(expectedMessage, ex.getMessage());
+    }
+
+    @Test
+    void updateUserProfile_inputDataOk() {
+        //given
+        String username = "username123123";
+        String changedUsername = "otherUsername";
+        User user = buildUser(username);
+        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto(changedUsername);
+
+        //when
+        userService.updateUserProfile(user, updateProfileInfoDto);
+
+        //then
+        assertNotEquals(username, user.getUsername());
+    }
 
 
+    private DeleteUserDto buildDeleteUserDto() {
+        return DeleteUserDto.builder()
+                .password("oldPassword123!")
+                .confirmPassword("oldPassword123!")
+                .build();
+    }
 
+    private DeleteUserDto buildDeleteUserDto_wrongPassword() {
+        return DeleteUserDto.builder()
+                .password("oldPassword123!_wrongOne")
+                .confirmPassword("oldPassword123!")
+                .build();
+    }
 
+    private UpdatePasswordDto buildUpdatePasswordDto() {
+        return UpdatePasswordDto.builder()
+                .oldPassword("oldPassword123!")
+                .confirmNewPassword("newPassword123!")
+                .newPassword("newPassword123!")
+                .build();
+    }
 
+    private UpdatePasswordDto buildUpdatePasswordDto_wrongPassword() {
+        return UpdatePasswordDto.builder()
+                .oldPassword("oldPassword1_wrong!")
+                .confirmNewPassword("newPassword123!")
+                .newPassword("newPassword123!")
+                .build();
+    }
 
+    private UpdatePasswordDto buildUpdatePasswordDto_passwordsNotTheSame() {
+        return UpdatePasswordDto.builder()
+                .oldPassword("oldPassword123!")
+                .confirmNewPassword("oldPassword1234!")
+                .newPassword("newPassword123!")
+                .build();
+    }
 
-
-
-
-
-
-
-
-    private UpdateProfileInfoDto buildUpdateProfileInfoDto() {
+    private UpdateProfileInfoDto buildUpdateProfileInfoDto(String username) {
         return UpdateProfileInfoDto.builder()
-                .username("Changed username")
+                .username(username)
                 .name("name")
                 .surname("surname")
                 .gender("M")
@@ -182,6 +416,7 @@ class UserServiceTest {
     private User buildUser(String username) {
         return User.builder()
                 .username(username)
+                .password("oldPassword123!")
                 .build();
     }
 }

@@ -1,114 +1,97 @@
 package app.product;
 
 import app.util.FoodApiManager;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 
 public class ProductService {
-
     private final Dotenv dotenv = Dotenv.load();
     private final ProductRepository productsRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final FoodApiManager foodApiManager = new FoodApiManager();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public List<Product> searchProducts(String product) {
-        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(product)) {
-            return productsRepository.findAllByQuery(product);
+    public List<Product> searchProducts(String query) {
+        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(query)) {
+            return productsRepository.findAllByQuery(query);
         }
         productsRepository.deleteNotUsedProducts();
-        foodApiManager.setLastQuery(product);
+        foodApiManager.setLastQuery(query);
 
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
-        String json = getProductsFromFoodApi(id, key, product);
-        List<Product> products = parseProductsFromJson(json, product);
+        List<Product> products = getProductsFromFoodApi(id, key, query);
 
         productsRepository.saveAll(products);
         return products;
     }
 
-    private String getProductsFromFoodApi(String id, String key, String product) {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.edamam.com/api/food-database/v2/parser?app_id=" + id + "&app_key=" + key + "&ingr=" + product + "&nutrition-type=cooking"))
-                    .GET()
-                    .build();
-            HttpResponse<String> res = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            return res.body();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e.getMessage());
+    private List<Product> getProductsFromFoodApi(String id, String key, String query) {
+
+        String apiUrl = UriComponentsBuilder.fromHttpUrl("https://api.edamam.com/api/food-database/v2/parser")
+                .queryParam("app_id", id)
+                .queryParam("app_key", key)
+                .queryParam("ingr", query)
+                .toUriString();
+        ResponseEntity<ResponseDTO> responseEntity = restTemplate.getForEntity(apiUrl, ResponseDTO.class);
+
+        ResponseDTO response = responseEntity.getBody();
+
+        List<Product> products = new ArrayList<>();
+        assert response != null;
+        for (HintDTO hint : response.getHints()) {
+            FoodDTO food = hint.getFood();
+            Map<String, BigDecimal> nutrients = food.getNutrients();
+
+            Map<String, BigDecimal> measures = hint.getMeasures().stream()
+                    .collect(Collectors.toMap(
+                            e -> valueOrEmpty(e.getLabel()),
+                            e -> valueOrZero(e.getWeight())
+                    ));
+
+            Product product = new Product();
+
+            checkIfFieldsAreNotNullAndSetValues(
+                    product,
+                    food.getFoodId(),
+                    food.getLabel(),
+                    nutrients.get("ENERC_KCAL"),
+                    nutrients.get("PROCNT"),
+                    nutrients.get("FAT"),
+                    nutrients.get("CHOCDF"),
+                    nutrients.get("FIBTG"),
+                    food.getImage(),
+                    query
+            );
+
+            product.setMeasures(measures);
+            products.add(product);
         }
-
-    }
-
-    private List<Product> parseProductsFromJson(String json, String query) {
-        try {
-            JsonNode rootNode = objectMapper.readTree(json);
-            JsonNode hintsNode = rootNode.get("hints");
-            List<Product> products = new ArrayList<>();
-
-            for (JsonNode node : hintsNode) {
-
-                JsonNode foodId = node.get("food").get("foodId");
-                JsonNode label = node.get("food").get("label");
-                JsonNode kcal = node.get("food").get("nutrients").get("ENERC_KCAL");
-                JsonNode protein = node.get("food").get("nutrients").get("PROCNT");
-                JsonNode fat = node.get("food").get("nutrients").get("FAT");
-                JsonNode carbohydrates = node.get("food").get("nutrients").get("CHOCDF");
-                JsonNode fiber = node.get("food").get("nutrients").get("FIBTG");
-                JsonNode image = node.get("food").get("image");
-                JsonNode measuresNodes = node.get("measures");
-
-                Map<String, BigDecimal> measures = new HashMap<>();
-                for (JsonNode measureNode : measuresNodes
-                ) {
-                    JsonNode measureLabel = measureNode.get("label");
-                    JsonNode measureWeight = measureNode.get("weight");
-                    measures.put(
-                            valueOrEmpty(measureLabel),
-                            valueOrZero(measureWeight));
-                }
-
-                Product product = new Product();
-                product.setMeasures(measures);
-                checkIfFieldsAreNotNullAndSetValues(product, foodId, label, kcal, protein, fat, carbohydrates, fiber, image, query);
-                products.add(product);
-            }
-            return products;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-
+        return products;
     }
 
     private void checkIfFieldsAreNotNullAndSetValues(Product product,
-                                                     JsonNode foodId,
-                                                     JsonNode label,
-                                                     JsonNode kcal,
-                                                     JsonNode protein,
-                                                     JsonNode fat,
-                                                     JsonNode carbohydrates,
-                                                     JsonNode fiber,
-                                                     JsonNode image,
+                                                     String foodId,
+                                                     String label,
+                                                     BigDecimal kcal,
+                                                     BigDecimal protein,
+                                                     BigDecimal fat,
+                                                     BigDecimal carbohydrates,
+                                                     BigDecimal fiber,
+                                                     String image,
                                                      String query
     ) {
 
@@ -123,11 +106,11 @@ public class ProductService {
         product.setQuery(query);
     }
 
-    private BigDecimal valueOrZero(JsonNode node) {
-            return node == null ? BigDecimal.ONE : BigDecimal.valueOf(node.asDouble());
+    private BigDecimal valueOrZero(BigDecimal numValue) {
+        return numValue == null ? BigDecimal.ONE : numValue;
     }
 
-    private String valueOrEmpty(JsonNode node) {
-        return node == null ? "" : node.asText();
+    private String valueOrEmpty(String textValue) {
+        return textValue == null ? "" : textValue;
     }
 }
