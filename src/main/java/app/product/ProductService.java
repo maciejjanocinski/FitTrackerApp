@@ -33,13 +33,14 @@ public class ProductService {
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
-        List<Product> products = getProductsFromFoodApi(id, key, query);
+        ResponseDTO response = getProductsFromFoodApi(id, key, query);
+        List<Product> products = parseProductsFromResponseDto(response, query);
 
         productsRepository.saveAll(products);
         return products;
     }
 
-    private List<Product> getProductsFromFoodApi(String id, String key, String query) {
+    private ResponseDTO getProductsFromFoodApi(String id, String key, String query) {
 
         String apiUrl = UriComponentsBuilder.fromHttpUrl("https://api.edamam.com/api/food-database/v2/parser")
                 .queryParam("app_id", id)
@@ -48,8 +49,10 @@ public class ProductService {
                 .toUriString();
         ResponseEntity<ResponseDTO> responseEntity = restTemplate.getForEntity(apiUrl, ResponseDTO.class);
 
-        ResponseDTO response = responseEntity.getBody();
+        return responseEntity.getBody();
+    }
 
+    private List<Product> parseProductsFromResponseDto(ResponseDTO response, String query) {
         List<Product> products = new ArrayList<>();
         assert response != null;
         for (HintDTO hint : response.getHints()) {
