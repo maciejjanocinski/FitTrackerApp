@@ -46,7 +46,7 @@ class DiaryService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Diary diary = user.getDiary();
         Product product = productsRepository
-                .findProductEntityByProductIdAndName(
+                .findProductByProductIdAndName(
                         addProductDto.foodId(),
                         addProductDto.name())
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
@@ -61,9 +61,6 @@ class DiaryService {
         );
 
         diary.addProduct(productInDiary);
-        diary.calculateNutrientsSum();
-        diary.calculateNutrientsLeft();
-
         return productMapper.mapToProductInDiaryDto(productInDiary);
     }
 
@@ -74,7 +71,7 @@ class DiaryService {
         Diary diary = user.getDiary();
         ProductInDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-        Product product = productsRepository.findProductEntityByProductIdAndName
+        Product product = productsRepository.findProductByProductIdAndName
                         (
                                 productInDiary.getProductId(),
                                 productInDiary.getProductName()
@@ -105,7 +102,7 @@ class DiaryService {
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
         productsAddedToDiaryRepository.delete(productInDiary);
 
-        Product product = productsRepository.findProductEntityByProductIdAndName(
+        Product product = productsRepository.findProductByProductIdAndName(
                         productInDiary.getProductId(),
                         productInDiary.getProductName()
                 )
@@ -120,7 +117,7 @@ class DiaryService {
     }
 
     ProductInDiary generateNewProductInDiary(Diary diary, Product product, String measureLabel, BigDecimal quantity) {
-
+//TODO test this method
         String productId = product.getProductId();
         String productName = product.getName();
         BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);

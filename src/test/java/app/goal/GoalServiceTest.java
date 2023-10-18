@@ -4,6 +4,7 @@ import app.diary.Diary;
 import app.exceptions.InvalidInputException;
 import app.user.User;
 import app.user.UserRepository;
+import app.utils.TestUtils;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,11 +35,10 @@ class GoalServiceTest {
     private  Authentication authentication;
     @Mock
     private  Diary diary;
-
+    private final String username = new TestUtils().getUsername();
     @Test
     void getGoal_inputDataOk() {
         //given
-        String username = "username";
         GoalResponseDto expectedResponse = buildGoalResponseDto();
         User user = User.builder()
                 .username(username)
@@ -65,7 +65,6 @@ class GoalServiceTest {
     @Test
     void getGoal_throwsException() {
         //given
-        String username = "username";
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
@@ -87,7 +86,6 @@ class GoalServiceTest {
     @Test
     void setGoal_inputDataOk() {
         //given
-        String username = "username";
         GoalResponseDto expectedResponse = buildGoalResponseDto();
         GoalDto goalDto = buildGoalDto();
         User user = User.builder()
@@ -116,7 +114,6 @@ class GoalServiceTest {
     @Test
     void setGoal_throwsException() {
         //given
-        String username = "username";
         GoalDto goalDto = buildGoalDto();
 
         when(authentication.getName()).thenReturn(username);
@@ -140,42 +137,42 @@ class GoalServiceTest {
     void countGoal_male() {
         //given
         GoalDto goalDto = buildGoalDto();
-        GoalValuesObj expectedGoalValuesObj = buildGoalValuesObjForMale();
+        GoalValues expectedGoalValues = buildGoalValuesForMale();
 
         //when
-        GoalValuesObj goalValuesObj = goalService.countGoal(goalDto, "M");
+        GoalValues goalValues = goalService.countGoal(goalDto, "M");
 
         //then
-        assertEquals(expectedGoalValuesObj, goalValuesObj);
+        assertEquals(expectedGoalValues, goalValues);
     }
 
     @Test
     void countGoal_female() {
         //given
         GoalDto goalDto = buildGoalDto();
-        GoalValuesObj expectedGoalValuesObj = buildGoalValuesObjForFemale();
+        GoalValues expectedGoalValues = buildGoalValuesForFemale();
 
         //when
-        GoalValuesObj goalValuesObj = goalService.countGoal(goalDto, "F");
+        GoalValues goalValues = goalService.countGoal(goalDto, "F");
 
         //then
-        assertEquals(expectedGoalValuesObj, goalValuesObj);
+        assertEquals(expectedGoalValues, goalValues);
     }
 
     @Test
     void setGoalValuesToDiary() {
         //given
-        GoalValuesObj goalValuesObj = buildGoalValuesObjForMale();
+        GoalValues goalValues = buildGoalValuesForMale();
 
         //when
-        goalService.setGoalValuesToDiary(goalValuesObj, diary);
+        goalService.setGoalValuesToDiary(goalValues, diary);
 
         //then
-        verify(diary).setGoalKcal(goalValuesObj.kcal());
-        verify(diary).setGoalProtein(goalValuesObj.protein());
-        verify(diary).setGoalCarbohydrates(goalValuesObj.carbohydrates());
-        verify(diary).setGoalFat(goalValuesObj.fat());
-        verify(diary).setGoalFiber(goalValuesObj.fiber());
+        verify(diary).setGoalKcal(goalValues.kcal());
+        verify(diary).setGoalProtein(goalValues.protein());
+        verify(diary).setGoalCarbohydrates(goalValues.carbohydrates());
+        verify(diary).setGoalFat(goalValues.fat());
+        verify(diary).setGoalFiber(goalValues.fiber());
     }
 
     @Test
@@ -240,8 +237,8 @@ class GoalServiceTest {
                 .build();
     }
 
-    private GoalValuesObj buildGoalValuesObjForMale() {
-        return GoalValuesObj.builder()
+    private GoalValues buildGoalValuesForMale() {
+        return GoalValues.builder()
                 .kcal(BigDecimal.valueOf(1000))
                 .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
                 .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
@@ -250,8 +247,8 @@ class GoalServiceTest {
                 .build();
     }
 
-    private GoalValuesObj buildGoalValuesObjForFemale() {
-        return GoalValuesObj.builder()
+    private GoalValues buildGoalValuesForFemale() {
+        return GoalValues.builder()
                 .kcal(BigDecimal.valueOf(1000))
                 .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
                 .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))

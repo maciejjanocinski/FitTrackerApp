@@ -6,7 +6,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-interface GoalMapper {
+public interface GoalMapper {
 
     GoalMapper INSTANCE = Mappers.getMapper(GoalMapper.class);
 

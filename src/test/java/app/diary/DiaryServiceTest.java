@@ -9,11 +9,10 @@ import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;
 import app.user.UserRepository;
+import app.utils.TestUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -44,11 +43,11 @@ class DiaryServiceTest {
     Authentication authentication;
     @Mock
     Diary diary;
+    private final String username = new TestUtils().getUsername();
 
     @Test
     void getDiary_inputDataOk_returnsDiaryDto() {
         //given
-        String username = "username";
         DiaryDto expectedResponse = buildDiaryDto();
         User user = buildUser(username);
 
@@ -72,7 +71,6 @@ class DiaryServiceTest {
     @Test
     void getDiary_userNotFound_throwsUserNotFoundException() {
         //given
-        String username = "username";
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
@@ -95,7 +93,6 @@ class DiaryServiceTest {
     @Test
     void addProductToDiary_inputDataOk_returnsProductInDiaryDto() {
         //given
-        String username = "username";
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
         Product product = buildProduct(addProductDto.foodId());
         User user = buildUser(username);
@@ -103,7 +100,7 @@ class DiaryServiceTest {
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name()))
+        when(productsRepository.findProductByProductIdAndName(addProductDto.foodId(), addProductDto.name()))
                 .thenReturn(Optional.of(product));
         when(productMapper.mapToProductInDiaryDto(any(ProductInDiary.class)))
                 .thenReturn(buildProductInDiaryDto());
@@ -116,7 +113,7 @@ class DiaryServiceTest {
 
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
-        verify(productsRepository).findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+        verify(productsRepository).findProductByProductIdAndName(addProductDto.foodId(), addProductDto.name());
         verify(diary).addProduct(any(ProductInDiary.class));
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
@@ -126,7 +123,6 @@ class DiaryServiceTest {
     @Test
     void addProductToDiary_userNotFound_throwsUserNotFoundException() {
         //given
-        String username = "username";
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
 
         when(authentication.getName()).thenReturn(username);
@@ -141,7 +137,7 @@ class DiaryServiceTest {
 
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
-        verify(productsRepository, never()).findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+        verify(productsRepository, never()).findProductByProductIdAndName(addProductDto.foodId(), addProductDto.name());
         verify(diary, never()).addProduct(any(ProductInDiary.class));
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
@@ -151,13 +147,12 @@ class DiaryServiceTest {
     @Test
     void addProductToDiary_productNotFound_throwsProductNotFoundException() {
         //given
-        String username = "username";
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
         User user = buildUser(username);
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name()))
+        when(productsRepository.findProductByProductIdAndName(addProductDto.foodId(), addProductDto.name()))
                 .thenReturn(Optional.empty());
 
         //when
@@ -169,7 +164,7 @@ class DiaryServiceTest {
 
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
-        verify(productsRepository).findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+        verify(productsRepository).findProductByProductIdAndName(addProductDto.foodId(), addProductDto.name());
         verify(diary, never()).addProduct(any(ProductInDiary.class));
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
@@ -179,7 +174,6 @@ class DiaryServiceTest {
     @Test
     void editProductAmountInDiary_inputDataOk_returnsProductInDiaryDto() {
         //given
-        String username = "username";
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
         Product product = buildProduct(addProductDto.foodId());
         User user = buildUser(username);
@@ -191,7 +185,7 @@ class DiaryServiceTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productsAddedToDiaryRepository.findById(editProductInDiaryDto.id()))
                 .thenReturn(Optional.of(productInDiary));
-        when(productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName()))
+        when(productsRepository.findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName()))
                 .thenReturn(Optional.of(product));
         when(productMapper.mapToProductInDiaryDto(any(ProductInDiary.class)))
                 .thenReturn(buildProductInDiaryDto());
@@ -205,7 +199,7 @@ class DiaryServiceTest {
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository).findById(editProductInDiaryDto.id());
-        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(productMapper).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
@@ -215,7 +209,6 @@ class DiaryServiceTest {
     @Test
     void editProductAmountInDiary_userNotFound_throwsUserNotFoundException() {
         //given
-        String username = "username";
         //TODO Exception message to constant variable
         EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
         ProductInDiary productInDiary = buildProductInDiary();
@@ -233,7 +226,7 @@ class DiaryServiceTest {
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository, never()).findById(editProductInDiaryDto.id());
-        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository, never()).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(productMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
@@ -243,7 +236,6 @@ class DiaryServiceTest {
     @Test
     void editProductAmountInDiary_productInDiaryNotFound_throwsProductNotFoundException() {
         //given
-        String username = "username";
         EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
         ProductInDiary productInDiary = buildProductInDiary();
         User user = buildUser(username);
@@ -263,7 +255,7 @@ class DiaryServiceTest {
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository).findById(editProductInDiaryDto.id());
-        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository, never()).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(productMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
@@ -273,7 +265,6 @@ class DiaryServiceTest {
     @Test
     void editProductAmountInDiary_productNotFound_throwsProductNotFoundException() {
         //given
-        String username = "username";
         EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
         ProductInDiary productInDiary = buildProductInDiary();
         User user = buildUser(username);
@@ -282,7 +273,7 @@ class DiaryServiceTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productsAddedToDiaryRepository.findById(editProductInDiaryDto.id()))
                 .thenReturn(Optional.of(productInDiary));
-        when(productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName()))
+        when(productsRepository.findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName()))
                 .thenReturn(Optional.empty());
 
         //when
@@ -295,7 +286,7 @@ class DiaryServiceTest {
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository).findById(editProductInDiaryDto.id());
-        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(productMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
@@ -305,7 +296,6 @@ class DiaryServiceTest {
     @Test
     void deleteProductFromDiary_inputDataOk_returnsString() {
         //given
-        String username = "username";
         String expectedResponse = "Product deleted from diary successfully";
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
         Product product = buildProduct(addProductDto.foodId());
@@ -317,7 +307,7 @@ class DiaryServiceTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productsAddedToDiaryRepository.findById(1L))
                 .thenReturn(Optional.of(productInDiary));
-        when(productsRepository.findProductEntityByProductIdAndName(
+        when(productsRepository.findProductByProductIdAndName(
                 productInDiary.getProductId(),
                 productInDiary.getProductName())
         )
@@ -333,7 +323,7 @@ class DiaryServiceTest {
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository).findById(1L);
         verify(productsAddedToDiaryRepository).delete(productInDiary);
-        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
     }
@@ -341,7 +331,6 @@ class DiaryServiceTest {
     @Test
     void deleteProductFromDiary_userNotFound_throwsUserNotFoundException() {
         //given
-        String username = "username";
         String expectedResponse = "User not found";
         ProductInDiary productInDiary = buildProductInDiary();
 
@@ -359,7 +348,7 @@ class DiaryServiceTest {
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository, never()).findById(1L);
         verify(productsAddedToDiaryRepository, never()).delete(productInDiary);
-        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository, never()).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
     }
@@ -367,7 +356,6 @@ class DiaryServiceTest {
     @Test
     void deleteProductFromDiary_productInDiaryNotFound_throwsProductNotFoundException() {
         //given
-        String username = "username";
         String expectedResponse = "Product not found";
         User user = buildUser(username);
         ProductInDiary productInDiary = buildProductInDiary();
@@ -387,7 +375,7 @@ class DiaryServiceTest {
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository).findById(1L);
         verify(productsAddedToDiaryRepository, never()).delete(productInDiary);
-        verify(productsRepository, never()).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository, never()).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
     }
@@ -395,7 +383,6 @@ class DiaryServiceTest {
     @Test
     void deleteProductFromDiary_productNotFound_throwsProductNotFoundException() {
         //given
-        String username = "username";
         String expectedResponse = "Product not found";
         User user = buildUser(username);
         ProductInDiary productInDiary = buildProductInDiary();
@@ -404,7 +391,7 @@ class DiaryServiceTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productsAddedToDiaryRepository.findById(1L))
                 .thenReturn(Optional.of(productInDiary));
-        when(productsRepository.findProductEntityByProductIdAndName
+        when(productsRepository.findProductByProductIdAndName
                 (
                         productInDiary.getProductId(),
                         productInDiary.getProductName())
@@ -421,7 +408,7 @@ class DiaryServiceTest {
         verify(userRepository).findByUsername(username);
         verify(productsAddedToDiaryRepository).findById(1L);
         verify(productsAddedToDiaryRepository).delete(productInDiary);
-        verify(productsRepository).findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
+        verify(productsRepository).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(diary, never()).calculateNutrientsLeft();
         verify(diary, never()).calculateNutrientsSum();
     }

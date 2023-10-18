@@ -54,7 +54,9 @@ public class ProductService {
 
     private List<Product> parseProductsFromResponseDto(ResponseDTO response, String query) {
         List<Product> products = new ArrayList<>();
-        assert response != null;
+        if (response == null) {
+            return products;
+        }
         for (HintDTO hint : response.getHints()) {
             FoodDTO food = hint.getFood();
             Map<String, BigDecimal> nutrients = food.getNutrients();
@@ -66,7 +68,6 @@ public class ProductService {
                     ));
 
             Product product = new Product();
-
             checkIfFieldsAreNotNullAndSetValues(
                     product,
                     food.getFoodId(),

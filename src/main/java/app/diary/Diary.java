@@ -1,15 +1,26 @@
 package app.diary;
 
+import app.exceptions.InvalidInputException;
+import app.goal.GoalDto;
+import app.goal.GoalMapper;
+import app.goal.GoalResponseDto;
+import app.goal.GoalValues;
+import app.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -48,6 +59,8 @@ public class Diary {
 
     public void addProduct(ProductInDiary product) {
         this.products.add(product);
+        calculateNutrientsLeft();
+        calculateNutrientsSum();
     }
 
     public void calculateNutrientsSum() {
@@ -64,6 +77,46 @@ public class Diary {
         this.leftCarbohydrates = this.goalCarbohydrates.subtract(this.sumCarbohydrates);
         this.leftFat = this.goalFat.subtract(this.sumFat);
         this.leftFiber = this.goalFiber.subtract(this.sumFiber);
+    }
+
+
+    public Diary setGoal(GoalDto goalDto, String gender) {
+        validateGoalDto(goalDto);
+        GoalValues goalValues = countGoal(goalDto, gender);
+        setGoalValuesToDiary(goalValues);
+        calculateNutrientsLeft();
+        calculateNutrientsSum();
+        return this;
+    }
+
+   private void validateGoalDto(GoalDto goalDto) {
+        if (goalDto.kcal().compareTo(BigDecimal.valueOf(0)) < 1 ||
+                goalDto.proteinPercentage() + goalDto.carbohydratesPercentage() + goalDto.fatPercentage() != 100) {
+            throw new InvalidInputException("Kcal must be greater than 0 and sum of percentages must be equal to 100");
+        }
+    }
+
+    GoalValues countGoal(GoalDto goalDto, String gender) {
+        BigDecimal protein = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.proteinPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
+        BigDecimal carbohydrates = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.carbohydratesPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
+        BigDecimal fat = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.fatPercentage())).divide(BigDecimal.valueOf(900), 2, RoundingMode.HALF_UP);
+        BigDecimal fiber = Objects.equals(gender, "M") ? BigDecimal.valueOf(38) : BigDecimal.valueOf(25);
+
+        return GoalValues.builder()
+                .kcal(goalDto.kcal())
+                .protein(protein)
+                .carbohydrates(carbohydrates)
+                .fat(fat)
+                .fiber(fiber)
+                .build();
+    }
+
+    void setGoalValuesToDiary(GoalValues goalValues) {
+        this.setGoalKcal(goalValues.kcal());
+        this.setGoalProtein(goalValues.protein());
+        this.setGoalCarbohydrates(goalValues.carbohydrates());
+        this.setGoalFat(goalValues.fat());
+        this.setGoalFiber(goalValues.fiber());
     }
 
     public Diary() {

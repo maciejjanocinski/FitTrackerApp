@@ -14,7 +14,7 @@ import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class DiaryTest {
-    Diary diary = Diary.builder()
+   private final Diary diary = Diary.builder()
             .products(new ArrayList<>())
             .build();
 
@@ -27,12 +27,9 @@ class DiaryTest {
         diary.calculateNutrientsSum();
 
         // then
-        assertEquals(BigDecimal.valueOf(500).setScale(1, RoundingMode.HALF_UP), diary.getSumKcal());
-        assertEquals(BigDecimal.valueOf(50).setScale(1, RoundingMode.HALF_UP), diary.getSumProtein());
-        assertEquals(BigDecimal.valueOf(100).setScale(1, RoundingMode.HALF_UP), diary.getSumCarbohydrates());
-        assertEquals(BigDecimal.valueOf(150).setScale(1, RoundingMode.HALF_UP), diary.getSumFat());
-        assertEquals(BigDecimal.valueOf(200).setScale(1, RoundingMode.HALF_UP), diary.getSumFiber());
+        checkEqualityOfNutrientsSum();
     }
+
 
     @Test
     void calculateNutrientsLeft() {
@@ -45,11 +42,15 @@ class DiaryTest {
         diary.calculateNutrientsLeft();
 
         // then
-        assertEquals(BigDecimal.valueOf(500).setScale(1, RoundingMode.HALF_UP), diary.getLeftKcal());
-        assertEquals(BigDecimal.valueOf(50).setScale(1, RoundingMode.HALF_UP), diary.getLeftProtein());
-        assertEquals(BigDecimal.valueOf(100).setScale(1, RoundingMode.HALF_UP), diary.getLeftCarbohydrates());
-        assertEquals(BigDecimal.valueOf(150).setScale(1, RoundingMode.HALF_UP), diary.getLeftFat());
-        assertEquals(BigDecimal.valueOf(200).setScale(1, RoundingMode.HALF_UP), diary.getLeftFiber());
+        checkEqualityOfNutrientsSum();
+    }
+
+    private void checkEqualityOfNutrientsSum() {
+        assertEquals(BigDecimal.valueOf(500).setScale(1, RoundingMode.HALF_UP), diary.getSumKcal());
+        assertEquals(BigDecimal.valueOf(50).setScale(1, RoundingMode.HALF_UP), diary.getSumProtein());
+        assertEquals(BigDecimal.valueOf(100).setScale(1, RoundingMode.HALF_UP), diary.getSumCarbohydrates());
+        assertEquals(BigDecimal.valueOf(150).setScale(1, RoundingMode.HALF_UP), diary.getSumFat());
+        assertEquals(BigDecimal.valueOf(200).setScale(1, RoundingMode.HALF_UP), diary.getSumFiber());
     }
 
     private void setGoals() {
@@ -69,8 +70,8 @@ class DiaryTest {
                 .fiber(BigDecimal.valueOf(40))
                 .build();
 
-        for (int i = 0; i < 5; i++){
-        diary.addProduct(product);
+        for (int i = 0; i < 5; i++) {
+            diary.addProduct(product);
         }
     }
 }

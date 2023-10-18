@@ -4,7 +4,7 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 @Builder
-record GoalDto(
+public record GoalDto(
         BigDecimal kcal,
         int proteinPercentage,
         int carbohydratesPercentage,
