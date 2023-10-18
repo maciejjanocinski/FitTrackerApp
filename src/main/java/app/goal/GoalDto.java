@@ -1,8 +1,10 @@
 package app.goal;
 
-import java.math.BigDecimal;
+import lombok.Builder;
 
-record GoalDto(
+import java.math.BigDecimal;
+@Builder
+public record GoalDto(
         BigDecimal kcal,
         int proteinPercentage,
         int carbohydratesPercentage,

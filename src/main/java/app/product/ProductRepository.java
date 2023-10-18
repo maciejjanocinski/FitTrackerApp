@@ -17,7 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query("DELETE FROM Product p WHERE p.isUsed = false")
     void deleteNotUsedProducts();
 
-    Optional<Product> findProductEntityByProductIdAndName(String id, String name);
+    Optional<Product> findProductByProductIdAndName(String id, String name);
 
     List<Product> findAllByQuery(String query);
 

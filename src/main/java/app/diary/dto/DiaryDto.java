@@ -1,23 +1,26 @@
 package app.diary.dto;
 
+import lombok.Builder;
+
+import java.math.BigDecimal;
 import java.util.List;
-
+@Builder
 public record DiaryDto(
-        double sumKcal,
-        double sumProtein,
-        double sumCarbohydrates,
-        double sumFat,
-        double sumFiber,
+        BigDecimal sumKcal,
+        BigDecimal sumProtein,
+        BigDecimal sumCarbohydrates,
+        BigDecimal sumFat,
+        BigDecimal sumFiber,
 
-        double goalKcal,
-        double goalProtein,
-        double goalFat,
-        double goalCarbohydrates,
-        double goalFiber,
-        double leftKcal,
-        double leftProtein,
-        double leftFat,
-        double leftCarbohydrates,
-        double leftFiber,
-        List<ProductAddedToDiaryDto> products) {
+        BigDecimal goalKcal,
+        BigDecimal goalProtein,
+        BigDecimal goalFat,
+        BigDecimal goalCarbohydrates,
+        BigDecimal goalFiber,
+        BigDecimal leftKcal,
+        BigDecimal leftProtein,
+        BigDecimal leftFat,
+        BigDecimal leftCarbohydrates,
+        BigDecimal leftFiber,
+        List<ProductInDiaryDto> products) {
 }

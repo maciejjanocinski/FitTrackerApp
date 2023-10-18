@@ -1,12 +1,11 @@
 package app.user.dto;
 
 import app.util.passwordValidation.ValidPassword;
+import lombok.Builder;
 
-public record UpdatePasswordDto(@ValidPassword(message = "Old password is not valid")
-                                String oldPassword,
-                                @ValidPassword(message = "Old password is not valid")
-                                String confirmOldPassword,
-                                @ValidPassword(message = "New password is not valid")
-                                String newPassword) {
+@Builder
+public record UpdatePasswordDto(@ValidPassword String oldPassword,
+                                @ValidPassword String newPassword,
+                                @ValidPassword String confirmNewPassword) {
 }
 

@@ -3,9 +3,11 @@ package app.diary;
 import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DiaryDto;
 import app.diary.dto.EditProductInDiaryDto;
-import app.diary.dto.ProductAddedToDiaryDto;
+import app.diary.dto.ProductInDiaryDto;
+import app.exceptions.ProductNotFoundException;
 import app.product.Product;
 import app.product.ProductRepository;
+import app.user.User;
 import app.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -14,11 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Optional;
 
-import static app.user.UserService.getUser;
 
 @Service
 @AllArgsConstructor
@@ -32,78 +31,84 @@ class DiaryService {
 
     @Transactional
     public DiaryDto getDiary(Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return diaryMapper.INSTANCE.mapDiaryToDiaryDto(diary);
+        return diaryMapper.mapDiaryToDiaryDto(diary);
     }
 
     @Transactional
-    public ProductAddedToDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
-        Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(addProductDto.foodId(), addProductDto.name());
+    public ProductInDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
+        Product product = productsRepository
+                .findProductByProductIdAndName(
+                        addProductDto.foodId(),
+                        addProductDto.name())
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        if (product.isEmpty()) {
-            throw new UsernameNotFoundException("Product not found");
-        }
-        product.get().setUsed(true);
+        product.setUsed(true);
 
-        ProductAddedToDiary productAddedToDiary = generateNewProductAddedToDiary(
+        ProductInDiary productInDiary = generateNewProductInDiary(
                 diary,
-                product.get(),
+                product,
                 addProductDto.measureLabel(),
                 addProductDto.quantity()
         );
 
-        diary.getProducts().add(productAddedToDiary);
-
-        diary.calculateNutrientsSum();
-        diary.calculateNutrientsLeft();
-
-        return productMapper.INSTANCE.mapToProductAddedToDiaryDto(productAddedToDiary);
+        diary.addProduct(productInDiary);
+        return productMapper.mapToProductInDiaryDto(productInDiary);
     }
 
     @Transactional
-    public ProductAddedToDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
-        ProductAddedToDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
-        if (product.isEmpty()) {
-            throw new RuntimeException("Product not found");
-        }
+    public ProductInDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
+        ProductInDiary productInDiary = productsAddedToDiaryRepository.findById(editProductDto.id())
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        Product product = productsRepository.findProductByProductIdAndName
+                        (
+                                productInDiary.getProductId(),
+                                productInDiary.getProductName()
+                        )
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        ProductAddedToDiary productWithNewValues = generateNewProductAddedToDiary(
+        ProductInDiary productWithNewValues = generateNewProductInDiary(
                 productInDiary.getDiary(),
-                product.get(),
+                product,
                 editProductDto.measureLabel(),
                 editProductDto.quantity()
         );
 
-       productMapper.INSTANCE.mapToProductAddedToDiary(productWithNewValues , productInDiary);
+        productMapper.mapToProductInDiary(productWithNewValues, productInDiary);
 
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return productMapper.INSTANCE.mapToProductAddedToDiaryDto(productInDiary);
+        return productMapper.mapToProductInDiaryDto(productInDiary);
     }
 
     @Transactional
     public String deleteProductFromDiary(Long id, Authentication authentication) {
-        Diary diary = getUser(userRepository, authentication).getDiary();
-        ProductAddedToDiary productAddedToDiary = productsAddedToDiaryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        productsAddedToDiaryRepository.delete(productAddedToDiary);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Diary diary = user.getDiary();
+        ProductInDiary productInDiary = productsAddedToDiaryRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        productsAddedToDiaryRepository.delete(productInDiary);
 
-        Optional<Product> product = productsRepository.findProductEntityByProductIdAndName(productAddedToDiary.getProductId(), productAddedToDiary.getProductName());
-        if (product.isEmpty()) {
-            throw new RuntimeException("Product not found");
-        }
+        Product product = productsRepository.findProductByProductIdAndName(
+                        productInDiary.getProductId(),
+                        productInDiary.getProductName()
+                )
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        if (productsAddedToDiaryRepository.findProductAddedToDiaryByProductName(productAddedToDiary.getProductName()).isEmpty()) {
-            product.get().setUsed(false);
-        }
+        product.setUsed(false);
 
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
@@ -111,18 +116,18 @@ class DiaryService {
         return "Product deleted from diary successfully";
     }
 
-    private ProductAddedToDiary generateNewProductAddedToDiary(Diary diary, Product product, String measureLabel, double quantity) {
-
+    ProductInDiary generateNewProductInDiary(Diary diary, Product product, String measureLabel, BigDecimal quantity) {
+//TODO test this method
         String productId = product.getProductId();
         String productName = product.getName();
-        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
-        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
-        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
-        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(BigDecimal.valueOf(quantity)));
-        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(BigDecimal.valueOf(quantity));
+        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(quantity));
+        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
         String image = product.getImage();
 
-        ProductAddedToDiary.ProductAddedToDiaryBuilder productAddedToDiary = ProductAddedToDiary.builder()
+        ProductInDiary.ProductInDiaryBuilder productInDiary = ProductInDiary.builder()
                 .diary(diary)
                 .productId(productId)
                 .productName(productName)
@@ -136,7 +141,7 @@ class DiaryService {
                 .image(image);
 
 
-        return productAddedToDiary.build();
+        return productInDiary.build();
     }
 
 }

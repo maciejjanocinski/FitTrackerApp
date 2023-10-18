@@ -1,11 +1,14 @@
 package app.goal;
 
-import java.math.BigDecimal;
+import lombok.Builder;
 
-record GoalResponseDto(BigDecimal kcalGoal,
-                       BigDecimal proteinGoal,
-                       BigDecimal carbohydratesGoal,
-                       BigDecimal fatGoal,
-                       BigDecimal fiberGoal
-){}
+import java.math.BigDecimal;
+@Builder
+public record GoalResponseDto(BigDecimal kcalGoal,
+                              BigDecimal proteinInGram,
+                              BigDecimal carbohydratesInGram,
+                              BigDecimal fatInGram,
+                              BigDecimal fiberInGram
+){
+}
 

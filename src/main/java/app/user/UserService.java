@@ -1,6 +1,6 @@
 package app.user;
 
-import app.exceptions.InvalidInputException;
+import app.exceptions.InvalidPasswordException;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
@@ -29,38 +29,41 @@ public class UserService implements UserDetailsService {
     }
 
     UserDto getUser(Authentication authentication) {
-        User user = getUser(userRepository, authentication);
-        UserDto userDto = userMapper.INSTANCE.mapUserToUserDto(user);
-        return userDto;
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userMapper.mapUserToUserDto(user);
     }
 
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
-        User user = getUser(userRepository, authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         updateUserProfile(user, updateProfileInfoDto);
         return "Changes has been successfully approved";
     }
 
     @Transactional
     public String updatePassword(Authentication authentication, UpdatePasswordDto password) {
-        User user = getUser(userRepository, authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (password.oldPassword().equals(password.confirmOldPassword()) &&
+        if (password.newPassword().equals(password.confirmNewPassword()) &&
                 passwordEncoder.matches(password.oldPassword(), user.getPassword())) {
 
             if (setPasswordWithValidation(password.newPassword())) {
                 user.setPassword(passwordEncoder.encode(password.newPassword()));
                 return "Password has been successfully changed";
             }
-        } else if (!password.oldPassword().equals(password.confirmOldPassword())) {
-            throw new InvalidInputException("Passwords are not the same.");
+        } else if (!password.newPassword().equals(password.confirmNewPassword())) {
+            throw new InvalidPasswordException("Passwords are not the same.");
         }
 
-      throw new InvalidInputException("You have passed wrong password.");
+      throw new InvalidPasswordException("You have passed wrong password.");
     }
 
     String deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
-        User user = getUser(userRepository, authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword()) &&
                 deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
@@ -68,20 +71,15 @@ public class UserService implements UserDetailsService {
             return "Profile with username \"" + user.getUsername() + "\" has been deleted.";
         }
 
-        throw new InvalidInputException("You have passed wrong password.");
+        throw new InvalidPasswordException("You have passed wrong password.");
     }
 
-    public static User getUser(UserRepository userRepository, Authentication authentication) {
-        return userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
-    private boolean setPasswordWithValidation(String password) {
+     boolean setPasswordWithValidation(String password) {
         PasswordValidator passwordValidator = new PasswordValidator();
         return passwordValidator.isValidSetterCheck(password);
     }
 
-    private void updateUserProfile(User user, UpdateProfileInfoDto updateProfileInfoDto) {
+     void updateUserProfile(User user, UpdateProfileInfoDto updateProfileInfoDto) {
         user.setUsername(updateProfileInfoDto.username());
         user.setName(updateProfileInfoDto.name());
         user.setSurname(updateProfileInfoDto.surname());

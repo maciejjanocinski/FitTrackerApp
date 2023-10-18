@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
- interface ProductAddedToDiaryRepository extends JpaRepository<ProductAddedToDiary, Long> {
-   List<ProductAddedToDiary> findProductAddedToDiaryByProductName(String name);
+ interface ProductAddedToDiaryRepository extends JpaRepository<ProductInDiary, Long> {
+   List<ProductInDiary> findProductAddedToDiaryByProductName(String name);
 }
