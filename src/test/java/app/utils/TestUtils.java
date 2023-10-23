@@ -7,4 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TestUtils {
    private final String username = "username";
+   private final String query = "bread";
 }

@@ -8,8 +8,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface GoalMapper {
 
-    GoalMapper INSTANCE = Mappers.getMapper(GoalMapper.class);
-
     @Mapping(target = "kcalGoal", source = "goalKcal")
     @Mapping(target = "proteinInGram", source = "goalProtein")
     @Mapping(target = "carbohydratesInGram", source = "goalCarbohydrates")

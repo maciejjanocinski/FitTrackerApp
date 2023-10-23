@@ -15,12 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 
 @Service
 @AllArgsConstructor
+@Transactional
 class DiaryService {
 
     private final ProductRepository productsRepository;
@@ -29,7 +27,6 @@ class DiaryService {
     private final ProductMapper productMapper;
     private final DiaryMapper diaryMapper;
 
-    @Transactional
     public DiaryDto getDiary(Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -40,7 +37,6 @@ class DiaryService {
         return diaryMapper.mapDiaryToDiaryDto(diary);
     }
 
-    @Transactional
     public ProductInDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -53,8 +49,7 @@ class DiaryService {
 
         product.setUsed(true);
 
-        ProductInDiary productInDiary = generateNewProductInDiary(
-                diary,
+        ProductInDiary productInDiary = diary.generateNewProductInDiary(
                 product,
                 addProductDto.measureLabel(),
                 addProductDto.quantity()
@@ -64,7 +59,6 @@ class DiaryService {
         return productMapper.mapToProductInDiaryDto(productInDiary);
     }
 
-    @Transactional
     public ProductInDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -78,8 +72,7 @@ class DiaryService {
                         )
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-        ProductInDiary productWithNewValues = generateNewProductInDiary(
-                productInDiary.getDiary(),
+        ProductInDiary productWithNewValues = diary.generateNewProductInDiary(
                 product,
                 editProductDto.measureLabel(),
                 editProductDto.quantity()
@@ -93,7 +86,6 @@ class DiaryService {
         return productMapper.mapToProductInDiaryDto(productInDiary);
     }
 
-    @Transactional
     public String deleteProductFromDiary(Long id, Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -115,33 +107,4 @@ class DiaryService {
 
         return "Product deleted from diary successfully";
     }
-
-    ProductInDiary generateNewProductInDiary(Diary diary, Product product, String measureLabel, BigDecimal quantity) {
-//TODO test this method
-        String productId = product.getProductId();
-        String productName = product.getName();
-        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
-        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
-        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
-        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(quantity));
-        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
-        String image = product.getImage();
-
-        ProductInDiary.ProductInDiaryBuilder productInDiary = ProductInDiary.builder()
-                .diary(diary)
-                .productId(productId)
-                .productName(productName)
-                .kcal(calories)
-                .protein(proteins)
-                .carbohydrates(carbs)
-                .fat(fats)
-                .fiber(fiber)
-                .measureLabel(measureLabel)
-                .quantity(quantity)
-                .image(image);
-
-
-        return productInDiary.build();
-    }
-
 }

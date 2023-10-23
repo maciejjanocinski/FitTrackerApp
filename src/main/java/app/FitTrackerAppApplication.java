@@ -15,15 +15,15 @@ public class FitTrackerAppApplication {
         SpringApplication.run(FitTrackerAppApplication.class, args);
     }
 
-    @Bean
-    CommandLineRunner run(RoleRepository roleRepository) {
-        return args -> {
-            if (roleRepository.findByAuthority("ADMIN").isPresent()) return;
-            roleRepository.save(new Role("ADMIN"));
-            roleRepository.save(new Role("USER_STANDARD"));
-            roleRepository.save(new Role("USER_PREMIUM"));
-
-        };
-    }
+//    @Bean
+//    CommandLineRunner run(RoleRepository roleRepository) {
+//        return args -> {
+//            if (roleRepository.findByAuthority("ADMIN").isPresent()) return;
+//            roleRepository.save(new Role("ADMIN"));
+//            roleRepository.save(new Role("USER_STANDARD"));
+//            roleRepository.save(new Role("USER_PREMIUM"));
+//
+//        };
+//    }
 
 }

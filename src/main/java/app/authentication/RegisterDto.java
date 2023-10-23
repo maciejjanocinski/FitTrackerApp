@@ -22,7 +22,6 @@ public record RegisterDto(
         String surname,
 
         @NotEmpty(message = "You have to pass your gender.")
-        @Size(max = 1, min = 1, message = "One character is enough.")
         String gender,
 
         @NotEmpty(message = "You have to pass your email.")

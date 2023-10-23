@@ -1,8 +1,10 @@
 package app.authentication;
 
 import app.diary.Diary;
+import app.diary.GenderEnum;
 import app.user.User;
 import app.user.UserRepository;
+import jakarta.validation.UnexpectedTypeException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,7 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import app.authentication.RoleEnum.roles;
+
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -35,7 +39,7 @@ class AuthenticationService {
                 .surname(registerDto.surname().trim())
                 .username(registerDto.username().trim())
                 .password(passwordEncoder.encode(registerDto.password().trim()))
-                .gender(registerDto.gender().trim())
+                .gender(User.validateGender(registerDto.gender()))
                 .email(registerDto.email().trim())
                 .phone(registerDto.phone().trim())
                 .diary(diary)
@@ -49,14 +53,16 @@ class AuthenticationService {
 
     LoginResponseDto login(LoginDto loginDto) {
 
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
-            );
-            String token = tokenService.generateJwt(auth);
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
+        );
+        String token = tokenService.generateJwt(auth);
 
         return new LoginResponseDto(loginDto.username(), token);
 
     }
+
+
 
 
 }
