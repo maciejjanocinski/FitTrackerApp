@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/goal")
 public class GoalController {
 
-    private final GoalService goalsService;
+    private final GoalService goalService;
 
     @GetMapping("/")
      GoalResponseDto getGoals(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication) {
-        return goalsService.getGoal(authentication);
+        return goalService.getGoal(authentication);
     }
 
     @PostMapping("/")
      GoalResponseDto setGoals(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication,
                                                         @RequestBody GoalDto goalsDto) {
-        return goalsService.setGoal(authentication, goalsDto);
+        return goalService.setGoal(authentication, goalsDto);
     }
 }

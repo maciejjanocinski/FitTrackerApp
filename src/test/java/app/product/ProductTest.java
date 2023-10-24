@@ -1,21 +1,20 @@
 package app.product;
 
-import app.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static app.utils.TestUtils.query;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 class ProductTest {
 
-    private final String query = new TestUtils().getQuery();
     @Test
     void parseProductsFromResponseDto_inputDataOk() {
         // given

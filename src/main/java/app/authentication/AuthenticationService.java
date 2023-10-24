@@ -1,20 +1,17 @@
 package app.authentication;
 
+import app.authentication.RoleEnum.roles;
 import app.diary.Diary;
-import app.diary.GenderEnum;
 import app.user.User;
 import app.user.UserRepository;
-import jakarta.validation.UnexpectedTypeException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import app.authentication.RoleEnum.roles;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -28,6 +25,9 @@ class AuthenticationService {
     private final TokenService tokenService;
 
     RegisterDto register(RegisterDto registerDto) {
+        roleRepository.save(new Role("ADMIN"));
+        roleRepository.save(new Role("USER_STANDARD"));
+        roleRepository.save(new Role("USER_PREMIUM"));
 
         Role userStandardRole = roleRepository.findByAuthority(roles.USER_STANDARD.toString())
                 .orElseThrow(() -> new RuntimeException("User standard role not found."));
@@ -61,8 +61,6 @@ class AuthenticationService {
         return new LoginResponseDto(loginDto.username(), token);
 
     }
-
-
 
 
 }

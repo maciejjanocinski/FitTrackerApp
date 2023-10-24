@@ -30,6 +30,7 @@ class DiaryService {
     public DiaryDto getDiary(Authentication authentication) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        //TODO implement class with static String fields like "User not found" and "Product not found"
         Diary diary = user.getDiary();
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();

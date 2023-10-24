@@ -3,7 +3,6 @@ package app.goal;
 import app.diary.Diary;
 import app.user.User;
 import app.user.UserRepository;
-import app.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
+import static app.utils.TestUtils.username;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -32,7 +32,6 @@ class GoalServiceTest {
     private Diary diary;
     @InjectMocks
     private GoalService goalService;
-    private final String username = new TestUtils().getUsername();
 
     @Test
     void getGoal_inputDataOk() {
@@ -145,16 +144,6 @@ class GoalServiceTest {
                 .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
                 .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
                 .fiber(BigDecimal.valueOf(38))
-                .build();
-    }
-
-    private GoalValues buildGoalValuesForFemale() {
-        return GoalValues.builder()
-                .kcal(BigDecimal.valueOf(1000))
-                .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
-                .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
-                .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
-                .fiber(BigDecimal.valueOf(25))
                 .build();
     }
 

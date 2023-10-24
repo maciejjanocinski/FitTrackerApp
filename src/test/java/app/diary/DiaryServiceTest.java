@@ -9,7 +9,6 @@ import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;
 import app.user.UserRepository;
-import app.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +22,7 @@ import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Optional;
 
+import static app.utils.TestUtils.username;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -45,7 +45,6 @@ class DiaryServiceTest {
     private Diary diary;
     @InjectMocks
     private DiaryService diaryService;
-    private final String username = new TestUtils().getUsername();
 
     @Test
     void getDiary_inputDataOk_returnsDiaryDto() {
@@ -299,7 +298,6 @@ class DiaryServiceTest {
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
         Product product = buildProduct(addProductDto.foodId());
         User user = buildUser();
-        EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
         ProductInDiary productInDiary = buildProductInDiary();
 
         when(authentication.getName()).thenReturn(username);

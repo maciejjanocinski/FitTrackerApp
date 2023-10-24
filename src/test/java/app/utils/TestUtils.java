@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class TestUtils {
-   private final String username = "username";
-   private final String query = "bread";
+    public static final String username = "username";
+    public static final String query = "bread";
+    public static final String userNotFoundMessage = "User not found";
+    public static String productNotFoundMessage = "Product not found";
 }
