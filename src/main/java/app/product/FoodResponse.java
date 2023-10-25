@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
  class ResponseDTO {
     private String text;
@@ -19,12 +21,17 @@ import java.util.Map;
 }
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
  class ParsedDTO {
     private FoodDTO food;
 
 }
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
  class HintDTO {
     private FoodDTO food;
@@ -33,6 +40,8 @@ import java.util.Map;
 }
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
  class FoodDTO {
     private String foodId;
@@ -46,6 +55,8 @@ import java.util.Map;
 }
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
  class MeasureDTO {
     private String uri;

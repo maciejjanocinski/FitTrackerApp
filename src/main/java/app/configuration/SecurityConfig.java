@@ -1,5 +1,7 @@
 package app.configuration;
 
+import app.authentication.Role;
+import app.authentication.RoleRepository;
 import app.util.RsaKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -8,6 +10,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +39,17 @@ import java.util.Map;
 class SecurityConfig {
 
     private final RsaKeyProperties keys;
+
+    @Bean
+    CommandLineRunner run(RoleRepository roleRepository) {
+        return args -> {
+            if (roleRepository.findByAuthority("ADMIN").isPresent()) return;
+            roleRepository.save(new Role("ADMIN"));
+            roleRepository.save(new Role("USER_STANDARD"));
+            roleRepository.save(new Role("USER_PREMIUM"));
+
+        };
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {

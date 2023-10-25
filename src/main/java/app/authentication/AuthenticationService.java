@@ -25,9 +25,6 @@ class AuthenticationService {
     private final TokenService tokenService;
 
     RegisterDto register(RegisterDto registerDto) {
-        roleRepository.save(new Role("ADMIN"));
-        roleRepository.save(new Role("USER_STANDARD"));
-        roleRepository.save(new Role("USER_PREMIUM"));
 
         Role userStandardRole = roleRepository.findByAuthority(roles.USER_STANDARD.toString())
                 .orElseThrow(() -> new RuntimeException("User standard role not found."));

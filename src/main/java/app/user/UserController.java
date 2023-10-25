@@ -29,21 +29,27 @@ class UserController {
     @PatchMapping("/")
      String updateProfile(@CurrentSecurityContext(expression = "authentication")
                                                  Authentication authentication,
-                                                 @RequestBody @Valid UpdateProfileInfoDto updates) {
+                                                 @RequestBody
+                                                 @Valid
+                                                 UpdateProfileInfoDto updates) {
         return userService.updateProfile(authentication, updates);
     }
 
     @PatchMapping("/password")
      String updatePassword(@CurrentSecurityContext(expression = "authentication")
                                                   Authentication authentication,
-                                                  @RequestBody UpdatePasswordDto password){
+                                                  @RequestBody
+                                                  @Valid
+                                                  UpdatePasswordDto password){
         return userService.updatePassword(authentication,password);
     }
 
     @DeleteMapping("/")
      String deleteProfile(@CurrentSecurityContext(expression = "authentication")
                                                  Authentication authentication,
-                                                 @RequestBody DeleteUserDto deleteUserDto) {
+                                                 @RequestBody
+                                                 @Valid
+                                                 DeleteUserDto deleteUserDto) {
         return userService.deleteProfile(authentication, deleteUserDto);
     }
 
