@@ -1,5 +1,10 @@
 package app.diary;
 
+import app.exceptions.InvalidInputException;
+import app.goal.GoalDto;
+import app.goal.GoalService;
+import app.goal.GoalValues;
+import app.product.Product;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -9,14 +14,35 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class DiaryTest {
-   private final Diary diary = Diary.builder()
-            .products(new ArrayList<>())
-            .build();
+
+    private final Diary diary = new Diary();
+
+    @Test
+    void addProduct() {
+        //given
+        ProductInDiary product = ProductInDiary.builder()
+                .kcal(BigDecimal.valueOf(100))
+                .protein(BigDecimal.valueOf(10))
+                .carbohydrates(BigDecimal.valueOf(20))
+                .fat(BigDecimal.valueOf(30))
+                .fiber(BigDecimal.valueOf(40))
+                .build();
+
+        int expectedSize = 1;
+
+        //when
+        diary.addProduct(product);
+
+        //then
+        assertEquals(expectedSize, diary.getProducts().size());
+    }
 
     @Test
     void calculateNutrientsSum() {
@@ -30,7 +56,6 @@ class DiaryTest {
         checkEqualityOfNutrientsSum();
     }
 
-
     @Test
     void calculateNutrientsLeft() {
         //given
@@ -43,6 +68,130 @@ class DiaryTest {
 
         // then
         checkEqualityOfNutrientsSum();
+    }
+
+    @Test
+    void validateGoalDto_inputDataOk() {
+        //given
+        GoalDto goalDto = buildGoalDto();
+
+        //when
+        diary.validateGoalDto(goalDto);
+
+        //then
+        assertDoesNotThrow(() -> diary.validateGoalDto(buildGoalDto()));
+        assertTrue(goalDto.kcal().compareTo(BigDecimal.ZERO) >= 0);
+        assertEquals(
+                100,
+                goalDto.proteinPercentage() + goalDto.carbohydratesPercentage() + goalDto.fatPercentage()
+        );
+    }
+
+    @Test
+    void validateGoalDto_throwsException() {
+        String expectedMessage = "Kcal must be greater than 0 and sum of percentages must be equal to 100";
+
+        //kcal = 0
+        Exception ex1 = assertThrows(InvalidInputException.class,
+                () -> diary.validateGoalDto(GoalDto.builder()
+                        .kcal(BigDecimal.valueOf(0))
+                        .proteinPercentage(30)
+                        .carbohydratesPercentage(40)
+                        .fatPercentage(30)
+                        .build()));
+
+        //sum of percentages != 100
+        Exception ex2 = assertThrows(InvalidInputException.class,
+                () -> diary.validateGoalDto(GoalDto.builder()
+                        .kcal(BigDecimal.valueOf(1000))
+                        .proteinPercentage(35)
+                        .carbohydratesPercentage(40)
+                        .fatPercentage(30)
+                        .build()));
+
+        //both
+        Exception ex3 = assertThrows(InvalidInputException.class,
+                () -> diary.validateGoalDto(GoalDto.builder()
+                        .kcal(BigDecimal.valueOf(0))
+                        .proteinPercentage(35)
+                        .carbohydratesPercentage(40)
+                        .fatPercentage(30)
+                        .build()));
+
+        assertEquals(expectedMessage, ex1.getMessage());
+        assertEquals(expectedMessage, ex2.getMessage());
+        assertEquals(expectedMessage, ex3.getMessage());
+    }
+
+    @Test
+    void countGoal_male() {
+        //given
+        GoalDto goalDto = buildGoalDto();
+        GoalValues expectedGoalValues = buildGoalValuesForMale();
+
+        //when
+        GoalValues goalValues = diary.countGoal(goalDto, GenderEnum.Gender.MALE);
+
+        //then
+        assertEquals(expectedGoalValues, goalValues);
+    }
+
+    @Test
+    void countGoal_female() {
+        //given
+        GoalDto goalDto = buildGoalDto();
+        GoalValues expectedGoalValues = buildGoalValuesForFemale();
+
+        //when
+        GoalValues goalValues = diary.countGoal(goalDto, GenderEnum.Gender.FEMALE);
+
+        //then
+        assertEquals(expectedGoalValues, goalValues);
+    }
+
+    @Test
+    void setGoalValuesToDiary() {
+        //given
+        GoalValues goalValues = buildGoalValuesForMale();
+
+        //when
+        diary.setGoalValuesToDiary(goalValues);
+
+        //then
+        assertEquals(goalValues.kcal(), diary.getGoalKcal());
+        assertEquals(goalValues.protein(), diary.getGoalProtein());
+        assertEquals(goalValues.carbohydrates(), diary.getGoalCarbohydrates());
+        assertEquals(goalValues.fat(), diary.getGoalFat());
+        assertEquals(goalValues.fiber(), diary.getGoalFiber());
+    }
+
+    private GoalValues buildGoalValuesForMale() {
+        return GoalValues.builder()
+                .kcal(BigDecimal.valueOf(1000))
+                .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
+                .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
+                .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
+                .fiber(BigDecimal.valueOf(38))
+                .build();
+    }
+
+    private GoalValues buildGoalValuesForFemale() {
+        return GoalValues.builder()
+                .kcal(BigDecimal.valueOf(1000))
+                .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
+                .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
+                .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
+                .fiber(BigDecimal.valueOf(25))
+                .build();
+    }
+
+    private GoalDto buildGoalDto() {
+        return GoalDto.builder()
+                .kcal(BigDecimal.valueOf(1000))
+                .proteinPercentage(30)
+                .carbohydratesPercentage(25)
+                .fatPercentage(45)
+                .build();
     }
 
     private void checkEqualityOfNutrientsSum() {

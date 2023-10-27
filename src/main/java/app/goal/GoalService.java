@@ -1,7 +1,6 @@
 package app.goal;
 
 import app.diary.Diary;
-import app.exceptions.InvalidInputException;
 import app.user.User;
 import app.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -10,13 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Objects;
-
 @Service
 @RequiredArgsConstructor
-class GoalService {
+public class GoalService {
 
     private final UserRepository userRepository;
     private final GoalMapper goalMapper;

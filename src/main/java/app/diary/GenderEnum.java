@@ -1,7 +1,7 @@
 package app.diary;
 
 public class GenderEnum {
-    enum Gender {
+   public enum Gender {
         MALE,
         FEMALE
     }

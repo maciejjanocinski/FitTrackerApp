@@ -2,7 +2,9 @@ package app.user;
 
 import app.authentication.Role;
 import app.diary.Diary;
+import app.diary.GenderEnum;
 import jakarta.persistence.*;
+import jakarta.validation.UnexpectedTypeException;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -43,8 +46,7 @@ public class User implements UserDetails {
     @NotBlank(message = "Surname cannot be blank.")
     private String surname;
 
-    @NotEmpty(message = "You have to pass your gender.")
-    private String gender;
+    private GenderEnum.Gender gender;
 
     @Email(message = "Wrong email")
     @NotEmpty(message = "You have to pass your email.")
@@ -101,5 +103,14 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+   public static GenderEnum.Gender validateGender(String gender) {
+        if(Objects.equals(gender, "MALE")) {
+            return GenderEnum.Gender.MALE;
+        } else if (Objects.equals(gender, "FEMALE")) {
+            return GenderEnum.Gender.FEMALE;
+        }
+        throw new UnexpectedTypeException("Gender doesn't match any of the values. Should be \"MALE\" or \"FEMALE\".");
     }
 }

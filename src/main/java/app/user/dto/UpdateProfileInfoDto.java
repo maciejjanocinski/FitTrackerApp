@@ -1,5 +1,7 @@
 package app.user.dto;
 
+import app.util.GenderValidation.ValidGender;
+import app.util.PhoneValidation.ValidPhone;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -20,8 +22,7 @@ public record UpdateProfileInfoDto(
         @NotEmpty(message = "You have to pass your surname.")
         String surname,
 
-        @NotEmpty(message = "You have to pass your gender.")
-        @Size(max = 1, min = 1, message = "One character is enough.")
+        @ValidGender
         String gender,
 
         @NotEmpty(message = "You have to pass your email.")
@@ -29,7 +30,6 @@ public record UpdateProfileInfoDto(
         @Email
         String email,
 
-        @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
-        @NotEmpty(message = "You have to pass your phone number.")
+        @ValidPhone
         String phone) {
 }

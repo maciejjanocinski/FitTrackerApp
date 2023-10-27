@@ -5,6 +5,7 @@ import app.goal.GoalDto;
 import app.goal.GoalMapper;
 import app.goal.GoalResponseDto;
 import app.goal.GoalValues;
+import app.product.Product;
 import app.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -57,7 +58,7 @@ public class Diary {
     @JsonIgnore
     private List<ProductInDiary> products;
 
-    public void addProduct(ProductInDiary product) {
+     void addProduct(ProductInDiary product) {
         this.products.add(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();
@@ -80,7 +81,7 @@ public class Diary {
     }
 
 
-    public Diary setGoal(GoalDto goalDto, String gender) {
+    public Diary setGoal(GoalDto goalDto, GenderEnum.Gender gender) {
         validateGoalDto(goalDto);
         GoalValues goalValues = countGoal(goalDto, gender);
         setGoalValuesToDiary(goalValues);
@@ -89,18 +90,18 @@ public class Diary {
         return this;
     }
 
-   private void validateGoalDto(GoalDto goalDto) {
+   void validateGoalDto(GoalDto goalDto) {
         if (goalDto.kcal().compareTo(BigDecimal.valueOf(0)) < 1 ||
                 goalDto.proteinPercentage() + goalDto.carbohydratesPercentage() + goalDto.fatPercentage() != 100) {
             throw new InvalidInputException("Kcal must be greater than 0 and sum of percentages must be equal to 100");
         }
     }
 
-    GoalValues countGoal(GoalDto goalDto, String gender) {
+    GoalValues countGoal(GoalDto goalDto, GenderEnum.Gender gender) {
         BigDecimal protein = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.proteinPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
         BigDecimal carbohydrates = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.carbohydratesPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
         BigDecimal fat = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.fatPercentage())).divide(BigDecimal.valueOf(900), 2, RoundingMode.HALF_UP);
-        BigDecimal fiber = Objects.equals(gender, "M") ? BigDecimal.valueOf(38) : BigDecimal.valueOf(25);
+        BigDecimal fiber = Objects.equals(gender, GenderEnum.Gender.MALE) ? BigDecimal.valueOf(38) : BigDecimal.valueOf(25);
 
         return GoalValues.builder()
                 .kcal(goalDto.kcal())
@@ -117,6 +118,33 @@ public class Diary {
         this.setGoalCarbohydrates(goalValues.carbohydrates());
         this.setGoalFat(goalValues.fat());
         this.setGoalFiber(goalValues.fiber());
+    }
+
+    ProductInDiary generateNewProductInDiary( Product product, String measureLabel, BigDecimal quantity) {
+        String productId = product.getProductId();
+        String productName = product.getName();
+        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(quantity));
+        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        String image = product.getImage();
+
+        ProductInDiary.ProductInDiaryBuilder productInDiary = ProductInDiary.builder()
+                .diary(this)
+                .productId(productId)
+                .productName(productName)
+                .kcal(calories)
+                .protein(proteins)
+                .carbohydrates(carbs)
+                .fat(fats)
+                .fiber(fiber)
+                .measureLabel(measureLabel)
+                .quantity(quantity)
+                .image(image);
+
+
+        return productInDiary.build();
     }
 
     public Diary() {
