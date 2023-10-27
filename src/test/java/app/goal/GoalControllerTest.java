@@ -17,6 +17,7 @@ import static app.utils.TestUtils.userNotFoundMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.parseMediaType;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GoalController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 class GoalControllerTest {
 
@@ -44,12 +45,13 @@ class GoalControllerTest {
     GoalDto goalDto;
 
     @Test
-    void getGoals_inputDataOk_returns200() throws Exception {
+    void getGoal_inputDataOk_returns200() throws Exception {
         //given
         when(goalService.getGoal(any())).thenReturn(goalResponseDto);
 
         //when
-        mockMvc.perform(get("/goal/"))
+        mockMvc.perform(get("/goal/")
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(goalResponseDto)))
@@ -60,12 +62,24 @@ class GoalControllerTest {
     }
 
     @Test
-    void getGoals_userNotFound_returns404() throws Exception {
+    void getGoal_unauthorized_returns401() throws Exception {
+        //when
+        mockMvc.perform(get("/goal/"))
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
+
+        //then
+        verify(goalService, never()).getGoal(any());
+    }
+
+    @Test
+    void getGoal_userNotFound_returns404() throws Exception {
         //given
         when(goalService.getGoal(any())).thenThrow(new UsernameNotFoundException(userNotFoundMessage));
 
         //when
-        mockMvc.perform(get("/goal/"))
+        mockMvc.perform(get("/goal/")
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(userNotFoundMessage))
@@ -76,14 +90,15 @@ class GoalControllerTest {
     }
 
     @Test
-    void setGoals_returns200() throws Exception {
+    void setGoal_returns200() throws Exception {
         //given
         when(goalService.setGoal(any(), any())).thenReturn(goalResponseDto);
 
         //when
         mockMvc.perform(post("/goal/")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(goalDto)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(goalDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(goalResponseDto)))
@@ -94,14 +109,15 @@ class GoalControllerTest {
     }
 
     @Test
-    void setGoals_userNotFound_returns404() throws Exception {
+    void setGoal_userNotFound_returns404() throws Exception {
         //given
         when(goalService.getGoal(any())).thenThrow(new UsernameNotFoundException(userNotFoundMessage));
 
         //when
         mockMvc.perform(get("/goal/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(goalDto)))
+                        .content(objectMapper.writeValueAsString(goalDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(userNotFoundMessage))

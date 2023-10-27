@@ -20,6 +20,7 @@ import static app.utils.TestUtils.userNotFoundMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.parseMediaType;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
@@ -49,7 +50,8 @@ class UserControllerTest {
         when(userService.getUser(any())).thenReturn(userDto);
 
         //when
-        mockMvc.perform(get("/user/"))
+        mockMvc.perform(get("/user/")
+                .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(userDto)))
@@ -66,7 +68,8 @@ class UserControllerTest {
                 .thenThrow(new UsernameNotFoundException(userNotFoundMessage));
 
         //when
-        mockMvc.perform(get("/user/"))
+        mockMvc.perform(get("/user/")
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(userNotFoundMessage))
@@ -93,7 +96,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -120,7 +124,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -147,7 +152,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -173,7 +179,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -200,7 +207,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -227,7 +235,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -254,7 +263,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -281,7 +291,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -308,7 +319,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -335,7 +347,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(profileInfoDto)))
+                        .content(objectMapper.writeValueAsString(profileInfoDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -359,7 +372,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePasswordDto)))
+                        .content(objectMapper.writeValueAsString(updatePasswordDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -382,7 +396,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePasswordDto)))
+                        .content(objectMapper.writeValueAsString(updatePasswordDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -406,7 +421,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePasswordDto)))
+                        .content(objectMapper.writeValueAsString(updatePasswordDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -430,7 +446,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePasswordDto)))
+                        .content(objectMapper.writeValueAsString(updatePasswordDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -454,7 +471,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePasswordDto)))
+                        .content(objectMapper.writeValueAsString(updatePasswordDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))
@@ -478,7 +496,8 @@ class UserControllerTest {
         //when
         mockMvc.perform(patch("/user/password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePasswordDto)))
+                        .content(objectMapper.writeValueAsString(updatePasswordDto))
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andExpect(content().string(message))

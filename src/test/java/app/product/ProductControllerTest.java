@@ -29,7 +29,6 @@ class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private ProductService productService;
     @Autowired
@@ -45,6 +44,7 @@ class ProductControllerTest {
         mockMvc.perform(get("/products/search")
                         .param("product", query)
                 )
+
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(productsList)))

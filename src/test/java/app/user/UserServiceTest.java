@@ -283,7 +283,7 @@ class UserServiceTest {
     void deleteProfile_passedWrongPassword_throwsInvalidPasswordException() {
         //given
         User user = buildUser();
-        String expectedMessage = "You have passed wrong password.";
+        String expectedMessage = "Passwords are not the same.";
         DeleteUserDto deleteUserDto = buildDeleteUserDto_wrongPassword();
 
         when(authentication.getName()).thenReturn(username);
