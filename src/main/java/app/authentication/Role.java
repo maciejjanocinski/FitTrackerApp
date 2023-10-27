@@ -3,12 +3,14 @@ package app.authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 public class Role implements GrantedAuthority {
 
@@ -18,9 +20,6 @@ public class Role implements GrantedAuthority {
     private Long roleId;
 
     private String authority;
-
-    private enum name {}
-
 
     @Override
     public String getAuthority() {

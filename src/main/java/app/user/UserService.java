@@ -69,6 +69,8 @@ public class UserService implements UserDetailsService {
                 deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
             userRepository.delete(user);
             return "Profile with username \"" + user.getUsername() + "\" has been deleted.";
+        } else if (!deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
+            throw new InvalidPasswordException("Passwords are not the same.");
         }
 
         throw new InvalidPasswordException("You have passed wrong password.");
