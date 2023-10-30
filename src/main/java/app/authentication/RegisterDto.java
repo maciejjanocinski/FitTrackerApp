@@ -1,6 +1,6 @@
 package app.authentication;
 
-import app.util.passwordValidation.ValidPassword;
+import app.util.validation.passwordValidation.ValidPassword;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

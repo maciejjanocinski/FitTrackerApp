@@ -26,7 +26,6 @@ import java.util.Map;
 @Builder
  class ParsedDTO {
     private FoodDTO food;
-
 }
 
 @Data

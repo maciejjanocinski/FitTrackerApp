@@ -134,38 +134,42 @@ class ProductRepositoryTest {
     }
 
 
-    private List<Product> buildListOfProductsWithDifferentValues(String q1, String q2, boolean isUsed1, boolean isUsed2) {
+    private List<Product> buildListOfProductsWithDifferentValues(
+            String query1,
+            String query2,
+            boolean isUsed1,
+            boolean isUsed2) {
         Product p1 = Product.builder()
                 .productId("1")
                 .name("bread")
-                .query(q1)
+                .query(query1)
                 .isUsed(isUsed1)
                 .build();
 
         Product p2 = Product.builder()
                 .productId("2")
                 .name("garlic bread")
-                .query(q1)
+                .query(query1)
                 .isUsed(isUsed1)
                 .build();
 
         Product p3 = Product.builder()
                 .productId("3")
                 .name("olive oil")
-                .query(q2)
+                .query(query2)
                 .isUsed(isUsed2)
                 .build();
 
         Product p4 = Product.builder()
                 .productId("4")
                 .name("butter")
-                .query(q2)
+                .query(query2)
                 .isUsed(isUsed2)
                 .build();
         Product p5 = Product.builder()
                 .productId("4")
                 .name("butter")
-                .query(q2)
+                .query(query2)
                 .isUsed(isUsed2)
                 .build();
 

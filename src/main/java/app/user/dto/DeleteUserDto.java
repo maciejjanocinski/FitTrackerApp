@@ -1,6 +1,6 @@
 package app.user.dto;
 
-import app.util.passwordValidation.ValidPassword;
+import app.util.validation.passwordValidation.ValidPassword;
 import lombok.Builder;
 
 @Builder

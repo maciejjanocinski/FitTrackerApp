@@ -1,4 +1,4 @@
-package app.util.passwordValidation;
+package app.util.validation.passwordValidation;
 
 import app.exceptions.InvalidPasswordException;
 import jakarta.validation.ConstraintValidator;

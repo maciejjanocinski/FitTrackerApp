@@ -5,7 +5,7 @@ import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
 import app.user.dto.UserDto;
-import app.util.passwordValidation.PasswordValidator;
+import app.util.validation.passwordValidation.PasswordValidator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;

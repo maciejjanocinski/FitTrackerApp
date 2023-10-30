@@ -2,7 +2,7 @@ package app.product;
 
 import app.util.FoodApiManager;
 import io.github.cdimascio.dotenv.Dotenv;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -11,8 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
-
+@RequiredArgsConstructor
 public class ProductService {
     private final Dotenv dotenv = Dotenv.load();
     private final ProductRepository productsRepository;
