@@ -2,7 +2,7 @@ package app.user;
 
 import app.authentication.Role;
 import app.diary.Diary;
-import app.diary.GenderEnum;
+import app.diary.Gender;
 import jakarta.persistence.*;
 import jakarta.validation.UnexpectedTypeException;
 import jakarta.validation.constraints.Email;
@@ -14,11 +14,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Data
@@ -31,7 +33,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     @Column(unique = true)
     @Size(min = 6, message = "Username must have at least 6 characters.")
@@ -46,7 +48,7 @@ public class User implements UserDetails {
     @NotBlank(message = "Surname cannot be blank.")
     private String surname;
 
-    private GenderEnum.Gender gender;
+    private Gender gender;
 
     @Email(message = "Wrong email")
     @NotEmpty(message = "You have to pass your email.")
@@ -72,7 +74,13 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.authorities;
+        return authorities.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toList());
+    }
+
+    public void addRole(Role role) {
+        authorities.add(role);
     }
 
     @Override
@@ -105,11 +113,11 @@ public class User implements UserDetails {
         return true;
     }
 
-   public static GenderEnum.Gender validateGender(String gender) {
+   public static Gender validateGender(String gender) {
         if(Objects.equals(gender, "MALE")) {
-            return GenderEnum.Gender.MALE;
+            return Gender.MALE;
         } else if (Objects.equals(gender, "FEMALE")) {
-            return GenderEnum.Gender.FEMALE;
+            return Gender.FEMALE;
         }
         throw new UnexpectedTypeException("Gender doesn't match any of the values. Should be \"MALE\" or \"FEMALE\".");
     }

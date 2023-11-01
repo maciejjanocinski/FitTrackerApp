@@ -1,5 +1,6 @@
 package app.authentication;
 
+import app.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,9 +18,9 @@ public class TokenService {
 
     private JwtEncoder jwtEncoder;
 
-    String generateJwt(Authentication auth) {
+    public String generateJwt(Authentication auth) {
         Instant now = Instant.now();
-        String scope = auth.getAuthorities().stream()
+        String roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
 
@@ -27,7 +28,23 @@ public class TokenService {
                 .issuer("self")
                 .issuedAt(now)
                 .subject(auth.getName())
-                .claim("roles", scope)
+                .claim("roles", roles)
+                .build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+    public String generateJwt(User user) {
+        Instant now = Instant.now();
+        String roles = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(now)
+                .subject(user.getName())
+                .claim("roles", roles)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

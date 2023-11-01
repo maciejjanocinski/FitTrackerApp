@@ -39,7 +39,22 @@ class RecipeAndLinkDto {
     private int yield;
     private List<String> ingredientLines;
     private Map<String, Nutrient> totalNutrients;
+    private double caloriesPerServing;
+    private double proteinPerServing;
+    private double carbsPerServing;
+    private double fatPerServing;
+    private double fiberPerServing;
+
+     void calculateNutrientsPerServing() {
+        this.caloriesPerServing = totalNutrients.get("ENERC_KCAL").getQuantity() / yield;
+        this.proteinPerServing = totalNutrients.get("PROCNT").getQuantity() / yield;
+        this.carbsPerServing = totalNutrients.get("CHOCDF").getQuantity() / yield;
+        this.fatPerServing = totalNutrients.get("FAT").getQuantity() / yield;
+        this.fiberPerServing = totalNutrients.get("FIBTG").getQuantity() / yield;
+    }
 }
+
+
 
 @Data
 @NoArgsConstructor

@@ -1,4 +1,4 @@
-package app.exceptions;
+package app.util.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.UnexpectedTypeException;

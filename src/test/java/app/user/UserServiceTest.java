@@ -1,6 +1,6 @@
 package app.user;
 
-import app.exceptions.InvalidPasswordException;
+import app.util.exceptions.InvalidPasswordException;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;

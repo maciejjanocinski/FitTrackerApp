@@ -1,23 +1,16 @@
 package app.diary;
 
-import app.exceptions.InvalidInputException;
 import app.goal.GoalDto;
-import app.goal.GoalService;
 import app.goal.GoalValues;
-import app.product.Product;
+import app.util.exceptions.InvalidInputException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class DiaryTest {
@@ -130,7 +123,7 @@ class DiaryTest {
         GoalValues expectedGoalValues = buildGoalValuesForMale();
 
         //when
-        GoalValues goalValues = diary.countGoal(goalDto, GenderEnum.Gender.MALE);
+        GoalValues goalValues = diary.countGoal(goalDto, Gender.MALE);
 
         //then
         assertEquals(expectedGoalValues, goalValues);
@@ -143,7 +136,7 @@ class DiaryTest {
         GoalValues expectedGoalValues = buildGoalValuesForFemale();
 
         //when
-        GoalValues goalValues = diary.countGoal(goalDto, GenderEnum.Gender.FEMALE);
+        GoalValues goalValues = diary.countGoal(goalDto, Gender.FEMALE);
 
         //then
         assertEquals(expectedGoalValues, goalValues);

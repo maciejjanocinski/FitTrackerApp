@@ -1,6 +1,5 @@
 package app.authentication;
 
-import app.authentication.RoleEnum.roles;
 import app.diary.Diary;
 import app.user.User;
 import app.user.UserRepository;
@@ -19,17 +18,18 @@ import java.util.Set;
 class AuthenticationService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
+    private final RoleRepository roleRepository;
 
     RegisterDto register(RegisterDto registerDto) {
 
-        Role userStandardRole = roleRepository.findByAuthority(roles.USER_STANDARD.toString())
-                .orElseThrow(() -> new RuntimeException("User standard role not found."));
+        Role role = roleRepository.findByName(Role.roleType.ROLE_USER_STANDARD.toString())
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
         Set<Role> authorities = new HashSet<>();
-        authorities.add(userStandardRole);
+        authorities.add(role);
         Diary diary = new Diary();
         User user = User.builder()
                 .name(registerDto.name().trim())

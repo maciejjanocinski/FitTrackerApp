@@ -21,4 +21,5 @@ public class ProductController {
      List<Product> searchProducts(@RequestParam String product) {
         return productsService.searchProducts(product);
     }
+
 }
