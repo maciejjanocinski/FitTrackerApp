@@ -1,16 +1,16 @@
 package app.authentication;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin("*")
-@AllArgsConstructor
+@RequiredArgsConstructor
 class AuthenticationController {
 
-    AuthenticationService authenticationService;
+   private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
      RegisterDto register(@RequestBody @Valid RegisterDto registerDto) {
@@ -18,7 +18,7 @@ class AuthenticationController {
     }
 
     @PostMapping("/login")
-     LoginResponseDto login(@RequestBody @Valid LoginDto loginDto) {
+     String login(@RequestBody @Valid LoginDto loginDto) {
         return authenticationService.login(loginDto);
     }
 }

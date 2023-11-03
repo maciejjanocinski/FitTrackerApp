@@ -1,9 +1,8 @@
-package app.util.GenderValidation;
+package app.util.validation.genderValidation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.UnexpectedTypeException;
-
 public class GenderValidator implements ConstraintValidator<ValidGender, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {

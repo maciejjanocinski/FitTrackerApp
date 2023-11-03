@@ -1,4 +1,4 @@
-package app.util.GenderValidation;
+package app.util.validation.passwordValidation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -7,10 +7,10 @@ import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = GenderValidator.class)
+@Constraint(validatedBy = PasswordValidator.class)
 @Documented
-public @interface ValidGender {
-    String message() default "Invalid gender syntax";
+public @interface ValidPassword {
+    String message() default "Invalid password";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -10,7 +10,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.AllArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,10 +28,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Configuration
 @AllArgsConstructor
@@ -40,16 +41,23 @@ class SecurityConfig {
 
     private final RsaKeyProperties keys;
 
-    @Bean
-    CommandLineRunner run(RoleRepository roleRepository) {
-        return args -> {
-            if (roleRepository.findByAuthority("ADMIN").isPresent()) return;
-            roleRepository.save(new Role("ADMIN"));
-            roleRepository.save(new Role("USER_STANDARD"));
-            roleRepository.save(new Role("USER_PREMIUM"));
+    private final RoleRepository roleRepository;
 
-        };
+
+    @Bean
+    void generateRoles() {
+        Role standard = Role.builder()
+                .name("ROLE_USER_STANDARD")
+                .build();
+        Role premium = Role.builder()
+                .name("ROLE_USER_PREMIUM")
+                .build();
+        Role admin = Role.builder()
+                .name("ROLE_ADMIN")
+                .build();
+        roleRepository.saveAll(Set.of(standard, premium, admin));
     }
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -82,7 +90,9 @@ class SecurityConfig {
                                     "/swagger-ui.html",
                                     "swagger-ui/**")
                             .permitAll();
-                    auth.requestMatchers("/admin/**").hasRole("ADMIN");
+
+                    auth.requestMatchers("/admin/**").hasAuthority(Role.roleType.ROLE_ADMIN.toString());
+                    auth.requestMatchers("/recipes/**").hasAuthority(Role.roleType.ROLE_USER_PREMIUM.toString());
                     auth.anyRequest().authenticated();
                 })
 
@@ -92,7 +102,8 @@ class SecurityConfig {
                                         jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
                                 )
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        ;
 
 
         return http.build();
@@ -112,14 +123,17 @@ class SecurityConfig {
     }
 
     @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+
         JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
-        jwtConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        jwtConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+
         return jwtConverter;
     }
+
 
 
 }

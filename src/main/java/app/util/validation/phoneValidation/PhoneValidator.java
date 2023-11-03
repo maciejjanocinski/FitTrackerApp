@@ -1,4 +1,4 @@
-package app.util.PhoneValidation;
+package app.util.validation.phoneValidation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

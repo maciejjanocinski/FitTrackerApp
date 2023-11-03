@@ -4,7 +4,7 @@ import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DiaryDto;
 import app.diary.dto.EditProductInDiaryDto;
 import app.diary.dto.ProductInDiaryDto;
-import app.exceptions.ProductNotFoundException;
+import app.util.exceptions.ProductNotFoundException;
 import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;

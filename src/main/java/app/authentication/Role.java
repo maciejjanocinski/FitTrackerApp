@@ -1,32 +1,32 @@
 package app.authentication;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-@Data
+@Getter
+@Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Entity
 public class Role implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
-    private Long roleId;
+    private Long id;
 
-    private String authority;
+    private String name;
+
+   public enum roleType {
+        ROLE_USER_STANDARD,
+       ROLE_USER_PREMIUM,
+        ROLE_ADMIN
+    }
 
     @Override
     public String getAuthority() {
-        return this.authority;
-    }
-
-    public Role(String authority) {
-        this.authority = authority;
+        return name;
     }
 }

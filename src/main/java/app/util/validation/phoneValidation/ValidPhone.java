@@ -1,4 +1,4 @@
-package app.util.passwordValidation;
+package app.util.validation.phoneValidation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -7,10 +7,10 @@ import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PasswordValidator.class)
+@Constraint(validatedBy = PhoneValidator.class)
 @Documented
-public @interface ValidPassword {
-    String message() default "Invalid password";
+public @interface ValidPhone {
+    String message() default "Invalid phone number";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

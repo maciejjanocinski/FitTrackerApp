@@ -1,21 +1,15 @@
 package app.diary;
 
-import app.exceptions.InvalidInputException;
+import app.util.exceptions.InvalidInputException;
 import app.goal.GoalDto;
-import app.goal.GoalMapper;
-import app.goal.GoalResponseDto;
 import app.goal.GoalValues;
 import app.product.Product;
-import app.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -81,7 +75,7 @@ public class Diary {
     }
 
 
-    public Diary setGoal(GoalDto goalDto, GenderEnum.Gender gender) {
+    public Diary setGoal(GoalDto goalDto, Gender gender) {
         validateGoalDto(goalDto);
         GoalValues goalValues = countGoal(goalDto, gender);
         setGoalValuesToDiary(goalValues);
@@ -97,11 +91,11 @@ public class Diary {
         }
     }
 
-    GoalValues countGoal(GoalDto goalDto, GenderEnum.Gender gender) {
+    GoalValues countGoal(GoalDto goalDto, Gender gender) {
         BigDecimal protein = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.proteinPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
         BigDecimal carbohydrates = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.carbohydratesPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
         BigDecimal fat = goalDto.kcal().multiply(BigDecimal.valueOf(goalDto.fatPercentage())).divide(BigDecimal.valueOf(900), 2, RoundingMode.HALF_UP);
-        BigDecimal fiber = Objects.equals(gender, GenderEnum.Gender.MALE) ? BigDecimal.valueOf(38) : BigDecimal.valueOf(25);
+        BigDecimal fiber = Objects.equals(gender, Gender.MALE) ? BigDecimal.valueOf(38) : BigDecimal.valueOf(25);
 
         return GoalValues.builder()
                 .kcal(goalDto.kcal())
