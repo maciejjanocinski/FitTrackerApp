@@ -3,6 +3,7 @@ package app.user;
 import app.authentication.Role;
 import app.diary.Diary;
 import app.diary.Gender;
+import app.recipe.Recipe;
 import jakarta.persistence.*;
 import jakarta.validation.UnexpectedTypeException;
 import jakarta.validation.constraints.Email;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -72,6 +74,15 @@ public class User implements UserDetails {
     @JoinColumn(name = "diary_id")
     private Diary diary;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_favourite_recipes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "recipe_id"))
+    private List<Recipe> favouriteRecipes;
+
+    private String lastProductQuery;
+    private String lastRecipeQuery;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities.stream()
@@ -81,6 +92,9 @@ public class User implements UserDetails {
 
     public void addRole(Role role) {
         authorities.add(role);
+    }
+    public void addFavouriteRecipe(Recipe recipe) {
+        favouriteRecipes.add(recipe);
     }
 
     @Override

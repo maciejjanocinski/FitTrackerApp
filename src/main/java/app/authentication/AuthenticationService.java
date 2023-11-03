@@ -48,15 +48,13 @@ class AuthenticationService {
     }
 
 
-    LoginResponseDto login(LoginDto loginDto) {
-
+    String login(LoginDto loginDto) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
         );
         String token = tokenService.generateJwt(auth);
 
-        return new LoginResponseDto(loginDto.username(), token);
-
+        return token;
     }
 
 

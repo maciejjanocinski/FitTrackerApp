@@ -41,7 +41,7 @@ class SecurityConfig {
 
     private final RsaKeyProperties keys;
 
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
 
     @Bean
@@ -65,11 +65,6 @@ class SecurityConfig {
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
         encoderMap.put(idForEncode, new BCryptPasswordEncoder());
         return new DelegatingPasswordEncoder(idForEncode, encoderMap);
-    }
-
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint() {
-        return new CustomAuthenticationEntryPoint();
     }
 
     @Bean

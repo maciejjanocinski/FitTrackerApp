@@ -4,10 +4,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
@@ -18,10 +17,24 @@ public class RecipeController {
     private final RecipeService RecipeService;
 
     @GetMapping("/search")
-    SearchResult searchProducts(@RequestParam String recipe) {
-        return RecipeService.searchRecipes(recipe);
+    List<Recipe> searchProducts(@RequestParam String recipe,
+                                @CurrentSecurityContext(expression = "authentication")
+                                Authentication authentication) {
+        return RecipeService.searchRecipes(recipe, authentication);
     }
 
+    @PostMapping("/")
+    Recipe addRecipeToFavourites(@RequestBody Long id,
+                                 @CurrentSecurityContext(expression = "authentication")
+                                 Authentication authentication) {
+        return RecipeService.addRecipeToFavourites(id, authentication);
+    }
+
+    @GetMapping("/")
+    List<Recipe> getMyRecipes(@CurrentSecurityContext(expression = "authentication")
+                        Authentication authentication) {
+        return RecipeService.getMyRecipes(authentication);
+    }
 
 
 }

@@ -1,9 +1,12 @@
 package app.product;
 
-import app.util.FoodApiManager;
+import app.user.User;
+import app.user.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,20 +18,25 @@ import java.util.List;
 public class ProductService {
     private final Dotenv dotenv = Dotenv.load();
     private final ProductRepository productsRepository;
-    private final FoodApiManager foodApiManager = new FoodApiManager();
+    private final UserRepository userRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public List<Product> searchProducts(String query) {
-        if (foodApiManager.getLastQuery() != null && foodApiManager.getLastQuery().equals(query)) {
+
+    public List<Product> searchProducts(String query, Authentication authentication) {
+
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(query)) {
             return productsRepository.findAllByQuery(query);
         }
+
         productsRepository.deleteNotUsedProducts();
-        foodApiManager.setLastQuery(query);
+        user.setLastProductQuery(query);
 
         String key = dotenv.get("PRODUCTS_API_KEY");
         String id = dotenv.get("PRODUCTS_API_ID");
 
-        dotenv.get("PRODUCTS_API_URL");
         String url = createUrl(id, key, query);
         ResponseDTO response = getProductsFromApi(url);
 

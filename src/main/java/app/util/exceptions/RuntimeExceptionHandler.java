@@ -13,6 +13,11 @@ import java.sql.SQLIntegrityConstraintViolationException;
 
 @RestControllerAdvice
 class RuntimeExceptionHandler {
+
+    @ExceptionHandler(RuntimeException.class)
+    private ResponseEntity<String> handleRuntimeExceptionException(RuntimeException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(InvalidInputException.class)
     private ResponseEntity<String> handleMethodArgumentNotValidException(InvalidInputException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

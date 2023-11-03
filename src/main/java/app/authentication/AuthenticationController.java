@@ -18,7 +18,7 @@ class AuthenticationController {
     }
 
     @PostMapping("/login")
-     LoginResponseDto login(@RequestBody @Valid LoginDto loginDto) {
+     String login(@RequestBody @Valid LoginDto loginDto) {
         return authenticationService.login(loginDto);
     }
 }

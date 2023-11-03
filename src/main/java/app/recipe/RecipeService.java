@@ -3,6 +3,7 @@ package app.recipe;
 import app.user.User;
 import app.user.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,29 +20,70 @@ public class RecipeService {
 
     private final Dotenv dotenv = Dotenv.load();
     private final RestTemplate restTemplate = new RestTemplate();
-    String key = dotenv.get("RECIPES_API_KEY");
-    String id = dotenv.get("RECIPES_API_ID");
-    String baseUrl = dotenv.get("RECIPES_API_URL");
+    private final String key = dotenv.get("RECIPES_API_KEY");
+    private final String id = dotenv.get("RECIPES_API_ID");
+    private final String baseUrl = dotenv.get("RECIPES_API_URL");
+
+    private final RecipeMapper recipeMapper;
 
     private final UserRepository userRepository;
     private final RecipeRepository recipeRepository;
 
-    SearchResult searchRecipes(String query) {
+    List<Recipe> searchRecipes(String query, Authentication authentication) {
+
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(query)) {
+            return recipeRepository.findAllByQuery(query);
+        }
+        recipeRepository.deleteNotFavouriteRecipes();
+
+        user.setLastProductQuery(query);
         String url = createUrl(id, key, query);
+        SearchResult result = getRecipesFromApi(url);
 
-        SearchResult result = getProductsFromApi(url);
-
-        List<RecipeAndLinkDto> recipesDtos = getProductsFromApi(url).getHits();
-        List<RecipeDto> recipes = recipesDtos.stream()
-                .map(RecipeAndLinkDto::getRecipe)
+        List<Recipe> recipes = result.getHits().stream()
+                .map(recipeAndLinkDto -> {
+                    RecipeDto recipeDto = recipeAndLinkDto.getRecipe();
+                    recipeDto.calculateNutrientsPerServing();
+                    Recipe recipe = recipeMapper.mapToRecipe(recipeDto);
+                    recipe.setUsed(false);
+                    recipe.setQuery(query);
+                    return recipe;
+                })
                 .toList();
-        recipes.forEach(RecipeDto::calculateNutrientsPerServing);
 
         recipeRepository.saveAll(recipes);
-        return result;
+        return recipes;
+    }
+    @Transactional
+    public Recipe addRecipeToFavourites(Long id, Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+       for (Recipe recipe : user.getFavouriteRecipes()) {
+            if (recipe.getId().equals(id)) {
+                throw new RuntimeException("Recipe already added");
+            }
+        }
+
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+
+        recipe.setUsed(true);
+        user.addFavouriteRecipe(recipe);
+        return recipe;
     }
 
-    private SearchResult getProductsFromApi(String url) {
+    public List<Recipe> getMyRecipes(Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return user.getFavouriteRecipes();
+    }
+
+
+    private SearchResult getRecipesFromApi(String url) {
         ResponseEntity<SearchResult> responseEntity = restTemplate.getForEntity(url, SearchResult.class);
         return responseEntity.getBody();
     }
