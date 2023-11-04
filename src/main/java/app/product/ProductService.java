@@ -2,8 +2,8 @@ package app.product;
 
 import app.user.User;
 import app.user.UserRepository;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,9 +16,18 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-    private final Dotenv dotenv = Dotenv.load();
     private final ProductRepository productsRepository;
     private final UserRepository userRepository;
+
+    @Value("${api.products.url}")
+    private String baseUrl;
+
+    @Value("${api.products.key}")
+    private String key;
+
+    @Value("${api.products.id}")
+    private String id;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
 
@@ -34,8 +43,6 @@ public class ProductService {
         productsRepository.deleteNotUsedProducts();
         user.setLastProductQuery(query);
 
-        String key = dotenv.get("PRODUCTS_API_KEY");
-        String id = dotenv.get("PRODUCTS_API_ID");
 
         String url = createUrl(id, key, query);
         ResponseDTO response = getProductsFromApi(url);
@@ -52,7 +59,6 @@ public class ProductService {
     }
 
     private String createUrl(String id, String key, String query) {
-        String baseUrl = dotenv.get("PRODUCTS_API_URL");
 
         return UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("app_id", id)

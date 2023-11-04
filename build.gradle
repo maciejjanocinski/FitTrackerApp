@@ -37,7 +37,6 @@ dependencies {
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.1'
     implementation 'org.springframework.boot:spring-boot-starter-security:3.0.4'
-    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.1.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.1'

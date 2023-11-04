@@ -7,11 +7,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-  show-sql: true
 logging:
   level:
     org.springframework: DEBUG
-    com.example: DEBUG
-myapp:
-  api:
-    url="https://api.edamam.com/api/food-database/v2/parser"
+    app: DEBUG
+
+
+api:
+  products:
+    url: "https://api.edamam.com/api/food-database/v2/parser"
+    key: "919ca3a0f24fe88e3f071676227e522b"
+    id: "74461f79"
+
+  recipes:
+    url: "https://api.edamam.com/api/recipes/v2"
+    key: "ee6c03e03b5649f47cc9d7eadd5a3183"
+    id: "f8e22404"

@@ -1,6 +1,5 @@
 package app.product;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -12,8 +11,6 @@ class ProductServiceTest {
 
     @InjectMocks
     private ProductService productService;
-    @Mock
-    private Dotenv dotenv;
     @Mock
     private ProductRepository productRepository;
     @Mock

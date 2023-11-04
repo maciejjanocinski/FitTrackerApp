@@ -30,7 +30,7 @@ public class RecipeController {
         return RecipeService.addRecipeToFavourites(id, authentication);
     }
 
-    @GetMapping("/")
+    @GetMapping("/favourites")
     List<Recipe> getMyRecipes(@CurrentSecurityContext(expression = "authentication")
                         Authentication authentication) {
         return RecipeService.getMyRecipes(authentication);
