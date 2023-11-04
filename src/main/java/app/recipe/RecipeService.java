@@ -2,9 +2,9 @@ package app.recipe;
 
 import app.user.User;
 import app.user.UserRepository;
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,16 +17,21 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
-
-    private final Dotenv dotenv = Dotenv.load();
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String key = dotenv.get("RECIPES_API_KEY");
-    private final String id = dotenv.get("RECIPES_API_ID");
-    private final String baseUrl = dotenv.get("RECIPES_API_URL");
+
+    @Value("${api.recipes.url}")
+    private String baseUrl;
+
+    @Value("${api.recipes.key}")
+    private String key;
+
+    @Value("${api.recipes.id}")
+    private String id;
 
     private final RecipeMapper recipeMapper;
 
     private final UserRepository userRepository;
+
     private final RecipeRepository recipeRepository;
 
     List<Recipe> searchRecipes(String query, Authentication authentication) {
@@ -104,7 +109,4 @@ public class RecipeService {
                 .queryParam("app_id", id)
                 .toUriString();
     }
-
-
-
 }
