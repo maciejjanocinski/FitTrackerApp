@@ -137,15 +137,6 @@ class GoalServiceTest {
                 .build();
     }
 
-    private GoalValues buildGoalValuesForMale() {
-        return GoalValues.builder()
-                .kcal(BigDecimal.valueOf(1000))
-                .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
-                .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
-                .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
-                .fiber(BigDecimal.valueOf(38))
-                .build();
-    }
 
     private GoalResponseDto buildGoalResponseDto() {
         return GoalResponseDto.builder()
