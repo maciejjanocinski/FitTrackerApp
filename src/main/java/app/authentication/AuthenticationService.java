@@ -36,7 +36,7 @@ class AuthenticationService {
                 .surname(registerDto.surname().trim())
                 .username(registerDto.username().trim())
                 .password(passwordEncoder.encode(registerDto.password().trim()))
-                .gender(User.validateGender(registerDto.gender()))
+                .gender(User.setGenderFromString(registerDto.gender()))
                 .email(registerDto.email().trim())
                 .phone(registerDto.phone().trim())
                 .diary(diary)

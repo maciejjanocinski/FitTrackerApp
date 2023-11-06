@@ -87,7 +87,7 @@ class GoalServiceTest {
         GoalDto goalDto = buildGoalDto();
         User user = User.builder()
                 .username(username)
-                .gender(User.validateGender("FEMALE"))
+                .gender(User.setGenderFromString("FEMALE"))
                 .diary(diary)
                 .build();
         when(authentication.getName()).thenReturn(username);

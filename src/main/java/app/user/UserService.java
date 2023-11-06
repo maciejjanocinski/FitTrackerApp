@@ -87,6 +87,6 @@ public class UserService implements UserDetailsService {
         user.setSurname(updateProfileInfoDto.surname());
         user.setEmail(updateProfileInfoDto.email());
         user.setPhone(updateProfileInfoDto.phone());
-        user.setGender(User.validateGender(updateProfileInfoDto.gender()));
+        user.setGender(User.setGenderFromString(updateProfileInfoDto.gender()));
     }
 }

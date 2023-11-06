@@ -56,7 +56,7 @@ class UserRepositoryTest {
                 .username("username")
                 .name("name")
                 .surname("surname")
-                .gender(User.validateGender("MALE"))
+                .gender(User.setGenderFromString("MALE"))
                 .email("maciek@gmail.com")
                 .phone("123456789")
                 .password("Password123!")

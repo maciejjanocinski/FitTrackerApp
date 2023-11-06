@@ -127,7 +127,7 @@ public class User implements UserDetails {
         return true;
     }
 
-   public static Gender validateGender(String gender) {
+   public static Gender setGenderFromString(String gender) {
         if(Objects.equals(gender, "MALE")) {
             return Gender.MALE;
         } else if (Objects.equals(gender, "FEMALE")) {
