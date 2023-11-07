@@ -4,6 +4,7 @@ import app.authentication.Role;
 import app.diary.Diary;
 import app.diary.Gender;
 import app.recipe.Recipe;
+import app.user.dto.UpdateProfileInfoDto;
 import jakarta.persistence.*;
 import jakarta.validation.UnexpectedTypeException;
 import jakarta.validation.constraints.Email;
@@ -30,7 +31,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Builder
-@Table
 public class User implements UserDetails {
 
     @Id
@@ -134,5 +134,14 @@ public class User implements UserDetails {
             return Gender.FEMALE;
         }
         throw new UnexpectedTypeException("Gender doesn't match any of the values. Should be \"MALE\" or \"FEMALE\".");
+    }
+
+    void updateUserProfile(UpdateProfileInfoDto updateProfileInfoDto) {
+        this.setUsername(updateProfileInfoDto.username());
+        this.setName(updateProfileInfoDto.name());
+        this.setSurname(updateProfileInfoDto.surname());
+        this.setEmail(updateProfileInfoDto.email());
+        this.setPhone(updateProfileInfoDto.phone());
+        this.setGender(User.setGenderFromString(updateProfileInfoDto.gender()));
     }
 }

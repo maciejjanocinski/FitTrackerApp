@@ -34,11 +34,16 @@ public class UserService implements UserDetailsService {
         return userMapper.mapUserToUserDto(user);
     }
 
+   public User getUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        updateUserProfile(user, updateProfileInfoDto);
+        user.updateUserProfile(updateProfileInfoDto);
         return "Changes has been successfully approved";
     }
 
@@ -81,12 +86,5 @@ public class UserService implements UserDetailsService {
         return passwordValidator.isValidSetterCheck(password);
     }
 
-     void updateUserProfile(User user, UpdateProfileInfoDto updateProfileInfoDto) {
-        user.setUsername(updateProfileInfoDto.username());
-        user.setName(updateProfileInfoDto.name());
-        user.setSurname(updateProfileInfoDto.surname());
-        user.setEmail(updateProfileInfoDto.email());
-        user.setPhone(updateProfileInfoDto.phone());
-        user.setGender(User.setGenderFromString(updateProfileInfoDto.gender()));
-    }
+
 }

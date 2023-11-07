@@ -329,19 +329,7 @@ class UserServiceTest {
         assertEquals(expectedMessage, ex.getMessage());
     }
 
-    @Test
-    void updateUserProfile_inputDataOk() {
-        //given
-        String changedUsername = "otherUsername";
-        User user = buildUser();
-        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto(changedUsername);
 
-        //when
-        userService.updateUserProfile(user, updateProfileInfoDto);
-
-        //then
-        assertNotEquals(username, user.getUsername());
-    }
 
 
     private DeleteUserDto buildDeleteUserDto() {

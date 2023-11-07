@@ -9,5 +9,5 @@ public class TestUtils {
     public static final String username = "username";
     public static final String query = "bread";
     public static final String userNotFoundMessage = "User not found";
-    public static String productNotFoundMessage = "Product not found";
+    public static final String productNotFoundMessage = "Product not found";
 }

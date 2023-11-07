@@ -14,11 +14,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@EnableJpaRepositories
-@EntityScan(basePackages = "app.product")
+@EnableJpaRepositories(basePackageClasses = ProductRepository.class)
 class ProductRepositoryTest {
 
     @Autowired

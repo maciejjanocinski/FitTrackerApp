@@ -25,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GoalController.class)
-@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 class GoalControllerTest {
 
@@ -39,10 +38,10 @@ class GoalControllerTest {
     private ObjectMapper objectMapper;
 
     @Mock
-    GoalResponseDto goalResponseDto;
+    private GoalResponseDto goalResponseDto;
 
     @Mock
-    GoalDto goalDto;
+    private GoalDto goalDto;
 
     @Test
     void getGoal_inputDataOk_returns200() throws Exception {
