@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -58,7 +57,7 @@ class UserControllerTest {
                 .andDo(print());
 
         //then
-        verify(userService).getUser(any(String.class));
+        verify(userService).getUserByUsername(any(String.class));
     }
 
     @Test
@@ -76,7 +75,7 @@ class UserControllerTest {
                 .andDo(print());
 
         //then
-        verify(userService).getUser(any(String.class));
+        verify(userService).getUserByUsername(any(String.class));
     }
 
     @Test

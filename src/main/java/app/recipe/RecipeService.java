@@ -1,13 +1,12 @@
 package app.recipe;
 
 import app.user.User;
-import app.user.UserRepository;
+import app.user.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,15 +29,13 @@ public class RecipeService {
 
     private final RecipeMapper recipeMapper;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private final RecipeRepository recipeRepository;
 
     List<Recipe> searchRecipes(String query, Authentication authentication) {
 
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
+        User user = userService.getUserByUsername(authentication.getName());
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(query)) {
             return recipeRepository.findAllByQuery(query);
         }
@@ -64,8 +61,7 @@ public class RecipeService {
     }
     @Transactional
     public Recipe addRecipeToFavourites(Long id, Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.getUserByUsername(authentication.getName());
 
        for (Recipe recipe : user.getFavouriteRecipes()) {
             if (recipe.getId().equals(id)) {
@@ -82,8 +78,7 @@ public class RecipeService {
     }
 
     public List<Recipe> getMyRecipes(Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.getUserByUsername(authentication.getName());
         return user.getFavouriteRecipes();
     }
 

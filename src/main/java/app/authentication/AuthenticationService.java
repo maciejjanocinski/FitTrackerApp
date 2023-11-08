@@ -52,9 +52,8 @@ class AuthenticationService {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.username(), loginDto.password())
         );
-        String token = tokenService.generateJwt(auth);
 
-        return token;
+        return tokenService.generateJwt(auth);
     }
 
 

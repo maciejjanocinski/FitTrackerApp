@@ -16,13 +16,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
-import java.util.List;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 import static app.utils.TestUtils.productNotFoundMessage;
 import static app.utils.TestUtils.userNotFoundMessage;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -42,9 +44,7 @@ class DiaryControllerTest {
 
     private final ProductInDiaryDto productInDiaryDto = buildProductInDiaryDto("1");
 
-    @Mock
-    private AddProductToDiaryDto addProductToDiaryDto;
-
+    private final AddProductToDiaryDto addProductToDiaryDto = buildAddProductInDiaryDto();
     @Mock
     private EditProductInDiaryDto editProductInDiaryDto;
 
@@ -281,6 +281,18 @@ class DiaryControllerTest {
                 .quantity(100)
                 .build();
     }
+
+
+    private AddProductToDiaryDto buildAddProductInDiaryDto() {
+        return AddProductToDiaryDto.builder()
+                .foodId("foodID")
+                .name("bread")
+                .measureLabel("g")
+                .quantity(BigDecimal.valueOf(100))
+                .build();
+    }
+
+
 }
 
 

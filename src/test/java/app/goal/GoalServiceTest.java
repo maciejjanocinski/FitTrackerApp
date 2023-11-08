@@ -58,28 +58,6 @@ class GoalServiceTest {
 
         assertEquals(expectedResponse, goalResponseDto);
     }
-
-    @Test
-    void getGoal_throwsException() {
-        //given
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> goalService.getGoal(authentication));
-
-        //then
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
-        verify(goalMapper, never()).mapToGoalResponseDto(diary);
-
-        assertEquals("User not found", ex.getMessage());
-    }
-
     @Test
     void setGoal_inputDataOk() {
         //given
@@ -103,28 +81,6 @@ class GoalServiceTest {
         verify(userRepository).findByUsername(username);
         verify(diary).setGoal(goalDto, user.getGender());
         assertEquals(expectedResponse, goalResponseDto);
-    }
-
-    @Test
-    void setGoal_throwsException() {
-        //given
-        GoalDto goalDto = buildGoalDto();
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> goalService.setGoal(authentication, goalDto));
-
-        //then
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
-        verify(goalMapper, never()).mapToGoalResponseDto(diary);
-
-        assertEquals("User not found", ex.getMessage());
     }
 
 

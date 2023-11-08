@@ -2,23 +2,21 @@ package app.goal;
 
 import app.diary.Diary;
 import app.user.User;
-import app.user.UserRepository;
+import app.user.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class GoalService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final GoalMapper goalMapper;
 
     GoalResponseDto getGoal(Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         diary.calculateNutrientsLeft();
         diary.calculateNutrientsSum();
@@ -28,8 +26,7 @@ public class GoalService {
 
     @Transactional
     public GoalResponseDto setGoal(Authentication authentication, GoalDto goalDto) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary().setGoal(goalDto, user.getGender());
         //TODO change gender type to enum
         return goalMapper.mapToGoalResponseDto(diary);

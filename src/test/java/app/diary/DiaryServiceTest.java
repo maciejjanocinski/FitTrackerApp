@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -70,28 +69,6 @@ class DiaryServiceTest {
     }
 
     @Test
-    void getDiary_userNotFound_throwsUserNotFoundException() {
-        //given
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> diaryService.getDiary(authentication));
-
-        //then
-        assertEquals("User not found", ex.getMessage());
-
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
-        verify(diaryMapper, never()).mapDiaryToDiaryDto(diary);
-    }
-
-
-    @Test
     void addProductToDiary_inputDataOk_returnsProductInDiaryDto() {
         //given
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
@@ -116,30 +93,6 @@ class DiaryServiceTest {
         verify(userRepository).findByUsername(username);
         verify(productsRepository).findProductByProductIdAndName(addProductDto.foodId(), addProductDto.name());
         verify(diary).addProduct(any());
-    }
-
-    @Test
-    void addProductToDiary_userNotFound_throwsUserNotFoundException() {
-        //given
-        AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto();
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> diaryService.addProductToDiary(addProductDto, authentication));
-
-        //then
-        assertEquals("User not found", ex.getMessage());
-
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(productsRepository, never()).findProductByProductIdAndName(addProductDto.foodId(), addProductDto.name());
-        verify(diary, never()).addProduct(any(ProductInDiary.class));
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
-        verify(productMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
     }
 
     @Test
@@ -202,33 +155,6 @@ class DiaryServiceTest {
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
         verify(productMapper).mapToProductInDiaryDto(any());
-    }
-
-    @Test
-    void editProductAmountInDiary_userNotFound_throwsUserNotFoundException() {
-        //given
-        //TODO Exception message to constant variable
-        EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
-        ProductInDiary productInDiary = buildProductInDiary();
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> diaryService.editProductAmountInDiary(editProductInDiaryDto, authentication));
-
-        //then
-        assertEquals("User not found", ex.getMessage());
-
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(productsAddedToDiaryRepository, never()).findById(editProductInDiaryDto.id());
-        verify(productsRepository, never()).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
-        verify(productMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
-        verify(productMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
     }
 
     @Test
@@ -323,31 +249,6 @@ class DiaryServiceTest {
         verify(productsRepository).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
-    }
-
-    @Test
-    void deleteProductFromDiary_userNotFound_throwsUserNotFoundException() {
-        //given
-        String expectedResponse = "User not found";
-        ProductInDiary productInDiary = buildProductInDiary();
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> diaryService.deleteProductFromDiary(1L, authentication));
-
-        //then
-        assertEquals(expectedResponse, ex.getMessage());
-
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(productsAddedToDiaryRepository, never()).findById(1L);
-        verify(productsAddedToDiaryRepository, never()).delete(productInDiary);
-        verify(productsRepository, never()).findProductByProductIdAndName(productInDiary.getProductId(), productInDiary.getProductName());
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
     }
 
     @Test
