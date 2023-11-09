@@ -1,9 +1,6 @@
 package app.diary;
 
-import app.diary.dto.AddProductToDiaryDto;
-import app.diary.dto.DiaryDto;
-import app.diary.dto.EditProductInDiaryDto;
-import app.diary.dto.ProductInDiaryDto;
+import app.diary.dto.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -41,7 +38,7 @@ class DiaryController {
     @DeleteMapping("/product")
      String deleteProductFromDiary(@CurrentSecurityContext(expression = "authentication")
                                                           Authentication authentication,
-                                                          @RequestBody Long usersProductsId) {
-        return diaryService.deleteProductFromDiary(usersProductsId, authentication);
+                                                          @RequestBody DeleteProductDto deleteProductDto) {
+        return diaryService.deleteProductFromDiary(deleteProductDto, authentication);
     }
 }

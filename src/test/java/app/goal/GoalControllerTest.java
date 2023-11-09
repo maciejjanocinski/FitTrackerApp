@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -25,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(GoalController.class)
-@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 class GoalControllerTest {
 
@@ -39,10 +37,10 @@ class GoalControllerTest {
     private ObjectMapper objectMapper;
 
     @Mock
-    GoalResponseDto goalResponseDto;
+    private GoalResponseDto goalResponseDto;
 
     @Mock
-    GoalDto goalDto;
+    private GoalDto goalDto;
 
     @Test
     void getGoal_inputDataOk_returns200() throws Exception {

@@ -1,12 +1,11 @@
 package app.product;
 
 import app.user.User;
-import app.user.UserRepository;
+import app.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productsRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Value("${api.products.url}")
     private String baseUrl;
@@ -33,8 +32,7 @@ public class ProductService {
 
     public List<Product> searchProducts(String query, Authentication authentication) {
 
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(query)) {
             return productsRepository.findAllByQuery(query);

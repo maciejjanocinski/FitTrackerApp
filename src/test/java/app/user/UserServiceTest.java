@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+import static app.utils.TestUtils.userNotFoundMessage;
 import static app.utils.TestUtils.username;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -83,22 +84,31 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser_UserNotFound_throwsUsernameNotFoundException() {
+    void getUserByUsername_inputDataOk_returnsUser() {
         //given
-        String expectedMessage = "User not found";
         User user = buildUser();
-        when(authentication.getName()).thenReturn(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        //when
+        User actualUser = userService.getUserByUsername(username);
+
+        //then
+        assertEquals(actualUser, user);
+        verify(userRepository).findByUsername(username);
+    }
+
+    @Test
+    void getUserByUsername_UserNotFound_throwsUsernameNotFoundException() {
+        //given
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         //when
         Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> userService.getUser(authentication));
+                () -> userService.getUserByUsername(username));
 
         //then
-        assertEquals(expectedMessage, ex.getMessage());
-        verify(authentication).getName();
+        assertEquals(userNotFoundMessage, ex.getMessage());
         verify(userRepository).findByUsername(username);
-        verify(userMapper, never()).mapUserToUserDto(user);
     }
 
     @Test
@@ -117,26 +127,6 @@ class UserServiceTest {
         //then
         assertEquals(expectedMessage, actualMessage);
         assertEquals(user.getUsername(), updateProfileInfoDto.username());
-
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-    }
-
-    @Test
-    void updateProfile_usernameNotFound_throwsUsernameNotFoundException() {
-        //given
-        String expectedMessage = "User not found";
-        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto(username);
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> userService.updateProfile(authentication, updateProfileInfoDto));
-
-        //then
-        assertEquals(expectedMessage, ex.getMessage());
 
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
@@ -163,28 +153,6 @@ class UserServiceTest {
         verify(authentication).getName();
         verify(userRepository).findByUsername(username);
         verify(passwordEncoder).encode(updatePasswordDto.newPassword());
-    }
-
-    @Test
-    void updatePassword_usernameNotFound_throwsUsernameNotFoundException() {
-        //given
-        String expectedMessage = "User not found";
-        UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto();
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> userService.updatePassword(authentication, updatePasswordDto));
-
-        //then
-        assertEquals(expectedMessage, ex.getMessage());
-
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(passwordEncoder, never()).encode(updatePasswordDto.newPassword());
     }
 
     @Test
@@ -257,29 +225,6 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteProfile_usernameNotFound_throwsUsernameNotFoundException() {
-        //given
-        User user = buildUser();
-        String expectedMessage = "User not found";
-        DeleteUserDto deleteUserDto = buildDeleteUserDto();
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> userService.deleteProfile(authentication, deleteUserDto));
-
-        //then
-        assertEquals(expectedMessage, ex.getMessage());
-
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(passwordEncoder, never()).matches(deleteUserDto.password(), user.getPassword());
-        verify(userRepository, never()).delete(user);
-    }
-
-    @Test
     void deleteProfile_passedWrongPassword_throwsInvalidPasswordException() {
         //given
         User user = buildUser();
@@ -329,19 +274,7 @@ class UserServiceTest {
         assertEquals(expectedMessage, ex.getMessage());
     }
 
-    @Test
-    void updateUserProfile_inputDataOk() {
-        //given
-        String changedUsername = "otherUsername";
-        User user = buildUser();
-        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto(changedUsername);
 
-        //when
-        userService.updateUserProfile(user, updateProfileInfoDto);
-
-        //then
-        assertNotEquals(username, user.getUsername());
-    }
 
 
     private DeleteUserDto buildDeleteUserDto() {
@@ -390,6 +323,7 @@ class UserServiceTest {
                 .gender("MALE")
                 .email("email")
                 .phone("123456789")
+
                 .build();
     }
 

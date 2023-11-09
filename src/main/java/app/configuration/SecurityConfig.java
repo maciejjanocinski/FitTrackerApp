@@ -37,7 +37,7 @@ import java.util.Set;
 
 @Configuration
 @AllArgsConstructor
-class SecurityConfig {
+public class SecurityConfig {
 
     private final RsaKeyProperties keys;
 
@@ -60,7 +60,7 @@ class SecurityConfig {
 
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+   public PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
         encoderMap.put(idForEncode, new BCryptPasswordEncoder());
@@ -102,9 +102,7 @@ class SecurityConfig {
                                         jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
                                 )
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        ;
-
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

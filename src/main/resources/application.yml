@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/FitTrackerApp
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+logging:
+  level:
+    org.springframework: DEBUG
+    app: DEBUG
+
+
+api:
+  products:
+    url: "https://api.edamam.com/api/food-database/v2/parser"
+    key: "919ca3a0f24fe88e3f071676227e522b"
+    id: "74461f79"
+
+  recipes:
+    url: "https://api.edamam.com/api/recipes/v2"
+    key: "ee6c03e03b5649f47cc9d7eadd5a3183"
+    id: "f8e22404"

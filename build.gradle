@@ -33,7 +33,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.0.4'
     implementation 'org.springframework.boot:spring-boot-starter-web:3.1.0'
     developmentOnly 'org.springframework.boot:spring-boot-devtools:3.0.4'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test:3.1.0'
+    testImplementation 'org.springframework.security:spring-security-test:6.1.5'
+    testImplementation 'com.h2database:h2'
+    testImplementation 'mysql:mysql-connector-java'
+
     implementation 'mysql:mysql-connector-java:8.0.33'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.1'
     implementation 'org.springframework.boot:spring-boot-starter-security:3.0.4'
@@ -45,8 +50,7 @@ dependencies {
     implementation "org.mapstruct:mapstruct:1.5.5.Final"
     compileOnly 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
-    testImplementation 'org.springframework.security:spring-security-test:6.1.5'
-    testImplementation 'mysql:mysql-connector-java'
+
 }
 
 compileJava {

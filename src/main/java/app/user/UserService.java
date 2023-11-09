@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static app.util.UtilityClass.userNotFoundMessage;
+
 @Service
 @AllArgsConstructor
 public class UserService implements UserDetailsService {
@@ -25,27 +27,29 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(userNotFoundMessage));
     }
 
     UserDto getUser(Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = this.getUserByUsername(authentication.getName());
         return userMapper.mapUserToUserDto(user);
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(userNotFoundMessage));
     }
 
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        updateUserProfile(user, updateProfileInfoDto);
+        this.getUserByUsername(authentication.getName()).updateUserProfile(updateProfileInfoDto);
         return "Changes has been successfully approved";
     }
 
     @Transactional
     public String updatePassword(Authentication authentication, UpdatePasswordDto password) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = this.getUserByUsername(authentication.getName());
 
         if (password.newPassword().equals(password.confirmNewPassword()) &&
                 passwordEncoder.matches(password.oldPassword(), user.getPassword())) {
@@ -58,12 +62,11 @@ public class UserService implements UserDetailsService {
             throw new InvalidPasswordException("Passwords are not the same.");
         }
 
-      throw new InvalidPasswordException("You have passed wrong password.");
+        throw new InvalidPasswordException("You have passed wrong password.");
     }
 
     String deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = this.getUserByUsername(authentication.getName());
 
         if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword()) &&
                 deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
@@ -76,17 +79,10 @@ public class UserService implements UserDetailsService {
         throw new InvalidPasswordException("You have passed wrong password.");
     }
 
-     boolean setPasswordWithValidation(String password) {
+    boolean setPasswordWithValidation(String password) {
         PasswordValidator passwordValidator = new PasswordValidator();
         return passwordValidator.isValidSetterCheck(password);
     }
 
-     void updateUserProfile(User user, UpdateProfileInfoDto updateProfileInfoDto) {
-        user.setUsername(updateProfileInfoDto.username());
-        user.setName(updateProfileInfoDto.name());
-        user.setSurname(updateProfileInfoDto.surname());
-        user.setEmail(updateProfileInfoDto.email());
-        user.setPhone(updateProfileInfoDto.phone());
-        user.setGender(User.validateGender(updateProfileInfoDto.gender()));
-    }
+
 }

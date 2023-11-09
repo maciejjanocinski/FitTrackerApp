@@ -13,11 +13,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-@ExtendWith(SpringExtension.class)
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@EnableJpaRepositories
-@EntityScan(basePackages = "app.authentication")
+@EnableJpaRepositories(basePackageClasses = RoleRepository.class)
 class RoleRepositoryTest {
 
     @Autowired

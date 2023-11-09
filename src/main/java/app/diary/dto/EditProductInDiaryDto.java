@@ -5,7 +5,7 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 @Builder
-public record EditProductInDiaryDto(long id,
+public record EditProductInDiaryDto(Long id,
                                     String measureLabel,
                                     BigDecimal quantity) {
 }

@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,14 +20,11 @@ public class TokenService {
     private JwtEncoder jwtEncoder;
 
     public String generateJwt(Authentication auth) {
-        Instant now = Instant.now();
-        String roles = auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "));
+        String roles = concatRoles(auth.getAuthorities());
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
-                .issuedAt(now)
+                .issuedAt(Instant.now())
                 .subject(auth.getName())
                 .claim("roles", roles)
                 .build();
@@ -34,21 +32,23 @@ public class TokenService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public String generateJwt(User user) {
-        Instant now = Instant.now();
-        String roles = user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "));
+    public String generateJwt(Collection<? extends GrantedAuthority> authorities, String username) {
+        String roles = concatRoles(authorities);
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
-                .issuedAt(now)
-                .subject(user.getName())
+                .issuedAt(Instant.now())
+                .subject(username)
                 .claim("roles", roles)
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
+private String concatRoles(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
+    }
 
 }

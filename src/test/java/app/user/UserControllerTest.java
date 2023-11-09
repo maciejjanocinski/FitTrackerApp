@@ -9,10 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
@@ -47,7 +46,7 @@ class UserControllerTest {
     @Test
     void getUser_inputDataOk_returns200() throws Exception {
         //given
-        when(userService.getUser(any())).thenReturn(userDto);
+        when(userService.getUser(any(Authentication.class))).thenReturn(userDto);
 
         //when
         mockMvc.perform(get("/user/")
@@ -58,13 +57,13 @@ class UserControllerTest {
                 .andDo(print());
 
         //then
-        verify(userService).getUser(any());
+        verify(userService).getUserByUsername(any(String.class));
     }
 
     @Test
     void getUser_userNotFound_returns404() throws Exception {
         //given
-        when(userService.getUser(any()))
+        when(userService.getUser(any(Authentication.class)))
                 .thenThrow(new UsernameNotFoundException(userNotFoundMessage));
 
         //when
@@ -76,7 +75,7 @@ class UserControllerTest {
                 .andDo(print());
 
         //then
-        verify(userService).getUser(any());
+        verify(userService).getUserByUsername(any(String.class));
     }
 
     @Test

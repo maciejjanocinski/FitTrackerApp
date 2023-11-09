@@ -58,28 +58,6 @@ class GoalServiceTest {
 
         assertEquals(expectedResponse, goalResponseDto);
     }
-
-    @Test
-    void getGoal_throwsException() {
-        //given
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> goalService.getGoal(authentication));
-
-        //then
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
-        verify(goalMapper, never()).mapToGoalResponseDto(diary);
-
-        assertEquals("User not found", ex.getMessage());
-    }
-
     @Test
     void setGoal_inputDataOk() {
         //given
@@ -87,7 +65,7 @@ class GoalServiceTest {
         GoalDto goalDto = buildGoalDto();
         User user = User.builder()
                 .username(username)
-                .gender(User.validateGender("FEMALE"))
+                .gender(User.setGenderFromString("FEMALE"))
                 .diary(diary)
                 .build();
         when(authentication.getName()).thenReturn(username);
@@ -105,28 +83,6 @@ class GoalServiceTest {
         assertEquals(expectedResponse, goalResponseDto);
     }
 
-    @Test
-    void setGoal_throwsException() {
-        //given
-        GoalDto goalDto = buildGoalDto();
-
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        //when
-        Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> goalService.setGoal(authentication, goalDto));
-
-        //then
-        verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
-        verify(diary, never()).calculateNutrientsLeft();
-        verify(diary, never()).calculateNutrientsSum();
-        verify(goalMapper, never()).mapToGoalResponseDto(diary);
-
-        assertEquals("User not found", ex.getMessage());
-    }
-
 
     private GoalDto buildGoalDto() {
         return GoalDto.builder()
@@ -137,15 +93,6 @@ class GoalServiceTest {
                 .build();
     }
 
-    private GoalValues buildGoalValuesForMale() {
-        return GoalValues.builder()
-                .kcal(BigDecimal.valueOf(1000))
-                .protein(BigDecimal.valueOf(75).setScale(2, RoundingMode.HALF_UP))
-                .carbohydrates(BigDecimal.valueOf(62.5).setScale(2, RoundingMode.HALF_UP))
-                .fat(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP))
-                .fiber(BigDecimal.valueOf(38))
-                .build();
-    }
 
     private GoalResponseDto buildGoalResponseDto() {
         return GoalResponseDto.builder()

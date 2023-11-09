@@ -16,13 +16,13 @@ import java.util.List;
 
 import static app.utils.TestUtils.query;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
 
@@ -42,7 +42,7 @@ class ProductControllerTest {
 
         mockMvc.perform(get("/products/search")
                         .param("product",query)
-                )
+                        .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(productsList)))
