@@ -18,3 +18,8 @@ logging:
     org:
       hibernate:
         sql: info
+
+
+app:
+  test:
+    port: 1234

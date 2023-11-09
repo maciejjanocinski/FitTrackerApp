@@ -39,7 +39,7 @@ public class Product {
 
     private String image;
 
-    private boolean isUsed = false;
+    private boolean isUsed;
 
     private String query;
 
@@ -74,7 +74,7 @@ public class Product {
                     food.getImage(),
                     query
             );
-
+            product.setUsed(false);
             product.setMeasures(measures);
             products.add(product);
         }

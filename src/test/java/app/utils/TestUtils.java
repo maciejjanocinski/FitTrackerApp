@@ -4,8 +4,10 @@ import app.authentication.Role;
 import app.authentication.TokenService;
 import app.diary.Diary;
 import app.user.User;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +36,11 @@ public class TestUtils {
                 .build();
     }
 
-    public static String generateAuthorizationHeader(TokenService tokenService, User user) {
-        return "Bearer " + tokenService.generateJwt(user);
+    public static String generateAuthorizationHeader(
+            TokenService tokenService,
+            Collection<? extends GrantedAuthority> authorities,
+            String username) {
+
+        return "Bearer " + tokenService.generateJwt(authorities, username);
     }
 }

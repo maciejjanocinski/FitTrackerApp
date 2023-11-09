@@ -32,13 +32,13 @@ public class TokenService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public String generateJwt(User user) {
-        String roles = concatRoles(user.getAuthorities());
+    public String generateJwt(Collection<? extends GrantedAuthority> authorities, String username) {
+        String roles = concatRoles(authorities);
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(Instant.now())
-                .subject(user.getUsername())
+                .subject(username)
                 .claim("roles", roles)
                 .build();
 

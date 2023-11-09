@@ -1,9 +1,6 @@
 package app.diary;
 
-import app.diary.dto.AddProductToDiaryDto;
-import app.diary.dto.DiaryDto;
-import app.diary.dto.EditProductInDiaryDto;
-import app.diary.dto.ProductInDiaryDto;
+import app.diary.dto.*;
 import app.util.exceptions.ProductNotFoundException;
 import app.product.Product;
 import app.product.ProductRepository;
@@ -33,7 +30,7 @@ class DiaryServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private ProductAddedToDiaryRepository productsAddedToDiaryRepository;
+    private ProductsInDiaryRepository productsAddedToDiaryRepository;
     @Mock
     private ProductMapper productMapper;
     @Mock
@@ -237,7 +234,7 @@ class DiaryServiceTest {
                 .thenReturn(Optional.of(product));
 
         //when
-        String response = diaryService.deleteProductFromDiary(1L, authentication);
+        String response = diaryService.deleteProductFromDiary(buildDeleteProductDto(), authentication);
 
         //then
         assertEquals(expectedResponse, response);
@@ -264,7 +261,7 @@ class DiaryServiceTest {
                 .thenReturn(Optional.empty());
         //when
         Exception ex = assertThrows(ProductNotFoundException.class,
-                () -> diaryService.deleteProductFromDiary(1L, authentication));
+                () -> diaryService.deleteProductFromDiary(buildDeleteProductDto(), authentication));
 
         //then
         assertEquals(expectedResponse, ex.getMessage());
@@ -297,7 +294,7 @@ class DiaryServiceTest {
                 .thenReturn(Optional.empty());
         //when
         Exception ex = assertThrows(ProductNotFoundException.class,
-                () -> diaryService.deleteProductFromDiary(1L, authentication));
+                () -> diaryService.deleteProductFromDiary(buildDeleteProductDto(), authentication));
 
         //then
         assertEquals(expectedResponse, ex.getMessage());
@@ -404,4 +401,12 @@ class DiaryServiceTest {
                 .quantity(BigDecimal.valueOf(100))
                 .build();
     }
+
+    private DeleteProductDto buildDeleteProductDto() {
+        return DeleteProductDto.builder()
+                .id(1L)
+                .build();
+    }
+
+
 }

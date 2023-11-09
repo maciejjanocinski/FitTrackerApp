@@ -47,13 +47,23 @@ public class Diary {
     private BigDecimal leftFiber;
 
 
-    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "diary",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER
+    )
     @JsonManagedReference
     @JsonIgnore
     private List<ProductInDiary> products;
 
      void addProduct(ProductInDiary product) {
         this.products.add(product);
+        calculateNutrientsLeft();
+        calculateNutrientsSum();
+    }
+
+    void removeProduct(ProductInDiary product) {
+        this.products.remove(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }

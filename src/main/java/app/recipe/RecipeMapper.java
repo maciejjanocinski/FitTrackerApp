@@ -7,5 +7,6 @@ import org.mapstruct.Mapping;
 public interface RecipeMapper {
      @Mapping(target = "used", ignore = true)
      @Mapping(target = "query", ignore = true)
+     @Mapping(target = "id", ignore = true)
      Recipe mapToRecipe(RecipeDto recipeRequestDto);
 }
