@@ -3,8 +3,11 @@ package app.user;
 import app.authentication.Role;
 import app.diary.Diary;
 import app.diary.Gender;
+import app.product.Product;
 import app.recipe.Recipe;
 import app.user.dto.UpdateProfileInfoDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.UnexpectedTypeException;
 import jakarta.validation.constraints.Email;
@@ -72,6 +75,7 @@ public class User implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "diary_id")
+    @JsonIgnore
     private Diary diary;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -79,6 +83,11 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "recipe_id"))
     private List<Recipe> favouriteRecipes;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonIgnore
+    @JsonManagedReference
+    private List<Product> lastSearchedProducts;
 
     private String lastProductQuery;
     private String lastRecipeQuery;
@@ -90,6 +99,9 @@ public class User implements UserDetails {
                 .collect(Collectors.toList());
     }
 
+  public void removeProduct(Product product) {
+        lastSearchedProducts.remove(product);
+    }
     public void addRole(Role role) {
         authorities.add(role);
     }

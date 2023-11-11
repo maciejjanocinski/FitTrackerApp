@@ -20,9 +20,10 @@ public class ProductController {
     private final ProductService productsService;
 
     @GetMapping("/search")
-     List<Product> searchProducts(@RequestParam String product,
-                                  @CurrentSecurityContext(expression = "authentication")
-                                  Authentication authentication) {
+    List<Product> searchProducts(@RequestParam String product,
+                                 @CurrentSecurityContext(expression = "authentication")
+                                 Authentication authentication) {
+        productsService.clearNotUsedProducts(authentication);
         return productsService.searchProducts(product, authentication);
     }
 

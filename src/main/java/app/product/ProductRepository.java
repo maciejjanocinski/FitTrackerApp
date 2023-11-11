@@ -1,9 +1,11 @@
 package app.product;
 
 import jakarta.transaction.Transactional;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,8 +16,10 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Product p WHERE p.isUsed = false")
-    void deleteNotUsedProducts();
+    @Query("DELETE FROM Product p WHERE p.isUsed = false AND p.user.id = :userId")
+    void deleteNotUsedProducts(@Param("userId") Long userId);
+
+
 
     Optional<Product> findProductByProductIdAndName(String id, String name);
 

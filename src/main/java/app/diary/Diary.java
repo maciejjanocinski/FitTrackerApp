@@ -1,5 +1,6 @@
 package app.diary;
 
+import app.product.Measure;
 import app.util.exceptions.InvalidInputException;
 import app.goal.GoalDto;
 import app.goal.GoalValues;
@@ -52,28 +53,27 @@ public class Diary {
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER
     )
-    @JsonManagedReference
-    @JsonIgnore
-    private List<ProductInDiary> products;
+    private List<ProductInDiary> productsInDiary;
+
 
      void addProduct(ProductInDiary product) {
-        this.products.add(product);
+        this.productsInDiary.add(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
     void removeProduct(ProductInDiary product) {
-        this.products.remove(product);
+        this.productsInDiary.remove(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
     public void calculateNutrientsSum() {
-        this.sumKcal = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getKcal().doubleValue()).sum());
-        this.sumProtein = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getProtein().doubleValue()).sum());
-        this.sumCarbohydrates = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getCarbohydrates().doubleValue()).sum());
-        this.sumFat = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getFat().doubleValue()).sum());
-        this.sumFiber = BigDecimal.valueOf(this.products.stream().mapToDouble(p -> p.getFiber().doubleValue()).sum());
+        this.sumKcal = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getKcal().doubleValue()).sum());
+        this.sumProtein = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getProtein().doubleValue()).sum());
+        this.sumCarbohydrates = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getCarbohydrates().doubleValue()).sum());
+        this.sumFat = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getFat().doubleValue()).sum());
+        this.sumFiber = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getFiber().doubleValue()).sum());
     }
 
     public void calculateNutrientsLeft() {
@@ -124,14 +124,20 @@ public class Diary {
         this.setGoalFiber(goalValues.fiber());
     }
 
-    ProductInDiary generateNewProductInDiary( Product product, String measureLabel, BigDecimal quantity) {
+   public ProductInDiary generateNewProductInDiary(Product product, String measureName, BigDecimal quantity) {
+
+       Measure measure =  product.getMeasures().stream()
+                 .filter(m -> m.getName().equals(measureName))
+                 .findFirst()
+                 .orElseThrow(() -> new InvalidInputException("Measure not found"));
+
         String productId = product.getProductId();
         String productName = product.getName();
-        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
-        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
-        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
-        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel).multiply(quantity));
-        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(product.getMeasures().get(measureLabel)).multiply(quantity);
+        BigDecimal calories = product.getKcal().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(measure.getWeight()).multiply(quantity);
+        BigDecimal proteins = product.getProtein().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(measure.getWeight()).multiply(quantity);
+        BigDecimal carbs = product.getCarbohydrates().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(measure.getWeight()).multiply(quantity);
+        BigDecimal fats = product.getFat().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(measure.getWeight()).multiply(quantity);
+        BigDecimal fiber = product.getFiber().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP).multiply(measure.getWeight()).multiply(quantity);
         String image = product.getImage();
 
         ProductInDiary.ProductInDiaryBuilder productInDiary = ProductInDiary.builder()
@@ -143,7 +149,7 @@ public class Diary {
                 .carbohydrates(carbs)
                 .fat(fats)
                 .fiber(fiber)
-                .measureLabel(measureLabel)
+                .measureLabel(measure.getName())
                 .quantity(quantity)
                 .image(image);
 
@@ -167,6 +173,6 @@ public class Diary {
         this.goalCarbohydrates = BigDecimal.ZERO;
         this.goalFat = BigDecimal.ZERO;
         this.goalFiber = BigDecimal.ZERO;
-        this.products = new ArrayList<>();
+        this.productsInDiary = new ArrayList<>();
     }
 }

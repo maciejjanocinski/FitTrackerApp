@@ -2,6 +2,7 @@ package app.product;
 
 import app.user.User;
 import app.user.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -29,26 +30,31 @@ public class ProductService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-
+    @Transactional
     public List<Product> searchProducts(String query, Authentication authentication) {
 
         User user = userService.getUserByUsername(authentication.getName());
-
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(query)) {
             return productsRepository.findAllByQuery(query);
         }
 
-        productsRepository.deleteNotUsedProducts();
         user.setLastProductQuery(query);
-
+        productsRepository.deleteNotUsedProducts(user.getId());
 
         String url = createUrl(id, key, query);
         ResponseDTO response = getProductsFromApi(url);
 
-        List<Product> products = Product.parseProductsFromResponseDto(response, query);
+        List<Product> products = Product.parseProductsFromResponseDto(response, query, user);
 
+        user.getLastSearchedProducts().addAll(products);
         productsRepository.saveAll(products);
         return products;
+    }
+
+    @Transactional
+    public void clearNotUsedProducts(Authentication authentication) {
+        User user = userService.getUserByUsername(authentication.getName());
+        user.getLastSearchedProducts().clear();
     }
 
     private ResponseDTO getProductsFromApi(String url) {
