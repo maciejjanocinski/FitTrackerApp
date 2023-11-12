@@ -6,7 +6,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-interface ProductMapper {
+interface ProductInDiaryMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "diary", ignore = true)

@@ -6,8 +6,7 @@ import java.math.BigDecimal;
 
 @Builder
 public record AddProductToDiaryDto(
-        String foodId,
-        String name,
+        Long id,
         String measureLabel,
         BigDecimal quantity) {
 }

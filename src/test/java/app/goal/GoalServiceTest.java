@@ -2,28 +2,22 @@ package app.goal;
 
 import app.diary.Diary;
 import app.user.User;
-import app.user.UserRepository;
+import app.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Optional;
 
 import static app.utils.TestUtils.username;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GoalServiceTest {
-    @Mock
-    private  UserRepository userRepository;
     @Mock
     private  GoalMapper goalMapper;
     @Mock
@@ -32,6 +26,9 @@ class GoalServiceTest {
     private Diary diary;
     @InjectMocks
     private GoalService goalService;
+
+    @Mock
+    UserService userService;
 
     @Test
     void getGoal_inputDataOk() {
@@ -43,7 +40,7 @@ class GoalServiceTest {
                 .build();
 
         when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(userService.getUserByUsername(username)).thenReturn(user);
         when(goalMapper.mapToGoalResponseDto(diary)).thenReturn(expectedResponse);
 
         //when
@@ -51,7 +48,7 @@ class GoalServiceTest {
 
         //then
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
+        verify(userService).getUserByUsername(username);
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
         verify(goalMapper).mapToGoalResponseDto(diary);
@@ -69,7 +66,7 @@ class GoalServiceTest {
                 .diary(diary)
                 .build();
         when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(userService.getUserByUsername(username)).thenReturn(user);
         when(diary.setGoal(goalDto, user.getGender())).thenReturn(diary);
         when(goalMapper.mapToGoalResponseDto(any(Diary.class))).thenReturn(expectedResponse);
 
@@ -78,8 +75,8 @@ class GoalServiceTest {
 
         //then
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
         verify(diary).setGoal(goalDto, user.getGender());
+        verify(userService).getUserByUsername(username);
         assertEquals(expectedResponse, goalResponseDto);
     }
 

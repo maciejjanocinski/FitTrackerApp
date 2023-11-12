@@ -26,8 +26,13 @@ class SearchResult {
 class RecipeAndLinkDto {
     private RecipeDto recipe;
 }
-
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+class IngredientLineDto {
+    private String text;
+}
 
 
 

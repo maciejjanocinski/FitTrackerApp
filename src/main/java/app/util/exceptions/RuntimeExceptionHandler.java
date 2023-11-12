@@ -12,17 +12,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.sql.SQLIntegrityConstraintViolationException;
 
 @RestControllerAdvice
-class RuntimeExceptionHandler {
-
-    @ExceptionHandler(RuntimeException.class)
-    private ResponseEntity<String> handleRuntimeExceptionException(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
+public class RuntimeExceptionHandler {
     @ExceptionHandler(InvalidInputException.class)
     private ResponseEntity<String> handleMethodArgumentNotValidException(InvalidInputException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-
+    @ExceptionHandler(RecipeAlreadyAddedException.class)
+    private ResponseEntity<String> handleRecipeAlreadyAddedExceptionException(RecipeAlreadyAddedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(InvalidPasswordException.class)
     private ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

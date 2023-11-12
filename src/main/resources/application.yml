@@ -7,6 +7,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+    properties:
+      javax:
+        persistence:
+          validation:
+            mode: none
 logging:
   level:
     org.springframework: DEBUG

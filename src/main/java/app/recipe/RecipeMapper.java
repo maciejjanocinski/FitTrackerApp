@@ -5,8 +5,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface RecipeMapper {
-     @Mapping(target = "used", ignore = true)
-     @Mapping(target = "query", ignore = true)
-     @Mapping(target = "id", ignore = true)
+     @Mapping(target = "user", ignore = true)
      Recipe mapToRecipe(RecipeDto recipeRequestDto);
 }

@@ -1,7 +1,11 @@
 package app.recipe;
 
+import app.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +27,7 @@ public class Recipe {
     private String source;
     private String url;
     private int yield;
-    @ElementCollection
-    private List<String> ingredientLines;
+
     private double caloriesPerServing;
     private double proteinPerServing;
     private double carbsPerServing;
@@ -31,4 +35,14 @@ public class Recipe {
     private double fiberPerServing;
     private boolean isUsed;
     private String query;
+
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "recipe_id")
+    private List<IngredientLine> ingredientLines;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    @JsonManagedReference
+    private User user;
 }

@@ -19,9 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     @Query("DELETE FROM Product p WHERE p.isUsed = false AND p.user.id = :userId")
     void deleteNotUsedProducts(@Param("userId") Long userId);
 
-
-
-    Optional<Product> findProductByProductIdAndName(String id, String name);
+    Optional<Product> findProductById(Long id);
 
     List<Product> findAllByQuery(String query);
 

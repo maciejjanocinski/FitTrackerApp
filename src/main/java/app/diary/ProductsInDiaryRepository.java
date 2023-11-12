@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository;
  interface ProductsInDiaryRepository extends JpaRepository<ProductInDiary, Long> {
 
   void deleteProductInDiaryById(Long productInDiaryId);
-
 }

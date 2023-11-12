@@ -11,19 +11,21 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecipeDto {
+    private Long id;
     private String label;
     private String image;
     private String source;
     private String url;
     private int yield;
-    private List<String> ingredientLines;
+    private List<IngredientLineDto> ingredientLines;
     private Map<String, Nutrient> totalNutrients;
     private double caloriesPerServing;
     private double proteinPerServing;
     private double carbsPerServing;
     private double fatPerServing;
     private double fiberPerServing;
-
+    private boolean isUsed;
+    private String query;
 
     void calculateNutrientsPerServing() {
         this.caloriesPerServing = totalNutrients.get("ENERC_KCAL").getQuantity() / yield;

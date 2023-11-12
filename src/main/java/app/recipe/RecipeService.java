@@ -2,6 +2,7 @@ package app.recipe;
 
 import app.user.User;
 import app.user.UserService;
+import app.util.exceptions.RecipeAlreadyAddedException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,15 +35,19 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
 
     List<Recipe> searchRecipes(String query, Authentication authentication) {
+        String lowerCasedQuery = query.toLowerCase();
 
         User user = userService.getUserByUsername(authentication.getName());
-        if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(query)) {
-            return recipeRepository.findAllByQuery(query);
+        if (user.getLastRecipeQuery() != null && user.getLastRecipeQuery().equals(lowerCasedQuery)) {
+            return user.getLastSearchedRecipes().stream()
+                    .filter(r -> r.getQuery().equals(lowerCasedQuery))
+                    .toList();
         }
-        recipeRepository.deleteNotFavouriteRecipes();
 
-        user.setLastProductQuery(query);
-        String url = createUrl(id, key, query);
+        clearNotUsedRecipes(user);
+
+        user.setLastRecipeQuery(lowerCasedQuery);
+        String url = createUrl(id, key, lowerCasedQuery);
         SearchResult result = getRecipesFromApi(url);
 
         List<Recipe> recipes = result.getHits().stream()
@@ -51,7 +56,8 @@ public class RecipeService {
                     recipeDto.calculateNutrientsPerServing();
                     Recipe recipe = recipeMapper.mapToRecipe(recipeDto);
                     recipe.setUsed(false);
-                    recipe.setQuery(query);
+                    recipe.setUser(user);
+                    recipe.setQuery(lowerCasedQuery);
                     return recipe;
                 })
                 .toList();
@@ -59,27 +65,41 @@ public class RecipeService {
         recipeRepository.saveAll(recipes);
         return recipes;
     }
+
     @Transactional
     public Recipe addRecipeToFavourites(Long id, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
 
-       for (Recipe recipe : user.getFavouriteRecipes()) {
-            if (recipe.getId().equals(id)) {
-                throw new RuntimeException("Recipe already added");
+        for (Recipe recipe : user.getLastSearchedRecipes()) {
+            if (recipe.getId().equals(id) && recipe.isUsed()) {
+                throw new RecipeAlreadyAddedException("Recipe already added");
             }
         }
 
-        Recipe recipe = recipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+        Recipe recipe = user.getLastSearchedRecipes().stream()
+                .filter(r -> r.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RecipeAlreadyAddedException("Recipe not found"));
 
         recipe.setUsed(true);
-        user.addFavouriteRecipe(recipe);
         return recipe;
     }
 
     public List<Recipe> getMyRecipes(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
-        return user.getFavouriteRecipes();
+        return user.getLastSearchedRecipes().stream()
+                .filter(Recipe::isUsed)
+                .toList();
+    }
+
+    private void clearNotUsedRecipes(User user) {
+        user.getLastSearchedRecipes().stream()
+                .filter(recipe -> !recipe.isUsed())
+                .forEach(recipe -> {
+                    recipe.setUser(null);
+                    recipeRepository.delete(recipe);
+                })
+        ;
     }
 
 

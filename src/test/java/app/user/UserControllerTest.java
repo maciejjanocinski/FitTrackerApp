@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static app.user.User.setGenderFromString;
 import static app.utils.TestUtils.userNotFoundMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -40,8 +41,7 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Mock
-    UserDto userDto;
+    UserDto userDto = buildUserDto();
 
     @Test
     void getUser_inputDataOk_returns200() throws Exception {
@@ -57,7 +57,7 @@ class UserControllerTest {
                 .andDo(print());
 
         //then
-        verify(userService).getUserByUsername(any(String.class));
+        verify(userService).getUser(any(Authentication.class));
     }
 
     @Test
@@ -75,7 +75,7 @@ class UserControllerTest {
                 .andDo(print());
 
         //then
-        verify(userService).getUserByUsername(any(String.class));
+        verify(userService).getUser(any(Authentication.class));
     }
 
     @Test
@@ -386,6 +386,7 @@ class UserControllerTest {
     void updatePassword_wrongPasswordNull_returns400() throws Exception {
         //given
         UpdatePasswordDto updatePasswordDto = UpdatePasswordDto.builder()
+                .oldPassword(null)
                 .newPassword("NewPassword123!")
                 .confirmNewPassword("NewPassword123!")
                 .build();
@@ -504,5 +505,16 @@ class UserControllerTest {
 
         //then
         verify(userService, never()).updatePassword(any(), any());
+    }
+
+    private UserDto buildUserDto() {
+        return UserDto.builder()
+                .username("Username")
+                .name("Name")
+                .surname("Surname")
+                .gender(setGenderFromString("MALE").toString())
+                .email("maciek@gmail.com")
+                .phone("123456789")
+                .build();
     }
 }

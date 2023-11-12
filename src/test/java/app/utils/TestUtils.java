@@ -7,6 +7,7 @@ import app.user.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +20,12 @@ public class TestUtils {
     public static final String userNotFoundMessage = "User not found";
     public static final String productNotFoundMessage = "Product not found";
 
-    public static User buildUser(Role role, PasswordEncoder passwordEncoder) {
+    public static User buildUser(PasswordEncoder passwordEncoder) {
         Set<Role> authorities = new HashSet<>();
+        Role role = new Role(1L, Role.roleType.ROLE_USER_STANDARD.toString());
+        Role role1 = new Role(2L, Role.roleType.ROLE_USER_PREMIUM.toString());
         authorities.add(role);
+        authorities.add(role1);
 
         return User.builder()
                 .username("username")
@@ -32,6 +36,7 @@ public class TestUtils {
                 .gender(setGenderFromString("MALE"))
                 .email("maciek@gmail.com")
                 .phone("123456789")
+                .lastSearchedProducts(new ArrayList<>())
                 .authorities(authorities)
                 .build();
     }
