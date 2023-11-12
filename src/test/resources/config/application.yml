@@ -6,19 +6,21 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    defer-datasource-initialization: true
-    show-sql: true
+      ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
+        globally_quoted_identifiers: true
+    defer-datasource-initialization: true
+  main:
+    allow-bean-definition-overriding: true
 
 logging:
   level:
     org:
       hibernate:
         sql: info
-
 
 app:
   test:

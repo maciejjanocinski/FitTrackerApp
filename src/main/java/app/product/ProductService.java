@@ -2,6 +2,8 @@ package app.product;
 
 import app.user.User;
 import app.user.UserService;
+import app.util.exceptions.ProductNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -27,28 +29,47 @@ public class ProductService {
     @Value("${api.products.id}")
     private String id;
 
+    private final ProductMapper productMapper;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
-
-    public List<Product> searchProducts(String query, Authentication authentication) {
-
+    @Transactional
+    public List<ProductDto> searchProducts(String query, Authentication authentication) {
+        String lowerCasedQuery = query.toLowerCase();
         User user = userService.getUserByUsername(authentication.getName());
+        if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
+            List<Product> products = user.getLastSearchedProducts();
 
-        if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(query)) {
-            return productsRepository.findAllByQuery(query);
+            return mapToProductDto(products);
         }
 
-        productsRepository.deleteNotUsedProducts();
-        user.setLastProductQuery(query);
+        clearNotUsedProducts(user);
+        user.setLastProductQuery(lowerCasedQuery);
+        productsRepository.deleteNotUsedProducts(user.getId());
 
-
-        String url = createUrl(id, key, query);
+        String url = createUrl(id, key, lowerCasedQuery);
         ResponseDTO response = getProductsFromApi(url);
 
-        List<Product> products = Product.parseProductsFromResponseDto(response, query);
+        List<Product> products = Product.parseProductsFromResponseDto(response, lowerCasedQuery, user);
 
+        user.getLastSearchedProducts().addAll(products);
         productsRepository.saveAll(products);
-        return products;
+
+        return mapToProductDto(products);
+    }
+
+    void clearNotUsedProducts(User user) {
+        user.getLastSearchedProducts().removeAll(user.getLastSearchedProducts());
+    }
+
+    ProductDto getProductById(Authentication authentication, Long id) {
+        User user = userService.getUserByUsername(authentication.getName());
+        Product product = user.getLastSearchedProducts().stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new ProductNotFoundException("Product with id: " + id + " not found."));
+
+        return productMapper.mapToProductDto(product);
     }
 
     private ResponseDTO getProductsFromApi(String url) {
@@ -63,6 +84,12 @@ public class ProductService {
                 .queryParam("app_key", key)
                 .queryParam("ingr", query)
                 .toUriString();
+    }
+
+    private List<ProductDto> mapToProductDto(List<Product> products) {
+        return products.stream()
+                .map(productMapper::mapToProductDto)
+                .toList();
     }
 
 

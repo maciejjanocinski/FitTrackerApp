@@ -1,5 +1,6 @@
 package app.product;
 
+import app.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,9 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -43,10 +42,18 @@ public class Product {
 
     private String query;
 
-    @ElementCollection
-    private Map<String, BigDecimal> measures;
+    @ManyToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER
+    )
+    private List<Measure> measures;
 
-    static List<Product> parseProductsFromResponseDto(ResponseDTO response, String query) {
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
+
+    static List<Product> parseProductsFromResponseDto(ResponseDTO response, String query, User user) {
         List<Product> products = new ArrayList<>();
         if (response == null) {
             return products;
@@ -55,11 +62,10 @@ public class Product {
             FoodDTO food = hint.getFood();
             Map<String, BigDecimal> nutrients = food.getNutrients();
 
-            Map<String, BigDecimal> measures = hint.getMeasures().stream()
-                    .collect(Collectors.toMap(
-                            e -> valueOrEmpty(e.getLabel()),
-                            e -> valueOrZero(e.getWeight())
-                    ));
+            List<Measure> measures = hint.getMeasures().stream().map(measureDto -> Measure.builder()
+                    .name(measureDto.getLabel())
+                    .weight(measureDto.getWeight())
+                    .build()).collect(Collectors.toList());
 
             Product product = new Product();
             checkIfFieldsAreNotNullAndSetValues(
@@ -76,6 +82,7 @@ public class Product {
             );
             product.setUsed(false);
             product.setMeasures(measures);
+            product.setUser(user);
             products.add(product);
         }
         return products;

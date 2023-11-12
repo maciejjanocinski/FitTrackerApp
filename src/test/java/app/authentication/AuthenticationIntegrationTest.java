@@ -98,7 +98,7 @@ public class AuthenticationIntegrationTest {
     public void testLogin() throws Exception {
         //given
         LoginDto loginDto = buildLoginDto();
-        User user = buildUser(new Role(1L, Role.roleType.ROLE_USER_STANDARD.toString()), passwordEncoder);
+        User user = buildUser(passwordEncoder);
         userRepository.save(user);
 
         //when

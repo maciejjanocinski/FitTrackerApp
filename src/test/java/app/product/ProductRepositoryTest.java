@@ -1,38 +1,47 @@
 package app.product;
 
+import app.user.User;
+import app.user.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @DataJpaTest
-@EnableJpaRepositories(basePackageClasses = ProductRepository.class)
+@EnableJpaRepositories(basePackageClasses = {
+        ProductRepository.class,
+        UserRepository.class
+})
 class ProductRepositoryTest {
 
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     void deleteNotUserProducts_inputDataOk() {
         //given
+        User user = buildUser();
+        userRepository.save(user);
+
         List<Product> productList = buildListOfProductsWithDifferentValues(
                 "bread",
                 "olive oil",
                 false,
-                true);
+                true,
+                user);
         productRepository.saveAll(productList);
 
         //when
-        productRepository.deleteNotUsedProducts();
+        productRepository.deleteNotUsedProducts(1L);
         List<Product> products = productRepository.findAll();
 
         //then
@@ -51,11 +60,12 @@ class ProductRepositoryTest {
                 "bread",
                 "olive oil",
                 false,
-                false);
+                false,
+                null);
         productRepository.saveAll(productList);
 
         //when
-        productRepository.deleteNotUsedProducts();
+        productRepository.deleteNotUsedProducts(1L);
         List<Product> products = productRepository.findAll();
 
         //then
@@ -63,29 +73,32 @@ class ProductRepositoryTest {
     }
 
     @Test
-    public void testFindProductByProductIdAndName_inputDataOk() {
+    public void testFindProductByProductId_inputDataOk() {
         //given
-        Product product1 = Product.builder()
-                .productId("1")
-                .name("Product1")
+        Product p5 = Product.builder()
+                .productId("product1")
+                .name("ProductName")
+                .query("bread")
+                .isUsed(false)
                 .build();
-        productRepository.save(product1);
+
+        productRepository.save(p5);
 
         //when
-        Optional<Product> product = productRepository.findProductByProductIdAndName("1", "Product1");
+        Optional<Product> product = productRepository.findProductById(1L);
 
         //then
         assertTrue(product.isPresent());
-        assertEquals("1", product.get().getProductId());
-        assertEquals("Product1", product.get().getName());
+        assertEquals("product1", product.get().getProductId());
+        assertEquals("ProductName", product.get().getName());
     }
 
     @Test
-    public void testFindProductByProductIdAndName_returnsNull() {
+    public void testFindProductByProductId_returnsNull() {
         //given
 
         //when
-        Optional<Product> product = productRepository.findProductByProductIdAndName("1", "Product1");
+        Optional<Product> product = productRepository.findProductById(any());
 
         //then
         assertTrue(product.isEmpty());
@@ -99,7 +112,8 @@ class ProductRepositoryTest {
                 "bread",
                 "olive oil",
                 false,
-                false);
+                false,
+                null);
         productRepository.saveAll(productsList);
 
         //when
@@ -120,7 +134,8 @@ class ProductRepositoryTest {
                 "bread",
                 "bread",
                 false,
-                false);
+                false,
+                null);
         productRepository.saveAll(productsList);
 
         //when
@@ -135,12 +150,14 @@ class ProductRepositoryTest {
             String query1,
             String query2,
             boolean isUsed1,
-            boolean isUsed2) {
+            boolean isUsed2,
+            User user) {
         Product p1 = Product.builder()
                 .productId("1")
                 .name("bread")
                 .query(query1)
                 .isUsed(isUsed1)
+                .user(user)
                 .build();
 
         Product p2 = Product.builder()
@@ -148,6 +165,7 @@ class ProductRepositoryTest {
                 .name("garlic bread")
                 .query(query1)
                 .isUsed(isUsed1)
+                .user(user)
                 .build();
 
         Product p3 = Product.builder()
@@ -155,6 +173,7 @@ class ProductRepositoryTest {
                 .name("olive oil")
                 .query(query2)
                 .isUsed(isUsed2)
+                .user(user)
                 .build();
 
         Product p4 = Product.builder()
@@ -162,15 +181,26 @@ class ProductRepositoryTest {
                 .name("butter")
                 .query(query2)
                 .isUsed(isUsed2)
+                .user(user)
                 .build();
         Product p5 = Product.builder()
                 .productId("4")
                 .name("butter")
                 .query(query2)
                 .isUsed(isUsed2)
+                .user(user)
                 .build();
 
         return List.of(p1, p2, p3, p4, p5);
+    }
+
+
+    private User buildUser() {
+        return User.builder()
+                .id(1L)
+                .username("username")
+                .password("password124M!")
+                .build();
     }
 
 }

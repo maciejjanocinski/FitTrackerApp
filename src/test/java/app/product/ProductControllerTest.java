@@ -33,11 +33,11 @@ class ProductControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @Mock
-    Product product;
+    ProductDto product;
 
     @Test
     void searchProducts_inputDataOk_returns200() throws Exception {
-        List<Product> productsList = List.of(product, product, product, product);
+        List<ProductDto> productsList = List.of(product, product, product, product);
         when(productService.searchProducts(any(), any())).thenReturn(productsList);
 
         mockMvc.perform(get("/products/search")

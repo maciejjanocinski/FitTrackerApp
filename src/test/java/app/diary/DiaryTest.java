@@ -34,7 +34,7 @@ class DiaryTest {
         diary.addProduct(product);
 
         //then
-        assertEquals(expectedSize, diary.getProducts().size());
+        assertEquals(expectedSize, diary.getProductsInDiary().size());
     }
 
     @Test

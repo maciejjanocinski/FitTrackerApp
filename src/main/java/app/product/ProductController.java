@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,10 +17,17 @@ public class ProductController {
     private final ProductService productsService;
 
     @GetMapping("/search")
-     List<Product> searchProducts(@RequestParam String product,
-                                  @CurrentSecurityContext(expression = "authentication")
-                                  Authentication authentication) {
+    List<ProductDto> searchProducts(@RequestParam String product,
+                                    @CurrentSecurityContext(expression = "authentication")
+                                    Authentication authentication) {
         return productsService.searchProducts(product, authentication);
+    }
+
+    @GetMapping("/{id}")
+    ProductDto getProductById(@CurrentSecurityContext(expression = "authentication")
+                              Authentication authentication,
+                              @PathVariable Long id) {
+        return productsService.getProductById(authentication, id);
     }
 
 }

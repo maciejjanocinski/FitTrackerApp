@@ -6,7 +6,12 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
+    properties:
+      javax:
+        persistence:
+          validation:
+            mode: none
 logging:
   level:
     org.springframework: DEBUG
