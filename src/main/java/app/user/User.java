@@ -75,14 +75,14 @@ public class User implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "diary_id")
-    @JsonIgnore
+    @JsonManagedReference
     private Diary diary;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @JsonManagedReference
     private List<Recipe> lastSearchedRecipes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonIgnore
     @JsonManagedReference
     private List<Product> lastSearchedProducts;
 
@@ -96,9 +96,10 @@ public class User implements UserDetails {
                 .collect(Collectors.toList());
     }
 
-  public void removeProduct(Product product) {
+    public void removeProduct(Product product) {
         lastSearchedProducts.remove(product);
     }
+
     public void addRole(Role role) {
         authorities.add(role);
     }
@@ -133,8 +134,8 @@ public class User implements UserDetails {
         return true;
     }
 
-   public static Gender setGenderFromString(String gender) {
-        if(Objects.equals(gender, "MALE")) {
+    public static Gender setGenderFromString(String gender) {
+        if (Objects.equals(gender, "MALE")) {
             return Gender.MALE;
         } else if (Objects.equals(gender, "FEMALE")) {
             return Gender.FEMALE;

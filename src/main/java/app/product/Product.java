@@ -1,7 +1,9 @@
 package app.product;
 
 import app.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,15 +44,16 @@ public class Product {
 
     private String query;
 
-    @ManyToMany(
+    @OneToMany(
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER
     )
+    @JsonManagedReference
     private List<Measure> measures;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     static List<Product> parseProductsFromResponseDto(ResponseDTO response, String query, User user) {
@@ -89,17 +92,16 @@ public class Product {
     }
 
 
-
-     static void checkIfFieldsAreNotNullAndSetValues(Product product,
-                                                            String foodId,
-                                                            String label,
-                                                            BigDecimal kcal,
-                                                            BigDecimal protein,
-                                                            BigDecimal fat,
-                                                            BigDecimal carbohydrates,
-                                                            BigDecimal fiber,
-                                                            String image,
-                                                            String query
+    static void checkIfFieldsAreNotNullAndSetValues(Product product,
+                                                    String foodId,
+                                                    String label,
+                                                    BigDecimal kcal,
+                                                    BigDecimal protein,
+                                                    BigDecimal fat,
+                                                    BigDecimal carbohydrates,
+                                                    BigDecimal fiber,
+                                                    String image,
+                                                    String query
     ) {
 
         product.setProductId(valueOrEmpty(foodId));
@@ -113,11 +115,11 @@ public class Product {
         product.setQuery(query);
     }
 
-     static BigDecimal valueOrZero(BigDecimal numValue) {
+    static BigDecimal valueOrZero(BigDecimal numValue) {
         return numValue == null ? BigDecimal.ZERO : numValue;
     }
 
-     static String valueOrEmpty(String textValue) {
+    static String valueOrEmpty(String textValue) {
         return textValue == null ? "" : textValue;
     }
 }

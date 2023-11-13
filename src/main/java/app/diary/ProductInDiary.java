@@ -36,6 +36,5 @@ class ProductInDiary {
     @ManyToOne
     @JoinColumn(name = "diary_id")
     @JsonBackReference
-    @JsonIgnore
     private Diary diary;
 }
