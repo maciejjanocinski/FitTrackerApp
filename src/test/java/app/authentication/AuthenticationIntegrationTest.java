@@ -15,14 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Optional;
 
 import static app.utils.TestUtils.buildUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -59,10 +58,9 @@ public class AuthenticationIntegrationTest {
     }
 
     @Test
-    public void testRegister_testLogin() throws Exception {
+    public void testRegister() throws Exception {
         //given
         RegisterDto registerDto = buildRegisterDto();
-        LoginDto loginDto = buildLoginDto();
 
         //when
         mockMvc.perform(post("http://localhost:" + port + "/auth/register")
@@ -74,24 +72,11 @@ public class AuthenticationIntegrationTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(registerDto)))
                 .andDo(print());
 
-        ResultActions resultActions = mockMvc.perform(post("http://localhost:" + port + "/auth/login")
-                        .content(objectMapper.writeValueAsString(loginDto))
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andDo(print());
-
-        Optional<User> user = userRepository.findByUsername(registerDto.username());
-
         //then
-        assertNotNull(user);
-        assertEquals(user.get().getUsername(), registerDto.username());
-        assertEquals(jwtDecoder.decode(resultActions
-                        .andReturn()
-                        .getResponse()
-                        .getContentAsString())
-                .getSubject(), loginDto.username()); //valid token
+        Optional<User> actualUser = userRepository.findByUsername(registerDto.username());
+
+        assertTrue(actualUser.isPresent());
+        assertEquals(actualUser.get().getUsername(), registerDto.username());
     }
 
     @Test
@@ -110,8 +95,15 @@ public class AuthenticationIntegrationTest {
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
                 .andDo(print());
 
-        MvcResult result = resultActions.andReturn();
+        Optional<User> actualUser = userRepository.findByUsername(loginDto.username());
 
+        assertTrue(actualUser.isPresent());
+        assertEquals(actualUser.get().getUsername(), loginDto.username());
+        assertEquals(jwtDecoder.decode(resultActions
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString())
+                .getSubject(), loginDto.username()); //valid token
     }
 
 

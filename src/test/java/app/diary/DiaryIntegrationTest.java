@@ -7,6 +7,7 @@ import app.diary.dto.EditProductInDiaryDto;
 import app.product.Measure;
 import app.product.Product;
 import app.product.ProductRepository;
+import app.recipe.RecipeRepository;
 import app.user.User;
 import app.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,8 +59,11 @@ public class DiaryIntegrationTest {
     @Autowired
     private ProductRepository productRepository;
 
-//    @Autowired
-//    RecipeRepository recipeRepository;
+    @Autowired
+    private ProductsInDiaryRepository productsInDiaryRepository;
+
+    @Autowired
+    RecipeRepository recipeRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -72,18 +76,13 @@ public class DiaryIntegrationTest {
         productRepository.deleteAll();
 
         user = buildUser(passwordEncoder);
-
         Product product = buildProduct();
+
+        ProductInDiary productInDiary = setProductInDiary(user.getDiary(), product);
+        user.getDiary().addProduct(productInDiary);
         userRepository.save(user);
         productRepository.save(product);
-        user.getLastSearchedProducts().add(product);
-        setProductInDiary(user.getDiary(), product);
-
-//        recipeRepository.deleteAll();
-//        Recipe recipe = buildRecipe();
-//        user.setLastSearchedRecipes(List.of(recipe));
-//        recipeRepository.save(recipe);
-
+        productsInDiaryRepository.save(productInDiary);
     }
 
     @Test
@@ -126,7 +125,7 @@ public class DiaryIntegrationTest {
 
         Diary diary = userRepository.findByUsername(user.getUsername()).get().getDiary();
 
-        assertEquals(1, diary.getProductsInDiary().size());
+        assertEquals(2, diary.getProductsInDiary().size());
     }
 
     @Test
@@ -179,7 +178,7 @@ public class DiaryIntegrationTest {
     }
 
 
-    private  Product buildProduct() {
+    private Product buildProduct() {
         return Product.builder()
                 .productId("foodId")
                 .name("name")
@@ -201,30 +200,6 @@ public class DiaryIntegrationTest {
                 .build();
     }
 
-//    private Recipe buildRecipe() {
-//        Recipe recipe = Recipe.builder()
-//                .id(1L)
-//                .label("label")
-//                .image("image")
-//                .source("source")
-//                .url("url")
-//                .yield(1)
-//                .caloriesPerServing(1)
-//                .proteinPerServing(1)
-//                .carbsPerServing(1)
-//                .fatPerServing(1)
-//                .fiberPerServing(1)
-//                .isUsed(false)
-//                .query("query")
-//                .user(user)
-//                .build();
-//        IngredientLine ingredientLine = IngredientLine.builder()
-//                .text("ingredientLine")
-//                .recipe(recipe)
-//                .build();
-//        recipe.setIngredientLines(List.of(ingredientLine));
-//        return recipe;
-//    }
 
     private AddProductToDiaryDto buildAddProductToDiaryDto() {
         return AddProductToDiaryDto.builder()
@@ -248,13 +223,12 @@ public class DiaryIntegrationTest {
                 .build();
     }
 
-    private void setProductInDiary(Diary diary, Product product) {
-        ProductInDiary productInDiary = diary.generateNewProductInDiary(
+    private ProductInDiary setProductInDiary(Diary diary, Product product) {
+        return diary.generateNewProductInDiary(
                 product,
                 "Gram",
                 BigDecimal.valueOf(100)
         );
-        diary.addProduct(productInDiary);
     }
 
 
