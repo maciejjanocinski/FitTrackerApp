@@ -21,10 +21,10 @@ public class IngredientLine {
 
     String text;
 
-//    @ManyToOne
-//    @JoinColumn(name = "recipe_id")
-//    @JsonIgnore
-//    @JsonManagedReference
-//    private Recipe recipe;
+    @ManyToOne
+    @JoinColumn(name = "recipe_id")
+    @JsonIgnore
+    @JsonManagedReference
+    private Recipe recipe;
 
 }

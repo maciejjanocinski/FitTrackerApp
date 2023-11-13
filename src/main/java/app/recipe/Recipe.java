@@ -21,8 +21,8 @@ public class Recipe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String label;
-    @Lob
-    @Column(columnDefinition = "TEXT")
+//    @Lob
+//    @Column(columnDefinition = "TEXT")
     private String image;
     private String source;
     private String url;
