@@ -65,10 +65,7 @@ public class Product {
             FoodDTO food = hint.getFood();
             Map<String, BigDecimal> nutrients = food.getNutrients();
 
-            List<Measure> measures = hint.getMeasures().stream().map(measureDto -> Measure.builder()
-                    .name(measureDto.getLabel())
-                    .weight(measureDto.getWeight())
-                    .build()).collect(Collectors.toList());
+
 
             Product product = new Product();
             checkIfFieldsAreNotNullAndSetValues(
@@ -83,6 +80,12 @@ public class Product {
                     food.getImage(),
                     query
             );
+
+            List<Measure> measures = hint.getMeasures().stream().map(measureDto -> Measure.builder()
+                    .name(measureDto.getLabel())
+                    .weight(measureDto.getWeight())
+                    .build()).collect(Collectors.toList());
+
             product.setUsed(false);
             product.setMeasures(measures);
             product.setUser(user);

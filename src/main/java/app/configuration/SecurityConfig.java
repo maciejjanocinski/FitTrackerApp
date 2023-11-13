@@ -42,23 +42,19 @@ public class SecurityConfig {
     private final RsaKeyProperties keys;
 
     private final RoleRepository roleRepository;
-
-
-    @Bean
-    void generateRoles() {
-        Role standard = Role.builder()
-                .name("ROLE_USER_STANDARD")
-                .build();
-        Role premium = Role.builder()
-                .name("ROLE_USER_PREMIUM")
-                .build();
-        Role admin = Role.builder()
-                .name("ROLE_ADMIN")
-                .build();
-        roleRepository.saveAll(Set.of(standard, premium, admin));
-    }
-
-
+//    @Bean
+//    void generateRoles() {
+//        Role standard = Role.builder()
+//                .name("ROLE_USER_STANDARD")
+//                .build();
+//        Role premium = Role.builder()
+//                .name("ROLE_USER_PREMIUM")
+//                .build();
+//        Role admin = Role.builder()
+//                .name("ROLE_ADMIN")
+//                .build();
+//        roleRepository.saveAll(Set.of(standard, premium, admin));
+//    }
     @Bean
    public PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
