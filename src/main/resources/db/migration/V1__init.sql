@@ -114,7 +114,14 @@ CREATE TABLE measure
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     name       VARCHAR(255),
-    weight     DECIMAL(10, 2),
+    weight     DECIMAL(10, 2)
+);
+
+CREATE TABLE product_measures
+(
     product_id BIGINT,
-    FOREIGN KEY (product_id) REFERENCES product (id)
+    measures_id BIGINT,
+    PRIMARY KEY (product_id, measures_id),
+    FOREIGN KEY (product_id) REFERENCES product (id),
+    FOREIGN KEY (measures_id) REFERENCES measure (id)
 );

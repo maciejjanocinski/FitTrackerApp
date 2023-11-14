@@ -25,9 +25,4 @@ public class Measure {
     private String name;
 
     private BigDecimal weight;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    @JsonBackReference
-    private Product product;
 }
