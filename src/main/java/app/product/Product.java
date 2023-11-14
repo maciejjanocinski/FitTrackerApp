@@ -1,7 +1,9 @@
 package app.product;
 
 import app.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,15 +44,16 @@ public class Product {
 
     private String query;
 
-    @ManyToMany(
+    @OneToMany(
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER
     )
+    @JsonManagedReference
     private List<Measure> measures;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     static List<Product> parseProductsFromResponseDto(ResponseDTO response, String query, User user) {
@@ -62,10 +65,7 @@ public class Product {
             FoodDTO food = hint.getFood();
             Map<String, BigDecimal> nutrients = food.getNutrients();
 
-            List<Measure> measures = hint.getMeasures().stream().map(measureDto -> Measure.builder()
-                    .name(measureDto.getLabel())
-                    .weight(measureDto.getWeight())
-                    .build()).collect(Collectors.toList());
+
 
             Product product = new Product();
             checkIfFieldsAreNotNullAndSetValues(
@@ -80,6 +80,12 @@ public class Product {
                     food.getImage(),
                     query
             );
+
+            List<Measure> measures = hint.getMeasures().stream().map(measureDto -> Measure.builder()
+                    .name(measureDto.getLabel())
+                    .weight(measureDto.getWeight())
+                    .build()).collect(Collectors.toList());
+
             product.setUsed(false);
             product.setMeasures(measures);
             product.setUser(user);
@@ -89,17 +95,16 @@ public class Product {
     }
 
 
-
-     static void checkIfFieldsAreNotNullAndSetValues(Product product,
-                                                            String foodId,
-                                                            String label,
-                                                            BigDecimal kcal,
-                                                            BigDecimal protein,
-                                                            BigDecimal fat,
-                                                            BigDecimal carbohydrates,
-                                                            BigDecimal fiber,
-                                                            String image,
-                                                            String query
+    static void checkIfFieldsAreNotNullAndSetValues(Product product,
+                                                    String foodId,
+                                                    String label,
+                                                    BigDecimal kcal,
+                                                    BigDecimal protein,
+                                                    BigDecimal fat,
+                                                    BigDecimal carbohydrates,
+                                                    BigDecimal fiber,
+                                                    String image,
+                                                    String query
     ) {
 
         product.setProductId(valueOrEmpty(foodId));
@@ -113,11 +118,11 @@ public class Product {
         product.setQuery(query);
     }
 
-     static BigDecimal valueOrZero(BigDecimal numValue) {
+    static BigDecimal valueOrZero(BigDecimal numValue) {
         return numValue == null ? BigDecimal.ZERO : numValue;
     }
 
-     static String valueOrEmpty(String textValue) {
+    static String valueOrEmpty(String textValue) {
         return textValue == null ? "" : textValue;
     }
 }

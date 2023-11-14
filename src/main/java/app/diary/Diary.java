@@ -53,6 +53,7 @@ public class Diary {
             cascade = CascadeType.ALL,
             fetch = FetchType.EAGER
     )
+    @JsonManagedReference
     private List<ProductInDiary> productsInDiary;
 
 

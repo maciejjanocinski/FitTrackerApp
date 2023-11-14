@@ -74,6 +74,7 @@ public class DiaryIntegrationTest {
     void setUp() {
         userRepository.deleteAll();
         productRepository.deleteAll();
+        productsInDiaryRepository.deleteAll();
 
         user = buildUser(passwordEncoder);
         Product product = buildProduct();

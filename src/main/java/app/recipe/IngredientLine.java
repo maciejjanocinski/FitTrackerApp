@@ -23,7 +23,6 @@ public class IngredientLine {
 
     @ManyToOne
     @JoinColumn(name = "recipe_id")
-    @JsonIgnore
     @JsonManagedReference
     private Recipe recipe;
 

@@ -45,6 +45,7 @@ public class RecipeService {
         }
 
         clearNotUsedRecipes(user);
+        recipeRepository.deleteNotFavouriteRecipes(user.getId());
 
         user.setLastRecipeQuery(lowerCasedQuery);
         String url = createUrl(id, key, lowerCasedQuery);

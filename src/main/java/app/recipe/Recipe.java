@@ -1,6 +1,7 @@
 package app.recipe;
 
 import app.user.User;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -21,8 +22,8 @@ public class Recipe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String label;
-//    @Lob
-//    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String image;
     private String source;
     private String url;
@@ -42,7 +43,6 @@ public class Recipe {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
-    @JsonManagedReference
+    @JsonBackReference
     private User user;
 }

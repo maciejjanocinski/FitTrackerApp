@@ -6,12 +6,17 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
+    show-sql: true
     properties:
-      javax:
-        persistence:
-          validation:
-            mode: none
+        hibernate:
+            format_sql: true
+  flyway:
+    baseline-on-migrate: true
+    user: root
+    password: root
+    baseline-description: "Baseline for FitTrackerApp"
+    locations: classpath:db/migration
 logging:
   level:
     org.springframework: DEBUG
