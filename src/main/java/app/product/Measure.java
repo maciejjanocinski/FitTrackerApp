@@ -1,8 +1,7 @@
 package app.product;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,4 +25,9 @@ public class Measure {
     private String name;
 
     private BigDecimal weight;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    @JsonBackReference
+    private Product product;
 }
