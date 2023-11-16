@@ -3,6 +3,7 @@ package app.authentication;
 import app.diary.Diary;
 import app.user.User;
 import app.user.UserRepository;
+import app.util.exceptions.InvalidPasswordException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,13 +38,18 @@ class AuthenticationService {
                 .name(registerDto.name().trim())
                 .surname(registerDto.surname().trim())
                 .username(registerDto.username().trim())
-                .password(passwordEncoder.encode(registerDto.password().trim()))
                 .gender(User.setGenderFromString(registerDto.gender()))
                 .email(registerDto.email().trim())
                 .phone(registerDto.phone().trim())
                 .diary(diary)
                 .authorities(authorities)
                 .build();
+
+        if(checkIfPasswordsAreTheSame(registerDto.password(), registerDto.confirmPassword())) {
+            user.setPassword(passwordEncoder.encode(registerDto.password()));
+        } else {
+            throw new InvalidPasswordException("Passwords are not the same");
+        }
 
         userRepository.save(user);
         return registerDto;
@@ -56,6 +62,11 @@ class AuthenticationService {
         );
 
         return tokenService.generateJwt(auth);
+    }
+
+
+    private boolean checkIfPasswordsAreTheSame(String password, String confirmPassword) {
+        return password.equals(confirmPassword);
     }
 
 

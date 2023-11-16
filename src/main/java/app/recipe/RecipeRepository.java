@@ -18,7 +18,5 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     @Query("DELETE FROM Recipe r WHERE r.isUsed = false AND r.user.id = :userId")
     void deleteNotFavouriteRecipes(@Param("userId") Long userId);
 
-    List<Recipe> findAllByQueryAndUser(String query, User user);
-
     Optional<Recipe> findByIdAndUser(Long id, User user);
 }

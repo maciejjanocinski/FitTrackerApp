@@ -1,5 +1,7 @@
 package app.recipe;
 
+import app.product.Product;
+import app.product.ProductDto;
 import app.user.User;
 import app.user.UserService;
 import app.util.exceptions.RecipeAlreadyAddedException;
@@ -34,20 +36,18 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
 
-    List<Recipe> searchRecipes(String query, Authentication authentication) {
+    List<RecipeDto> searchRecipes(String query, Authentication authentication) {
         String lowerCasedQuery = query.toLowerCase();
-
         User user = userService.getUserByUsername(authentication.getName());
+
         if (user.getLastRecipeQuery() != null && user.getLastRecipeQuery().equals(lowerCasedQuery)) {
-            return user.getLastSearchedRecipes().stream()
-                    .filter(r -> r.getQuery().equals(lowerCasedQuery))
-                    .toList();
+            return  mapToRecipeDto(user.getLastSearchedRecipes());
         }
 
         clearNotUsedRecipes(user);
+        user.setLastRecipeQuery(lowerCasedQuery);
         recipeRepository.deleteNotFavouriteRecipes(user.getId());
 
-        user.setLastRecipeQuery(lowerCasedQuery);
         String url = createUrl(id, key, lowerCasedQuery);
         SearchResult result = getRecipesFromApi(url);
 
@@ -64,7 +64,7 @@ public class RecipeService {
                 .toList();
 
         recipeRepository.saveAll(recipes);
-        return recipes;
+        return mapToRecipeDto(recipes);
     }
 
     @Transactional
@@ -77,10 +77,8 @@ public class RecipeService {
             }
         }
 
-        Recipe recipe = user.getLastSearchedRecipes().stream()
-                .filter(r -> r.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new RecipeAlreadyAddedException("Recipe not found"));
+        Recipe recipe = recipeRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
         recipe.setUsed(true);
         return recipe;
@@ -94,13 +92,7 @@ public class RecipeService {
     }
 
     private void clearNotUsedRecipes(User user) {
-        user.getLastSearchedRecipes().stream()
-                .filter(recipe -> !recipe.isUsed())
-                .forEach(recipe -> {
-                    recipe.setUser(null);
-                    recipeRepository.delete(recipe);
-                })
-        ;
+        user.getLastSearchedRecipes().removeAll(user.getLastSearchedRecipes());
     }
 
 
@@ -124,5 +116,11 @@ public class RecipeService {
                 .queryParam("type", "public")
                 .queryParam("app_id", id)
                 .toUriString();
+    }
+
+    private List<RecipeDto> mapToRecipeDto(List<Recipe> recipes) {
+        return recipes.stream()
+                .map(recipeMapper::mapToRecipeDto)
+                .toList();
     }
 }

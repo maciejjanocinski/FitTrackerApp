@@ -1,22 +1,33 @@
 spring:
+  profiles:
+    active: test
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:demo;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=user
+    url: jdbc:h2:mem:demo;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=user;MODE=MySQL;DATABASE_TO_UPPER=false
     username: sa
     password:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
         globally_quoted_identifiers: true
-    defer-datasource-initialization: true
+        globally_quoted_identifiers_skip_column_definitions: true
+    defer-datasource-initialization: false
   main:
     allow-bean-definition-overriding: true
   flyway:
-    enabled: false
+    baseline-on-migrate: true
+    user: sa
+    password:
+    baseline-description: "Baseline for FitTrackerApp"
+    locations: classpath:db/migration
 
 logging:
   level:

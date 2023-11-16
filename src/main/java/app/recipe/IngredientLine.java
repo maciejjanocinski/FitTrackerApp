@@ -20,10 +20,4 @@ public class IngredientLine {
     private Long id;
 
     String text;
-
-    @ManyToOne
-    @JoinColumn(name = "recipe_id")
-    @JsonManagedReference
-    private Recipe recipe;
-
 }

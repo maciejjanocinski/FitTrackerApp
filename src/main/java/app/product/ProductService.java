@@ -37,9 +37,9 @@ public class ProductService {
     public List<ProductDto> searchProducts(String query, Authentication authentication) {
         String lowerCasedQuery = query.toLowerCase();
         User user = userService.getUserByUsername(authentication.getName());
+
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
             List<Product> products = user.getLastSearchedProducts();
-
             return mapToProductDto(products);
         }
 

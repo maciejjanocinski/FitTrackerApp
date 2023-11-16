@@ -22,7 +22,6 @@ public class Recipe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String label;
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String image;
     private String source;
@@ -37,12 +36,16 @@ public class Recipe {
     private boolean isUsed;
     private String query;
 
-    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "recipe_id")
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER
+    )
+    @JsonManagedReference
     private List<IngredientLine> ingredientLines;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
+    @JsonIgnore
     private User user;
 }
