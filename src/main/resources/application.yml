@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/FitTrackerApp
+    url: jdbc:mysql://localhost:33006/FitTrackerApp
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
