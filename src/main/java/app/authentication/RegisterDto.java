@@ -17,6 +17,9 @@ public record RegisterDto(
         @ValidPassword
         String password,
 
+        @ValidPassword
+        String confirmPassword,
+
         @NotEmpty(message = "You have to pass your name.")
         String name,
 

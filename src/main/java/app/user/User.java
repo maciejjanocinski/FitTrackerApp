@@ -78,7 +78,7 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Diary diary;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
     private List<Recipe> lastSearchedRecipes;
 

@@ -1,3 +1,4 @@
+
 CREATE TABLE diary
 (
     diary_id           BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -88,9 +89,16 @@ CREATE TABLE recipe
 CREATE TABLE ingredient_line
 (
     id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    text      VARCHAR(255),
-    recipe_id BIGINT,
-    FOREIGN KEY (recipe_id) REFERENCES recipe (id)
+    text      VARCHAR(255)
+);
+
+CREATE TABLE recipe_ingredient_lines
+(
+    recipe_id        BIGINT,
+    ingredient_lines_id BIGINT,
+    PRIMARY KEY (recipe_id, ingredient_lines_id),
+    FOREIGN KEY (recipe_id) REFERENCES recipe (id),
+    FOREIGN KEY (ingredient_lines_id) REFERENCES ingredient_line (id)
 );
 
 CREATE TABLE product
