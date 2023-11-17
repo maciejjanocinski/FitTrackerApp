@@ -1,5 +1,7 @@
 package app.diary;
 
+import app.authentication.Role;
+import app.authentication.RoleRepository;
 import app.authentication.TokenService;
 import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DeleteProductDto;
@@ -11,7 +13,9 @@ import app.recipe.RecipeRepository;
 import app.user.User;
 import app.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +31,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import static app.user.User.setGenderFromString;
 import static app.utils.TestUtils.buildUser;
 import static app.utils.TestUtils.generateAuthorizationHeader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,9 +45,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@NoArgsConstructor
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class DiaryIntegrationTest {
 
     @LocalServerPort
@@ -51,51 +57,46 @@ public class DiaryIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private TokenService tokenService;
 
     @Autowired
-    private UserRepository userRepository;
+    private  UserRepository userRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private  ProductRepository productRepository;
 
     @Autowired
-    private ProductsInDiaryRepository productsInDiaryRepository;
-
-    @Autowired
-    RecipeRepository recipeRepository;
+    private  ProductsInDiaryRepository productsInDiaryRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    private User user;
+    private final Role role = buildRole();
+    private final Diary diary = buildDiary();
+    private final User user = buildUser();
 
-    @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
-        productRepository.deleteAll();
-        productsInDiaryRepository.deleteAll();
-
-        user = buildUser(passwordEncoder);
-        Product product = buildProduct();
-
-        ProductInDiary productInDiary = setProductInDiary(user.getDiary(), product);
-        user.getDiary().addProduct(productInDiary);
-        userRepository.save(user);
-        productRepository.save(product);
-        productsInDiaryRepository.save(productInDiary);
-    }
+//    @BeforeEach
+//    void setUp() {
+//
+//
+//    }
 
     @Test
     void getDiary() throws Exception {
+
+        Product product = buildProduct();
+
+        user.setDiary(diary);
+        ProductInDiary productInDiary = setProductInDiary(user.getDiary(), product);
+        userRepository.save(user);
+        productsInDiaryRepository.save(productInDiary);
+        user.getDiary().addProduct(productInDiary);
+        productRepository.save(product);
+
         //when
         mockMvc.perform(get("http://localhost:" + port + "/diary/")
                         .header("Authorization", generateAuthorizationHeader(
                                 tokenService,
-                                user.getAuthorities(),
                                 user.getUsername()))
                 )
                 .andExpect(status().isOk())
@@ -115,7 +116,6 @@ public class DiaryIntegrationTest {
         mockMvc.perform(post("http://localhost:" + port + "/diary/product")
                         .header("Authorization", generateAuthorizationHeader(
                                 tokenService,
-                                user.getAuthorities(),
                                 user.getUsername())
                         )
                         .content(objectMapper.writeValueAsString(addProductToDiaryDto))
@@ -140,7 +140,6 @@ public class DiaryIntegrationTest {
         mockMvc.perform(patch("http://localhost:" + port + "/diary/product")
                         .header("Authorization", generateAuthorizationHeader(
                                 tokenService,
-                                user.getAuthorities(),
                                 user.getUsername())
                         )
                         .content(objectMapper.writeValueAsString(editProductInDiaryDto))
@@ -166,7 +165,6 @@ public class DiaryIntegrationTest {
         mockMvc.perform(delete("http://localhost:" + port + "/diary/product")
                         .header("Authorization", generateAuthorizationHeader(
                                 tokenService,
-                                user.getAuthorities(),
                                 user.getUsername())
                         )
                         .content(objectMapper.writeValueAsString(deleteProductDto))
@@ -235,5 +233,45 @@ public class DiaryIntegrationTest {
         );
     }
 
+    private User buildUser() {
+        return User.builder()
+                .username("username")
+                .password("password124M!")
+                .name("name")
+                .surname("surname")
+                .gender(setGenderFromString("MALE"))
+                .email("maciek@gmial.com")
+                .phone("123456789")
+                .authorities(Set.of(role))
+                .lastSearchedProducts(new ArrayList<>())
+                .build();
+    }
+
+    private Role buildRole() {
+        return Role.builder()
+                .name("ROLE_USER_STANDARD")
+                .build();
+    }
+
+    private Diary buildDiary() {
+        return Diary.builder()
+                .goalKcal(BigDecimal.valueOf(1000))
+                .goalCarbohydrates(BigDecimal.valueOf(100))
+                .goalProtein(BigDecimal.valueOf(100))
+                .goalFat(BigDecimal.valueOf(100))
+                .goalFiber(BigDecimal.valueOf(100))
+                .sumKcal(BigDecimal.valueOf(100))
+                .sumCarbohydrates(BigDecimal.valueOf(100))
+                .sumProtein(BigDecimal.valueOf(100))
+                .sumFat(BigDecimal.valueOf(100))
+                .sumFiber(BigDecimal.valueOf(100))
+                .leftKcal(BigDecimal.valueOf(100))
+                .leftCarbohydrates(BigDecimal.valueOf(100))
+                .leftProtein(BigDecimal.valueOf(100))
+                .leftFat(BigDecimal.valueOf(100))
+                .leftFiber(BigDecimal.valueOf(100))
+                .productsInDiary(new ArrayList<>())
+                .build();
+    }
 
 }

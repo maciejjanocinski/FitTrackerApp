@@ -1,23 +1,30 @@
 package app.product;
 
+import app.authentication.Role;
+import app.authentication.RoleRepository;
 import app.user.User;
 import app.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import static app.user.User.setGenderFromString;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 
 @DataJpaTest
 @EnableJpaRepositories(basePackageClasses = {
         ProductRepository.class,
-        UserRepository.class
+        UserRepository.class,
+        RoleRepository.class
 })
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ProductRepositoryTest {
 
     @Autowired
@@ -26,12 +33,18 @@ class ProductRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoleRepository roleRepository;
+
+    private final Role role = buildRole();
+    private final User user = buildUser();
+
+
     @Test
     void deleteNotUserProducts_inputDataOk() {
         //given
-        User user = buildUser();
+        roleRepository.save(role);
         userRepository.save(user);
-
         List<Product> productList = buildListOfProductsWithDifferentValues(
                 "bread",
                 "olive oil",
@@ -56,16 +69,18 @@ class ProductRepositoryTest {
     @Test
     void deleteNotUserProducts_allProductsNotUsed() {
         //given
+        roleRepository.save(role);
+        userRepository.save(user);
         List<Product> productList = buildListOfProductsWithDifferentValues(
                 "bread",
                 "olive oil",
                 false,
                 false,
-                null);
+                user);
         productRepository.saveAll(productList);
 
         //when
-        productRepository.deleteNotUsedProducts(1L);
+        productRepository.deleteNotUsedProducts(user.getId());
         List<Product> products = productRepository.findAll();
 
         //then
@@ -75,6 +90,7 @@ class ProductRepositoryTest {
     @Test
     public void testFindProductByProductId_inputDataOk() {
         //given
+
         Product p5 = Product.builder()
                 .productId("product1")
                 .name("ProductName")
@@ -96,9 +112,10 @@ class ProductRepositoryTest {
     @Test
     public void testFindProductByProductId_returnsNull() {
         //given
-
+        roleRepository.save(role);
+        userRepository.save(user);
         //when
-        Optional<Product> product = productRepository.findProductById(any());
+        Optional<Product> product = productRepository.findProductById(1L);
 
         //then
         assertTrue(product.isEmpty());
@@ -107,13 +124,15 @@ class ProductRepositoryTest {
     @Test
     public void findAllByQuery_inputDataOk() {
         //given
+        roleRepository.save(role);
+        userRepository.save(user);
 
         List<Product> productsList = buildListOfProductsWithDifferentValues(
                 "bread",
                 "olive oil",
                 false,
                 false,
-                null);
+                user);
         productRepository.saveAll(productsList);
 
         //when
@@ -129,13 +148,15 @@ class ProductRepositoryTest {
     @Test
     public void findAllByQuery_returnsNull() {
         //given
+        roleRepository.save(role);
+        userRepository.save(user);
 
         List<Product> productsList = buildListOfProductsWithDifferentValues(
                 "bread",
                 "bread",
                 false,
                 false,
-                null);
+                user);
         productRepository.saveAll(productsList);
 
         //when
@@ -197,9 +218,21 @@ class ProductRepositoryTest {
 
     private User buildUser() {
         return User.builder()
-                .id(1L)
                 .username("username")
                 .password("password124M!")
+                .name("name")
+                .surname("surname")
+                .gender(setGenderFromString("MALE"))
+                .email("maciek@gmial.com")
+                .phone("123456789")
+                .authorities(Set.of(role))
+                .lastSearchedProducts(new ArrayList<>())
+                .build();
+    }
+
+    private Role buildRole() {
+        return Role.builder()
+                .name("ROLE_USER_STANDARD")
                 .build();
     }
 

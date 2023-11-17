@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -30,7 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @NoArgsConstructor
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
+@Profile("test")
 public class AuthenticationIntegrationTest {
 
     @LocalServerPort
@@ -42,6 +44,9 @@ public class AuthenticationIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private JwtDecoder jwtDecoder;
@@ -61,6 +66,8 @@ public class AuthenticationIntegrationTest {
     public void testRegister() throws Exception {
         //given
         RegisterDto registerDto = buildRegisterDto();
+        Role role = new Role(1L, Role.roleType.ROLE_USER_STANDARD.toString());
+        roleRepository.save(role);
 
         //when
         mockMvc.perform(post("http://localhost:" + port + "/auth/register")
@@ -83,7 +90,7 @@ public class AuthenticationIntegrationTest {
     public void testLogin() throws Exception {
         //given
         LoginDto loginDto = buildLoginDto();
-        User user = buildUser(passwordEncoder);
+        User user = buildUser(passwordEncoder, roleRepository);
         userRepository.save(user);
 
         //when
@@ -111,6 +118,7 @@ public class AuthenticationIntegrationTest {
         return RegisterDto.builder()
                 .username("username")
                 .password("Password123!")
+                .confirmPassword("Password123!")
                 .name("name")
                 .surname("surname")
                 .gender("MALE")

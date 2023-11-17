@@ -1,16 +1,14 @@
 package app.utils;
 
 import app.authentication.Role;
+import app.authentication.RoleRepository;
 import app.authentication.TokenService;
 import app.diary.Diary;
 import app.user.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static app.user.User.setGenderFromString;
 
@@ -20,10 +18,12 @@ public class TestUtils {
     public static final String userNotFoundMessage = "User not found";
     public static final String productNotFoundMessage = "Product not found";
 
-    public static User buildUser(PasswordEncoder passwordEncoder) {
+    public static User buildUser(PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         Set<Role> authorities = new HashSet<>();
         Role role = new Role(1L, Role.roleType.ROLE_USER_STANDARD.toString());
         Role role1 = new Role(2L, Role.roleType.ROLE_USER_PREMIUM.toString());
+        roleRepository.save(role);
+        roleRepository.save(role1);
         authorities.add(role);
         authorities.add(role1);
 
@@ -43,9 +43,8 @@ public class TestUtils {
 
     public static String generateAuthorizationHeader(
             TokenService tokenService,
-            Collection<? extends GrantedAuthority> authorities,
             String username) {
 
-        return "Bearer " + tokenService.generateJwt(authorities, username);
+        return "Bearer " + tokenService.generateJwt(List.of(new Role(1L, Role.roleType.ROLE_USER_STANDARD.toString())), username);
     }
 }

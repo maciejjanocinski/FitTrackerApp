@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,12 +31,16 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 @Configuration
+@EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfig {
 
@@ -43,7 +48,7 @@ public class SecurityConfig {
 
 
     @Bean
-   public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
         encoderMap.put(idForEncode, new BCryptPasswordEncoder());
@@ -57,38 +62,61 @@ public class SecurityConfig {
         return new ProviderManager(daoAuthenticationProvider);
     }
 
+
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers(
-                                    "/",
-                                    "/auth/**",
-                                    "/v3/api-docs",
-                                    "/v3/api-docs/**",
-                                    "/configuration/ui",
-                                    "/swagger-resources/**",
-                                    "/swagger-resources",
-                                    "/swagger-ui.html",
-                                    "swagger-ui/**")
-                            .permitAll();
-
-                    auth.requestMatchers("/admin/**").hasAuthority(Role.roleType.ROLE_ADMIN.toString());
-                    auth.requestMatchers("/recipes/**").hasAuthority(Role.roleType.ROLE_USER_PREMIUM.toString());
-                    auth.anyRequest().authenticated();
-                })
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspect) throws Exception {
+        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspect);
+        http.authorizeHttpRequests((requests) -> requests
+                        .requestMatchers(
+                                mvcMatcherBuilder.pattern("/"),
+                                mvcMatcherBuilder.pattern("/auth/**"),
+                                mvcMatcherBuilder.pattern("/v3/api-docs/**"),
+                                mvcMatcherBuilder.pattern("swagger-ui/**")
+                        ).permitAll()
+                        .requestMatchers(mvcMatcherBuilder.pattern("/recipes/**")).hasAuthority(Role.roleType.ROLE_USER_PREMIUM.toString())
+                        .anyRequest().authenticated()
+                )
                 .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer
-                                .jwt(jwt ->
-                                        jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
-                                )
+                        oauth2ResourceServer.jwt(jwt ->
+                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
         return http.build();
+
+
     }
+
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(auth -> {
+//                    auth
+//                            .mvcMatchers(
+//                                    "/",
+//                                    "/auth/**",
+//                                    "/v3/api-docs",
+//                                    "/v3/api-docs/**",
+//                                    "/configuration/ui",
+//                                    "/swagger-resources/**",
+//                                    "/swagger-resources",
+//                                    "/swagger-ui.html",
+//                                    "swagger-ui/**"
+//                            ).permitAll()
+//                            .mvcMatchers("/admin/**").hasAuthority(Role.roleType.ROLE_ADMIN.toString())
+//                            .mvcMatchers("/recipes/**").hasAuthority(Role.roleType.ROLE_USER_PREMIUM.toString())
+//                            .anyRequest().authenticated();
+//                })
+//                .oauth2ResourceServer(oauth2ResourceServer ->
+//                        oauth2ResourceServer.jwt(jwt ->
+//                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+//                        )
+//                )
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//
+//        return http.build();
+//    }
 
 
     @Bean
@@ -114,7 +142,6 @@ public class SecurityConfig {
 
         return jwtConverter;
     }
-
 
 
 }
