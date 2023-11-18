@@ -1,10 +1,12 @@
 package app.user;
 
+import app.authentication.Role;
 import app.util.exceptions.InvalidPasswordException;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
 import app.user.dto.UserDto;
+import app.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static app.utils.TestUtils.userNotFoundMessage;
 import static app.utils.TestUtils.username;
@@ -35,11 +38,13 @@ class UserServiceTest {
     UserMapper userMapper;
     @Mock
     Authentication authentication;
+    private final TestUtils utils = new TestUtils();
+    Role role = utils.buildRoleStandard();
+    User user = utils.buildUser(Set.of(role));
 
     @Test
     void loadUserByUsername_inputDataOk_returnsUserDetails() {
         //given
-        User user = buildUser();
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         //when
@@ -68,7 +73,6 @@ class UserServiceTest {
     @Test
     void getUser_inputDataOk_returnsUserDto() {
         //given
-        User user = buildUser();
         UserDto userDto = buildUserDto();
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
@@ -86,7 +90,6 @@ class UserServiceTest {
     @Test
     void getUserByUsername_inputDataOk_returnsUser() {
         //given
-        User user = buildUser();
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
         //when
@@ -115,8 +118,7 @@ class UserServiceTest {
     void updateProfile_inputDataOk_returnsString() {
         //given
         String expectedMessage = "Changes has been successfully approved";
-        User user = buildUser();
-        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto(username);
+        UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto();
 
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
@@ -136,7 +138,6 @@ class UserServiceTest {
     void updatePassword_inputDataOk_returnsString() {
         //given
         String expectedMessage = "Password has been successfully changed";
-        User user = buildUser();
         UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto();
 
         when(authentication.getName()).thenReturn(username);
@@ -158,7 +159,6 @@ class UserServiceTest {
     @Test
     void updatePassword_passwordsAreNotTheSame_throwsInvalidPasswordException() {
         //given
-        User user = buildUser();
         String expectedMessage = "Passwords are not the same.";
         UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto_passwordsNotTheSame();
 
@@ -181,7 +181,6 @@ class UserServiceTest {
     @Test
     void updatePassword_passedWrongPassword_throwsInvalidPasswordException() {
         //given
-        User user = buildUser();
         String expectedMessage = "You have passed wrong password.";
         UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto_wrongPassword();
 
@@ -204,7 +203,6 @@ class UserServiceTest {
     @Test
     void deleteProfile_inputDataOk_returnsString() {
         //given
-        User user = buildUser();
         String expectedMessage = "Profile with username \"" + user.getUsername() + "\" has been deleted.";
         DeleteUserDto deleteUserDto = buildDeleteUserDto();
 
@@ -227,7 +225,6 @@ class UserServiceTest {
     @Test
     void deleteProfile_passedWrongPassword_throwsInvalidPasswordException() {
         //given
-        User user = buildUser();
         String expectedMessage = "Passwords are not the same.";
         DeleteUserDto deleteUserDto = buildDeleteUserDto_wrongPassword();
 
@@ -315,7 +312,7 @@ class UserServiceTest {
                 .build();
     }
 
-    private UpdateProfileInfoDto buildUpdateProfileInfoDto(String username) {
+    private UpdateProfileInfoDto buildUpdateProfileInfoDto() {
         return UpdateProfileInfoDto.builder()
                 .username(username)
                 .name("name")
@@ -332,13 +329,6 @@ class UserServiceTest {
                 .username(username)
                 .email("email")
                 .gender("MALE")
-                .build();
-    }
-
-    private User buildUser() {
-        return User.builder()
-                .username(username)
-                .password("oldPassword123!")
                 .build();
     }
 }
