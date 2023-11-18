@@ -293,7 +293,5 @@ class DiaryControllerTest {
                 .id(1L)
                 .build();
     }
-
-
 }
 

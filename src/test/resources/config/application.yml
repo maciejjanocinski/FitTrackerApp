@@ -12,7 +12,7 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
@@ -23,11 +23,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   flyway:
-    baseline-on-migrate: true
-    user: sa
-    password:
-    baseline-description: "Baseline for FitTrackerApp"
-    locations: classpath:db/migration
+    enabled: false
 
 logging:
   level:

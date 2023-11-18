@@ -2,9 +2,9 @@ package app.authentication;
 
 import app.user.User;
 import app.user.UserRepository;
+import app.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NoArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,12 +14,13 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Optional;
+import java.util.Set;
 
-import static app.utils.TestUtils.buildUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.parseMediaType;
@@ -30,7 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @NoArgsConstructor
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AuthenticationIntegrationTest {
 
     @LocalServerPort
@@ -44,23 +46,25 @@ public class AuthenticationIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    private JwtDecoder jwtDecoder;
+    private RoleRepository roleRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private JwtDecoder jwtDecoder;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @BeforeEach
-    public void setUp() {
-        userRepository.deleteAll();
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private final TestUtils utils = new TestUtils();
+    private final Role role = utils.buildRoleStandard();
 
     @Test
     public void testRegister() throws Exception {
         //given
         RegisterDto registerDto = buildRegisterDto();
+        roleRepository.save(role);
 
         //when
         mockMvc.perform(post("http://localhost:" + port + "/auth/register")
@@ -83,7 +87,8 @@ public class AuthenticationIntegrationTest {
     public void testLogin() throws Exception {
         //given
         LoginDto loginDto = buildLoginDto();
-        User user = buildUser(passwordEncoder);
+        User user = utils.buildUser(Set.of(role), passwordEncoder.encode(loginDto.password()));
+        roleRepository.save(role);
         userRepository.save(user);
 
         //when
@@ -103,14 +108,14 @@ public class AuthenticationIntegrationTest {
                         .andReturn()
                         .getResponse()
                         .getContentAsString())
-                .getSubject(), loginDto.username()); //valid token
+                .getSubject(), loginDto.username()); //validate token
     }
-
 
     private RegisterDto buildRegisterDto() {
         return RegisterDto.builder()
                 .username("username")
                 .password("Password123!")
+                .confirmPassword("Password123!")
                 .name("name")
                 .surname("surname")
                 .gender("MALE")
