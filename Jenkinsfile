@@ -3,7 +3,7 @@ pipeline
     agent any 
     tools {  
       gradle '8.4'
-    }
+    }   
 
     stages {
         stage('Build') {
