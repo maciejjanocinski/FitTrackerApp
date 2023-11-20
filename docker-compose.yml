@@ -9,13 +9,30 @@ services:
       - "33006:3306"
     volumes:
       - /c/Users/mjktb/OneDrive/Dokumenty/projects/FitTrackerApp/volumes/db:/var/lib/mysql
+    networks:
+        - "fittrackerapp"
 
   jenkins:
     image: jenkins/jenkins:lts
     ports:
-      - "9090:8080"
+      - "9091:8080"
     volumes:
       - /c/Users/mjktb/OneDrive/Dokumenty/projects/FitTrackerApp/volumes/jenkins
+    networks:
+      - "fittrackerapp"
+
+  ngrok:
+    image: ngrok/ngrok:alpine
+    environment:
+      - NGROK_AUTHTOKEN=2YRnb0LMlzT5UddZr4RaX6MjZNm_5izX959vcKPaeHAAke6Rc
+    command: http host.docker.internal:9091
+    networks:
+      - "fittrackerapp"
+
 
 volumes:
   mysql_data:
+  jenkins_data:
+
+networks:
+  fittrackerapp:
