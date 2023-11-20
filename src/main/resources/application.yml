@@ -23,6 +23,8 @@ logging:
     org.springframework: DEBUG
     app: DEBUG
 
+server:
+  port: 8081
 
 api:
   products:

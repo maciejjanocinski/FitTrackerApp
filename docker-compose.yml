@@ -9,5 +9,13 @@ services:
       - "33006:3306"
     volumes:
       - /c/Users/mjktb/OneDrive/Dokumenty/projects/FitTrackerApp/volumes/db:/var/lib/mysql
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - "9090:8080"
+    volumes:
+      - /c/Users/mjktb/OneDrive/Dokumenty/projects/FitTrackerApp/volumes/jenkins
+
 volumes:
   mysql_data:
