@@ -5,7 +5,7 @@ pipeline
       gradle '8.4'  
     }   
                                             
-    stages {
+    stages { 
         stage('Build') {    
             steps {
                 script {
