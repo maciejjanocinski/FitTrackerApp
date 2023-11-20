@@ -2,7 +2,7 @@ pipeline
  {
     agent any
     tools {
-      gradle 'gradle 8.4'
+      gradle '8.4'
     }
 
     stages {
