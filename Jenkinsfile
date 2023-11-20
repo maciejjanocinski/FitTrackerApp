@@ -1,6 +1,6 @@
 pipeline
  {
-    agent any
+    agent any 
     tools {
       gradle '8.4'
     }
