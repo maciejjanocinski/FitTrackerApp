@@ -6,8 +6,7 @@ pipeline
         stage('Build') {
             steps {
                 script {
-                    sh 'chmod +x ./gradlew'
-                    sh './gradlew clean build'
+                    sh 'gradle clean build'
                 }
             }
         }
@@ -15,7 +14,7 @@ pipeline
         stage('Test') {
             steps {
                 script {
-                    sh './gradlew test'
+                    sh 'gradle test'
                 }
             }
         }
