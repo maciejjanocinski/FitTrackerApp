@@ -2,7 +2,6 @@ package app.product;
 
 import app.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -56,13 +55,14 @@ public class Product {
     @JsonBackReference
     private User user;
 
-    static List<Product> parseProductsFromResponseDto(ResponseDTO response, String query, User user) {
-        List<Product> products = new ArrayList<>();
+    static List<Product> parseProductsFromResponseDto(ResponseDto response, String query, User user) {
         if (response == null) {
-            return products;
+            return Collections.emptyList();
         }
-        for (HintDTO hint : response.getHints()) {
-            FoodDTO food = hint.getFood();
+        List<Product> products = new ArrayList<>();
+
+        for (HintDto hint : response.getHints()) {
+            FoodDto food = hint.getFood();
             Map<String, BigDecimal> nutrients = food.getNutrients();
 
 

@@ -25,4 +25,8 @@ public class Measure {
     private String name;
 
     private BigDecimal weight;
+
+    @ManyToOne
+    @JsonBackReference
+    private Product product;
 }

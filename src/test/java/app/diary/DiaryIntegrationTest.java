@@ -10,7 +10,6 @@ import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;
 import app.user.UserRepository;
-import app.utils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
 
+import static app.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.parseMediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -62,17 +62,17 @@ public class DiaryIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private final TestUtils utils = new TestUtils();
-    private final Role role = utils.buildRoleStandard();
-    private final Diary diary = utils.buildDiary();
-    private final User user = utils.buildUser(Set.of(role));
+    private final Role role = buildRoleStandard();
+    private final Diary diary = buildDiary();
+    private final User user = buildUser(Set.of(role));
+    private String token;
 
     @BeforeEach
     void setUp() {
-        Product product = utils.buildProduct(user);
+        token = tokenService.generateAuthorizationHeaderForTests(user.getUsername(), role);
+        Product product = buildProduct(user);
         user.setDiary(diary);
-        ProductInDiary productInDiary = utils.buildProductInDiary(user.getDiary(), product);
+        ProductInDiary productInDiary = setProductInDiary(user.getDiary(), product);
         roleRepository.save(role);
         userRepository.save(user);
         productsInDiaryRepository.save(productInDiary);
@@ -80,14 +80,12 @@ public class DiaryIntegrationTest {
         productRepository.save(product);
     }
 
+
     @Test
     void getDiary() throws Exception {
         //when
         mockMvc.perform(get("http://localhost:" + port + "/diary/")
-                        .header("Authorization", utils.generateAuthorizationHeader(
-                                tokenService,
-                                user.getUsername()))
-                )
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.sumKcal")
@@ -103,10 +101,7 @@ public class DiaryIntegrationTest {
         AddProductToDiaryDto addProductToDiaryDto = buildAddProductToDiaryDto();
 
         mockMvc.perform(post("http://localhost:" + port + "/diary/product")
-                        .header("Authorization", utils.generateAuthorizationHeader(
-                                tokenService,
-                                user.getUsername())
-                        )
+                        .header("Authorization", token)
                         .content(objectMapper.writeValueAsString(addProductToDiaryDto))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -115,6 +110,7 @@ public class DiaryIntegrationTest {
                 .andExpect(jsonPath("$.quantity")
                         .value(BigDecimal.valueOf(1).setScale(1, RoundingMode.HALF_UP)))
                 .andDo(print());
+
 
         Diary diary = userRepository.findByUsername(user.getUsername()).get().getDiary();
 
@@ -127,10 +123,7 @@ public class DiaryIntegrationTest {
         EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
 
         mockMvc.perform(patch("http://localhost:" + port + "/diary/product")
-                        .header("Authorization", utils.generateAuthorizationHeader(
-                                tokenService,
-                                user.getUsername())
-                        )
+                        .header("Authorization", token)
                         .content(objectMapper.writeValueAsString(editProductInDiaryDto))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -145,16 +138,14 @@ public class DiaryIntegrationTest {
                 diary.getProductsInDiary().get(0).getQuantity(),
                 BigDecimal.valueOf(200).setScale(2, RoundingMode.HALF_UP)
         );
+
     }
 
     @Test
     void deleteProductFromDiary() throws Exception {
         DeleteProductDto deleteProductDto = buildDeleteProductDto();
         mockMvc.perform(delete("http://localhost:" + port + "/diary/product")
-                        .header("Authorization", utils.generateAuthorizationHeader(
-                                tokenService,
-                                user.getUsername())
-                        )
+                        .header("Authorization", token)
                         .content(objectMapper.writeValueAsString(deleteProductDto))
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -166,6 +157,10 @@ public class DiaryIntegrationTest {
         Diary diaryAfterDelete = userRepository.findByUsername(user.getUsername()).get().getDiary();
         assertEquals(0, diaryAfterDelete.getProductsInDiary().size());
     }
+
+
+
+
 
     private AddProductToDiaryDto buildAddProductToDiaryDto() {
         return AddProductToDiaryDto.builder()
@@ -188,4 +183,18 @@ public class DiaryIntegrationTest {
                 .id(1L)
                 .build();
     }
+
+    private ProductInDiary setProductInDiary(Diary diary, Product product) {
+        return diary.generateNewProductInDiary(
+                product,
+                "Gram",
+                BigDecimal.valueOf(100)
+        );
+    }
+
+
+
+
+
+
 }

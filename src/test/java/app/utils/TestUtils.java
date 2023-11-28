@@ -15,18 +15,12 @@ import java.util.Set;
 
 import static app.user.User.setGenderFromString;
 public class TestUtils {
-    public static final String username = "username";
-    public static final String query = "bread";
-    public static final String userNotFoundMessage = "User not found";
-    public static final String productNotFoundMessage = "Product not found";
+    public static final String USERNAME = "username";
+    public static final String QUERY = "bread";
+    public static final String USER_NOT_FOUND_MESSAGE = "User not found";
+    public static final String PRODUCT_NOT_FOUND_MESSAGE = "Product not found";
 
-    public String generateAuthorizationHeader(
-            TokenService tokenService,
-            String username) {
-
-        return "Bearer " + tokenService.generateJwt(List.of(buildRoleStandard()), username);
-    }
-    public User buildUser(Set<Role> roles) {
+    public static User buildUser(Set<Role> roles) {
         return User.builder()
                 .username("username")
                 .password("password124M!")
@@ -40,7 +34,7 @@ public class TestUtils {
                 .build();
     }
 
-    public User buildUser(Set<Role> roles, String password) {
+    public static User buildUser(Set<Role> roles, String password) {
         return User.builder()
                 .username("username")
                 .password(password)
@@ -54,13 +48,13 @@ public class TestUtils {
                 .build();
     }
 
-    public Role buildRoleStandard() {
+    public static Role buildRoleStandard() {
         return Role.builder()
                 .name("ROLE_USER_STANDARD")
                 .build();
     }
 
-    public Diary buildDiary() {
+    public static Diary buildDiary() {
         return Diary.builder()
                 .goalKcal(BigDecimal.valueOf(1000))
                 .goalCarbohydrates(BigDecimal.valueOf(100))
@@ -81,7 +75,7 @@ public class TestUtils {
                 .build();
     }
 
-    public Product buildProduct(User user) {
+    public static Product buildProduct(User user) {
         return Product.builder()
                 .productId("foodId")
                 .name("name")
@@ -101,13 +95,5 @@ public class TestUtils {
                                 .build()
                 ))
                 .build();
-    }
-
-    public ProductInDiary buildProductInDiary(Diary diary, Product product) {
-        return diary.generateNewProductInDiary(
-                product,
-                "Gram",
-                BigDecimal.valueOf(100)
-        );
     }
 }

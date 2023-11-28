@@ -13,10 +13,10 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
- class ResponseDTO {
+ class ResponseDto {
     private String text;
-    private List<ParsedDTO> parsed;
-    private List<HintDTO> hints;
+    private List<ParsedDto> parsed;
+    private List<HintDto> hints;
 
 }
 
@@ -24,17 +24,17 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
- class ParsedDTO {
-    private FoodDTO food;
+ class ParsedDto {
+    private FoodDto food;
 }
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
- class HintDTO {
-    private FoodDTO food;
-    private List<MeasureDTO> measures;
+ class HintDto {
+    private FoodDto food;
+    private List<MeasureDto> measures;
 
 }
 
@@ -42,7 +42,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
- class FoodDTO {
+ class FoodDto {
     private String foodId;
     private String label;
     private String knownAs;
@@ -57,7 +57,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
- class MeasureDTO {
+ class MeasureDto {
     private String uri;
     private String label;
     private BigDecimal weight;

@@ -1,6 +1,5 @@
 package app.authentication;
 
-import app.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +32,7 @@ public class TokenService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public String generateJwt(Collection<? extends GrantedAuthority> authorities, String username) {
+    public  String generateJwt(Collection<? extends GrantedAuthority> authorities, String username) {
         String roles = concatRoles(authorities);
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -45,10 +45,13 @@ public class TokenService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-private String concatRoles(Collection<? extends GrantedAuthority> authorities) {
+    private String concatRoles(Collection<? extends GrantedAuthority> authorities) {
         return authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
     }
 
+    public  String generateAuthorizationHeaderForTests(String username, Role role) {
+        return "Bearer " + generateJwt(List.of(role), username);
+    }
 }

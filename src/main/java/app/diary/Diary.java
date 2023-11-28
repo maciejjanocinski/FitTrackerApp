@@ -1,11 +1,10 @@
 package app.diary;
 
-import app.product.Measure;
-import app.util.exceptions.InvalidInputException;
 import app.goal.GoalDto;
 import app.goal.GoalValues;
+import app.product.Measure;
 import app.product.Product;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import app.util.exceptions.InvalidInputException;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -58,31 +57,31 @@ public class Diary {
 
 
      void addProduct(ProductInDiary product) {
-        this.productsInDiary.add(product);
+        productsInDiary.add(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
     void removeProduct(ProductInDiary product) {
-        this.productsInDiary.remove(product);
+        productsInDiary.remove(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
     public void calculateNutrientsSum() {
-        this.sumKcal = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getKcal().doubleValue()).sum());
-        this.sumProtein = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getProtein().doubleValue()).sum());
-        this.sumCarbohydrates = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getCarbohydrates().doubleValue()).sum());
-        this.sumFat = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getFat().doubleValue()).sum());
-        this.sumFiber = BigDecimal.valueOf(this.productsInDiary.stream().mapToDouble(p -> p.getFiber().doubleValue()).sum());
+        sumKcal = BigDecimal.valueOf(productsInDiary.stream().mapToDouble(p -> p.getKcal().doubleValue()).sum());
+        sumProtein = BigDecimal.valueOf(productsInDiary.stream().mapToDouble(p -> p.getProtein().doubleValue()).sum());
+        sumCarbohydrates = BigDecimal.valueOf(productsInDiary.stream().mapToDouble(p -> p.getCarbohydrates().doubleValue()).sum());
+        sumFat = BigDecimal.valueOf(productsInDiary.stream().mapToDouble(p -> p.getFat().doubleValue()).sum());
+        sumFiber = BigDecimal.valueOf(productsInDiary.stream().mapToDouble(p -> p.getFiber().doubleValue()).sum());
     }
 
     public void calculateNutrientsLeft() {
-        this.leftKcal = this.goalKcal.subtract(this.sumKcal);
-        this.leftProtein = this.goalProtein.subtract(this.sumProtein);
-        this.leftCarbohydrates = this.goalCarbohydrates.subtract(this.sumCarbohydrates);
-        this.leftFat = this.goalFat.subtract(this.sumFat);
-        this.leftFiber = this.goalFiber.subtract(this.sumFiber);
+        leftKcal = goalKcal.subtract(sumKcal);
+        leftProtein = goalProtein.subtract(sumProtein);
+        leftCarbohydrates = goalCarbohydrates.subtract(sumCarbohydrates);
+        leftFat = goalFat.subtract(sumFat);
+        leftFiber = goalFiber.subtract(sumFiber);
     }
 
 
@@ -118,11 +117,11 @@ public class Diary {
     }
 
     void setGoalValuesToDiary(GoalValues goalValues) {
-        this.setGoalKcal(goalValues.kcal());
-        this.setGoalProtein(goalValues.protein());
-        this.setGoalCarbohydrates(goalValues.carbohydrates());
-        this.setGoalFat(goalValues.fat());
-        this.setGoalFiber(goalValues.fiber());
+        setGoalKcal(goalValues.kcal());
+        setGoalProtein(goalValues.protein());
+        setGoalCarbohydrates(goalValues.carbohydrates());
+        setGoalFat(goalValues.fat());
+        setGoalFiber(goalValues.fiber());
     }
 
    public ProductInDiary generateNewProductInDiary(Product product, String measureName, BigDecimal quantity) {
@@ -159,21 +158,21 @@ public class Diary {
     }
 
     public Diary() {
-        this.sumKcal = BigDecimal.ZERO;
-        this.sumProtein = BigDecimal.ZERO;
-        this.sumCarbohydrates = BigDecimal.ZERO;
-        this.sumFat = BigDecimal.ZERO;
-        this.sumFiber = BigDecimal.ZERO;
-        this.leftKcal = BigDecimal.ZERO;
-        this.leftProtein = BigDecimal.ZERO;
-        this.leftCarbohydrates = BigDecimal.ZERO;
-        this.leftFat = BigDecimal.ZERO;
-        this.leftFiber = BigDecimal.ZERO;
-        this.goalKcal = BigDecimal.ZERO;
-        this.goalProtein = BigDecimal.ZERO;
-        this.goalCarbohydrates = BigDecimal.ZERO;
-        this.goalFat = BigDecimal.ZERO;
-        this.goalFiber = BigDecimal.ZERO;
-        this.productsInDiary = new ArrayList<>();
+        sumKcal = BigDecimal.ZERO;
+        sumProtein = BigDecimal.ZERO;
+        sumCarbohydrates = BigDecimal.ZERO;
+        sumFat = BigDecimal.ZERO;
+        sumFiber = BigDecimal.ZERO;
+        leftKcal = BigDecimal.ZERO;
+        leftProtein = BigDecimal.ZERO;
+        leftCarbohydrates = BigDecimal.ZERO;
+        leftFat = BigDecimal.ZERO;
+        leftFiber = BigDecimal.ZERO;
+        goalKcal = BigDecimal.ZERO;
+        goalProtein = BigDecimal.ZERO;
+        goalCarbohydrates = BigDecimal.ZERO;
+        goalFat = BigDecimal.ZERO;
+        goalFiber = BigDecimal.ZERO;
+        productsInDiary = new ArrayList<>();
     }
 }

@@ -1,7 +1,6 @@
 package app.configuration;
 
 import app.authentication.Role;
-import app.authentication.RoleRepository;
 import app.util.RsaKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -29,15 +28,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @Configuration
 @EnableWebSecurity
@@ -66,7 +62,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspect) throws Exception {
         MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspect);
-        http.authorizeHttpRequests((requests) -> requests
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(
                                 mvcMatcherBuilder.pattern("/"),
                                 mvcMatcherBuilder.pattern("/auth/**"),
@@ -83,41 +81,7 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
-
-
     }
-
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(auth -> {
-//                    auth
-//                            .mvcMatchers(
-//                                    "/",
-//                                    "/auth/**",
-//                                    "/v3/api-docs",
-//                                    "/v3/api-docs/**",
-//                                    "/configuration/ui",
-//                                    "/swagger-resources/**",
-//                                    "/swagger-resources",
-//                                    "/swagger-ui.html",
-//                                    "swagger-ui/**"
-//                            ).permitAll()
-//                            .mvcMatchers("/admin/**").hasAuthority(Role.roleType.ROLE_ADMIN.toString())
-//                            .mvcMatchers("/recipes/**").hasAuthority(Role.roleType.ROLE_USER_PREMIUM.toString())
-//                            .anyRequest().authenticated();
-//                })
-//                .oauth2ResourceServer(oauth2ResourceServer ->
-//                        oauth2ResourceServer.jwt(jwt ->
-//                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
-//                        )
-//                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//
-//        return http.build();
-//    }
-
 
     @Bean
     JwtDecoder jwtDecoder() {

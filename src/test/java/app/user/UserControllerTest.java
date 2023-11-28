@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static app.user.User.setGenderFromString;
-import static app.utils.TestUtils.userNotFoundMessage;
+import static app.utils.TestUtils.USER_NOT_FOUND_MESSAGE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.parseMediaType;
@@ -63,14 +63,14 @@ class UserControllerTest {
     void getUser_userNotFound_returns404() throws Exception {
         //given
         when(userService.getUser(any(Authentication.class)))
-                .thenThrow(new UsernameNotFoundException(userNotFoundMessage));
+                .thenThrow(new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
 
         //when
         mockMvc.perform(get("/user/")
                         .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(userNotFoundMessage))
+                .andExpect(content().string(USER_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then

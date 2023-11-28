@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import static app.util.UtilityClass.productNotFoundMessage;
+import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;
 
 
 @Service
@@ -40,7 +40,7 @@ class DiaryService {
         Product product = user.getLastSearchedProducts().stream()
                 .filter(p -> p.getId().equals(addProductDto.id()))
                 .findFirst()
-                .orElseThrow(() -> new ProductNotFoundException(productNotFoundMessage));
+                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         product.setUsed(true);
 
@@ -58,10 +58,10 @@ class DiaryService {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         ProductInDiary productInDiary = productsInDiaryRepository.findById(editProductDto.id())
-                .orElseThrow(() -> new ProductNotFoundException(productNotFoundMessage));
+                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
        Product product = productsRepository.findProductById(editProductDto.id())
-                .orElseThrow(() -> new ProductNotFoundException(productNotFoundMessage));
+                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         ProductInDiary productWithNewValues = diary.generateNewProductInDiary(
                 product,
@@ -81,12 +81,12 @@ class DiaryService {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         ProductInDiary productInDiary = productsInDiaryRepository.findById(deleteProductDto.id())
-                .orElseThrow(() -> new ProductNotFoundException(productNotFoundMessage));
+                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
         diary.removeProduct(productInDiary);
         productsInDiaryRepository.deleteProductInDiaryById(productInDiary.getId());
 
         Product product = productsRepository.findProductById(deleteProductDto.id())
-                .orElseThrow(() -> new ProductNotFoundException(productNotFoundMessage));
+                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         product.setUsed(false);
         return "Product deleted from diary successfully";

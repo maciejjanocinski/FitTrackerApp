@@ -4,10 +4,8 @@ import app.authentication.Role;
 import app.diary.Diary;
 import app.diary.Gender;
 import app.product.Product;
-
 import app.recipe.Recipe;
 import app.user.dto.UpdateProfileInfoDto;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.UnexpectedTypeException;
@@ -24,9 +22,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -106,12 +104,12 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.password;
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     @Override

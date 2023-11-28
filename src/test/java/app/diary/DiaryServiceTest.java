@@ -19,10 +19,10 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
-import static app.utils.TestUtils.username;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames.USERNAME;
 
 @ExtendWith(MockitoExtension.class)
 class DiaryServiceTest {
@@ -49,8 +49,8 @@ class DiaryServiceTest {
         DiaryDto expectedResponse = buildDiaryDto();
         User user = buildUser();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(diaryMapper.mapDiaryToDiaryDto(diary)).thenReturn(expectedResponse);
 
         //when
@@ -60,7 +60,7 @@ class DiaryServiceTest {
         assertEquals(expectedResponse, diaryDto);
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
         verify(diaryMapper).mapDiaryToDiaryDto(diary);
@@ -72,8 +72,8 @@ class DiaryServiceTest {
         User user = buildUser();
         ProductInDiaryDto expectedResponse = buildProductInDiaryDto();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(productInDiaryMapper.mapToProductInDiaryDto(any()))
                 .thenReturn(buildProductInDiaryDto());
 
@@ -84,7 +84,7 @@ class DiaryServiceTest {
         assertEquals(expectedResponse, productInDiaryDto);
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(diary).addProduct(any());
     }
 
@@ -94,8 +94,8 @@ class DiaryServiceTest {
         AddProductToDiaryDto addProductDto = buildAddProductToDiaryDto(2L);
         User user = buildUser();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
 
         //when
         Exception ex = assertThrows(ProductNotFoundException.class,
@@ -105,7 +105,7 @@ class DiaryServiceTest {
         assertEquals("Product not found", ex.getMessage());
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(diary, never()).addProduct(any(ProductInDiary.class));
         verify(productInDiaryMapper, never()).mapToProductInDiaryDto(any(ProductInDiary.class));
     }
@@ -119,8 +119,8 @@ class DiaryServiceTest {
         EditProductInDiaryDto editProductInDiaryDto = buildEditProductInDiaryDto();
         ProductInDiary productInDiary = buildProductInDiary();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(productsInDiaryRepository.findById(editProductInDiaryDto.id()))
                 .thenReturn(Optional.of(productInDiary));
         when(productsRepository.findProductById(editProductInDiaryDto.id()))
@@ -135,7 +135,7 @@ class DiaryServiceTest {
         assertEquals(expectedResponse, productInDiaryDto);
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(productsInDiaryRepository).findById(editProductInDiaryDto.id());
         verify(this.productInDiaryMapper).mapToProductInDiary(any(), any());
         verify(diary).calculateNutrientsLeft();
@@ -150,8 +150,8 @@ class DiaryServiceTest {
         ProductInDiary productInDiary = buildProductInDiary();
         User user = buildUser();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(productsInDiaryRepository.findById(editProductInDiaryDto.id()))
                 .thenReturn(Optional.empty());
 
@@ -163,7 +163,7 @@ class DiaryServiceTest {
         assertEquals("Product not found", ex.getMessage());
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(productsInDiaryRepository).findById(editProductInDiaryDto.id());
         verify(productsRepository, never()).findProductById(productInDiary.getId());
         verify(this.productInDiaryMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
@@ -179,8 +179,8 @@ class DiaryServiceTest {
         ProductInDiary productInDiary = buildProductInDiary();
         User user = buildUser();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(productsInDiaryRepository.findById(editProductInDiaryDto.id()))
                 .thenReturn(Optional.of(productInDiary));
         when(productsRepository.findProductById(productInDiary.getId()))
@@ -194,7 +194,7 @@ class DiaryServiceTest {
         assertEquals("Product not found", ex.getMessage());
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(productsInDiaryRepository).findById(editProductInDiaryDto.id());
         verify(productsRepository).findProductById(productInDiary.getId());
         verify(this.productInDiaryMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
@@ -211,8 +211,8 @@ class DiaryServiceTest {
         User user = buildUser();
         ProductInDiary productInDiary = buildProductInDiary();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(productsInDiaryRepository.findById(1L))
                 .thenReturn(Optional.of(productInDiary));
         when(productsRepository.findProductById(productInDiary.getId()))
@@ -225,7 +225,7 @@ class DiaryServiceTest {
         assertEquals(expectedResponse, response);
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(productsInDiaryRepository).findById(1L);
         verify(productsInDiaryRepository).deleteProductInDiaryById(productInDiary.getId());
         verify(productsRepository).findProductById(productInDiary.getId());
@@ -238,8 +238,8 @@ class DiaryServiceTest {
         User user = buildUser();
         ProductInDiary productInDiary = buildProductInDiary();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(productsInDiaryRepository.findById(1L))
                 .thenReturn(Optional.empty());
         //when
@@ -250,7 +250,7 @@ class DiaryServiceTest {
         assertEquals(expectedResponse, ex.getMessage());
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(productsInDiaryRepository).findById(1L);
         verify(productsInDiaryRepository, never()).deleteProductInDiaryById(productInDiary.getId());
         verify(productsRepository, never()).findProductById(productInDiary.getId());
@@ -263,8 +263,8 @@ class DiaryServiceTest {
         User user = buildUser();
         ProductInDiary productInDiary = buildProductInDiary();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(productsInDiaryRepository.findById(1L))
                 .thenReturn(Optional.of(productInDiary));
 
@@ -278,7 +278,7 @@ class DiaryServiceTest {
         assertEquals(expectedResponse, ex.getMessage());
 
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(productsInDiaryRepository).findById(1L);
         verify(productsInDiaryRepository).deleteProductInDiaryById(productInDiary.getId());
         verify(productsRepository).findProductById(productInDiary.getId());
@@ -306,7 +306,7 @@ class DiaryServiceTest {
 
     private User buildUser() {
         return User.builder()
-                .username(username)
+                .username(USERNAME)
                 .diary(diary)
                 .lastSearchedProducts(List.of(buildProduct(1L)))
                 .build();

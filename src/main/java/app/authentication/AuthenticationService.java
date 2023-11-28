@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
-import static app.util.UtilityClass.roleNotFoundMessage;
+import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @AllArgsConstructor
@@ -29,7 +29,7 @@ class AuthenticationService {
     RegisterDto register(RegisterDto registerDto) {
 
         Role role = roleRepository.findByName(Role.roleType.ROLE_USER_STANDARD.toString())
-                .orElseThrow(() -> new RuntimeException(roleNotFoundMessage));
+                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MESSAGE));
 
         Set<Role> authorities = new HashSet<>();
         authorities.add(role);

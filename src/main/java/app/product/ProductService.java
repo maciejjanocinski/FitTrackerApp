@@ -48,7 +48,7 @@ public class ProductService {
         productsRepository.deleteNotUsedProducts(user.getId());
 
         String url = createUrl(id, key, lowerCasedQuery);
-        ResponseDTO response = getProductsFromApi(url);
+        ResponseDto response = getProductsFromApi(url);
 
         List<Product> products = Product.parseProductsFromResponseDto(response, lowerCasedQuery, user);
 
@@ -72,8 +72,8 @@ public class ProductService {
         return productMapper.mapToProductDto(product);
     }
 
-    private ResponseDTO getProductsFromApi(String url) {
-        ResponseEntity<ResponseDTO> responseEntity = restTemplate.getForEntity(url, ResponseDTO.class);
+    private ResponseDto getProductsFromApi(String url) {
+        ResponseEntity<ResponseDto> responseEntity = restTemplate.getForEntity(url, ResponseDto.class);
         return responseEntity.getBody();
     }
 

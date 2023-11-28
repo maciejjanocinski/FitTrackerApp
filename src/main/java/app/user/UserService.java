@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static app.util.UtilityClass.userNotFoundMessage;
+import static app.util.Utils.USER_NOT_FOUND_MESSAGE;
 
 @Service
 @AllArgsConstructor
@@ -28,28 +28,28 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(userNotFoundMessage));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
     }
 
     UserDto getUser(Authentication authentication) {
-        User user = this.getUserByUsername(authentication.getName());
+        User user = getUserByUsername(authentication.getName());
         return userMapper.mapUserToUserDto(user);
     }
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(userNotFoundMessage));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
     }
 
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
-        this.getUserByUsername(authentication.getName()).updateUserProfile(updateProfileInfoDto);
+       getUserByUsername(authentication.getName()).updateUserProfile(updateProfileInfoDto);
         return "Changes has been successfully approved";
     }
 
     @Transactional
     public String updatePassword(Authentication authentication, UpdatePasswordDto password) {
-        User user = this.getUserByUsername(authentication.getName());
+        User user = getUserByUsername(authentication.getName());
 
         if (password.newPassword().equals(password.confirmNewPassword()) &&
                 passwordEncoder.matches(password.oldPassword(), user.getPassword())) {
@@ -66,7 +66,7 @@ public class UserService implements UserDetailsService {
     }
 
     String deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
-        User user = this.getUserByUsername(authentication.getName());
+        User user = getUserByUsername(authentication.getName());
 
         if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword()) &&
                 deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {

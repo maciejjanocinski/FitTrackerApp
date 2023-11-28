@@ -20,8 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 import java.util.Set;
 
-import static app.utils.TestUtils.userNotFoundMessage;
-import static app.utils.TestUtils.username;
+import static app.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -38,44 +37,43 @@ class UserServiceTest {
     UserMapper userMapper;
     @Mock
     Authentication authentication;
-    private final TestUtils utils = new TestUtils();
-    Role role = utils.buildRoleStandard();
-    User user = utils.buildUser(Set.of(role));
+    Role role = buildRoleStandard();
+    User user = buildUser(Set.of(role));
 
     @Test
     void loadUserByUsername_inputDataOk_returnsUserDetails() {
         //given
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 
         //when
-        UserDetails actualUser = userService.loadUserByUsername(username);
+        UserDetails actualUser = userService.loadUserByUsername(USERNAME);
 
         //then
-        assertEquals(actualUser.getUsername(), username);
-        verify(userRepository).findByUsername(username);
+        assertEquals(actualUser.getUsername(), USERNAME);
+        verify(userRepository).findByUsername(USERNAME);
     }
 
     @Test
     void loadUserByUsername_userNotFound_throwsUsernameNotFoundException() {
         //given
         String message = "User not found";
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.empty());
 
         //when
         Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> userService.loadUserByUsername(username));
+                () -> userService.loadUserByUsername(USERNAME));
 
         //then
         assertEquals(ex.getMessage(), message);
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
     }
 
     @Test
     void getUser_inputDataOk_returnsUserDto() {
         //given
         UserDto userDto = buildUserDto();
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
         when(userMapper.mapUserToUserDto(user)).thenReturn(userDto);
 
         //when
@@ -83,35 +81,35 @@ class UserServiceTest {
 
         //then
         assertEquals(actualUserDto, userDto);
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
         verify(userMapper).mapUserToUserDto(user);
     }
 
     @Test
     void getUserByUsername_inputDataOk_returnsUser() {
         //given
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 
         //when
-        User actualUser = userService.getUserByUsername(username);
+        User actualUser = userService.getUserByUsername(USERNAME);
 
         //then
         assertEquals(actualUser, user);
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
     }
 
     @Test
     void getUserByUsername_UserNotFound_throwsUsernameNotFoundException() {
         //given
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.empty());
 
         //when
         Exception ex = assertThrows(UsernameNotFoundException.class,
-                () -> userService.getUserByUsername(username));
+                () -> userService.getUserByUsername(USERNAME));
 
         //then
-        assertEquals(userNotFoundMessage, ex.getMessage());
-        verify(userRepository).findByUsername(username);
+        assertEquals(USER_NOT_FOUND_MESSAGE, ex.getMessage());
+        verify(userRepository).findByUsername(USERNAME);
     }
 
     @Test
@@ -120,8 +118,8 @@ class UserServiceTest {
         String expectedMessage = "Changes has been successfully approved";
         UpdateProfileInfoDto updateProfileInfoDto = buildUpdateProfileInfoDto();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 
         //when
         String actualMessage = userService.updateProfile(authentication, updateProfileInfoDto);
@@ -131,7 +129,7 @@ class UserServiceTest {
         assertEquals(user.getUsername(), updateProfileInfoDto.username());
 
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
     }
 
     @Test
@@ -140,8 +138,8 @@ class UserServiceTest {
         String expectedMessage = "Password has been successfully changed";
         UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(updatePasswordDto.oldPassword(), user.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(updatePasswordDto.newPassword())).thenReturn("encodedPassword");
 
@@ -152,7 +150,7 @@ class UserServiceTest {
         assertEquals(expectedMessage, actualMessage);
 
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
         verify(passwordEncoder).encode(updatePasswordDto.newPassword());
     }
 
@@ -162,8 +160,8 @@ class UserServiceTest {
         String expectedMessage = "Passwords are not the same.";
         UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto_passwordsNotTheSame();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 
         //when
 
@@ -174,7 +172,7 @@ class UserServiceTest {
         assertEquals(expectedMessage, ex.getMessage());
 
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
         verify(passwordEncoder, never()).encode(updatePasswordDto.newPassword());
     }
 
@@ -184,8 +182,8 @@ class UserServiceTest {
         String expectedMessage = "You have passed wrong password.";
         UpdatePasswordDto updatePasswordDto = buildUpdatePasswordDto_wrongPassword();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 
         //when
 
@@ -196,7 +194,7 @@ class UserServiceTest {
         assertEquals(expectedMessage, ex.getMessage());
 
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
         verify(passwordEncoder, never()).encode(updatePasswordDto.newPassword());
     }
 
@@ -206,8 +204,8 @@ class UserServiceTest {
         String expectedMessage = "Profile with username \"" + user.getUsername() + "\" has been deleted.";
         DeleteUserDto deleteUserDto = buildDeleteUserDto();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(deleteUserDto.password(), user.getPassword())).thenReturn(true);
 
         //when
@@ -217,7 +215,7 @@ class UserServiceTest {
         assertEquals(expectedMessage, actualMessage);
 
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
         verify(passwordEncoder).matches(deleteUserDto.password(), user.getPassword());
         verify(userRepository).delete(user);
     }
@@ -228,8 +226,8 @@ class UserServiceTest {
         String expectedMessage = "Passwords are not the same.";
         DeleteUserDto deleteUserDto = buildDeleteUserDto_wrongPassword();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(deleteUserDto.password(), user.getPassword())).thenReturn(false);
 
         //when
@@ -240,7 +238,7 @@ class UserServiceTest {
         assertEquals(expectedMessage, ex.getMessage());
 
         verify(authentication).getName();
-        verify(userRepository).findByUsername(username);
+        verify(userRepository).findByUsername(USERNAME);
         verify(passwordEncoder).matches(deleteUserDto.password(), user.getPassword());
         verify(userRepository, never()).delete(user);
     }
@@ -314,7 +312,7 @@ class UserServiceTest {
 
     private UpdateProfileInfoDto buildUpdateProfileInfoDto() {
         return UpdateProfileInfoDto.builder()
-                .username(username)
+                .username(USERNAME)
                 .name("name")
                 .surname("surname")
                 .gender("MALE")
@@ -326,7 +324,7 @@ class UserServiceTest {
 
     private UserDto buildUserDto() {
         return UserDto.builder()
-                .username(username)
+                .username(USERNAME)
                 .email("email")
                 .gender("MALE")
                 .build();

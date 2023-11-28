@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 
 import java.math.BigDecimal;
 
-import static app.utils.TestUtils.username;
+import static app.utils.TestUtils.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -35,12 +35,12 @@ class GoalServiceTest {
         //given
         GoalResponseDto expectedResponse = buildGoalResponseDto();
         User user = User.builder()
-                .username(username)
+                .username(USERNAME)
                 .diary(diary)
                 .build();
 
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(goalMapper.mapToGoalResponseDto(diary)).thenReturn(expectedResponse);
 
         //when
@@ -48,7 +48,7 @@ class GoalServiceTest {
 
         //then
         verify(authentication).getName();
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         verify(diary).calculateNutrientsLeft();
         verify(diary).calculateNutrientsSum();
         verify(goalMapper).mapToGoalResponseDto(diary);
@@ -61,12 +61,12 @@ class GoalServiceTest {
         GoalResponseDto expectedResponse = buildGoalResponseDto();
         GoalDto goalDto = buildGoalDto();
         User user = User.builder()
-                .username(username)
+                .username(USERNAME)
                 .gender(User.setGenderFromString("FEMALE"))
                 .diary(diary)
                 .build();
-        when(authentication.getName()).thenReturn(username);
-        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(authentication.getName()).thenReturn(USERNAME);
+        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
         when(diary.setGoal(goalDto, user.getGender())).thenReturn(diary);
         when(goalMapper.mapToGoalResponseDto(any(Diary.class))).thenReturn(expectedResponse);
 
@@ -76,7 +76,7 @@ class GoalServiceTest {
         //then
         verify(authentication).getName();
         verify(diary).setGoal(goalDto, user.getGender());
-        verify(userService).getUserByUsername(username);
+        verify(userService).getUserByUsername(USERNAME);
         assertEquals(expectedResponse, goalResponseDto);
     }
 

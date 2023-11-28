@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static app.utils.TestUtils.userNotFoundMessage;
+import static app.utils.TestUtils.USER_NOT_FOUND_MESSAGE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.parseMediaType;
@@ -73,14 +73,14 @@ class GoalControllerTest {
     @Test
     void getGoal_userNotFound_returns404() throws Exception {
         //given
-        when(goalService.getGoal(any())).thenThrow(new UsernameNotFoundException(userNotFoundMessage));
+        when(goalService.getGoal(any())).thenThrow(new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
 
         //when
         mockMvc.perform(get("/goal/")
                         .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(userNotFoundMessage))
+                .andExpect(content().string(USER_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then
@@ -109,7 +109,7 @@ class GoalControllerTest {
     @Test
     void setGoal_userNotFound_returns404() throws Exception {
         //given
-        when(goalService.getGoal(any())).thenThrow(new UsernameNotFoundException(userNotFoundMessage));
+        when(goalService.getGoal(any())).thenThrow(new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
 
         //when
         mockMvc.perform(get("/goal/")
@@ -118,7 +118,7 @@ class GoalControllerTest {
                         .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER"))))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(userNotFoundMessage))
+                .andExpect(content().string(USER_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then

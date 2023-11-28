@@ -17,8 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static app.utils.TestUtils.productNotFoundMessage;
-import static app.utils.TestUtils.userNotFoundMessage;
+import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;
+import static app.util.Utils.USER_NOT_FOUND_MESSAGE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,7 +88,7 @@ class DiaryControllerTest {
     void addProductToDiary_productNotFound_returns404() throws Exception {
         //given
         when(diaryService.addProductToDiary(any(), any()))
-                .thenThrow(new ProductNotFoundException(productNotFoundMessage));
+                .thenThrow(new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         //when
         mockMvc.perform(post("/diary/product")
@@ -97,7 +97,7 @@ class DiaryControllerTest {
                         .content(objectMapper.writeValueAsString(addProductToDiaryDto)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(productNotFoundMessage))
+                .andExpect(content().string(PRODUCT_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then
@@ -108,7 +108,7 @@ class DiaryControllerTest {
     void addProductToDiary_userNotFound_returns404() throws Exception {
         //given
         when(diaryService.addProductToDiary(any(), any()))
-                .thenThrow(new UsernameNotFoundException(userNotFoundMessage));
+                .thenThrow(new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
         //when
         mockMvc.perform(post("/diary/product")
                         .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER")))
@@ -116,7 +116,7 @@ class DiaryControllerTest {
                         .content(objectMapper.writeValueAsString(addProductToDiaryDto)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(userNotFoundMessage))
+                .andExpect(content().string(USER_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then
@@ -146,7 +146,7 @@ class DiaryControllerTest {
     void editProductAmountInDiary_productNotFound_returns404() throws Exception {
         //given
         when(diaryService.editProductAmountInDiary(any(), any()))
-                .thenThrow(new ProductNotFoundException(productNotFoundMessage));
+                .thenThrow(new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         //when
         mockMvc.perform(patch("/diary/product")
@@ -155,7 +155,7 @@ class DiaryControllerTest {
                         .content(objectMapper.writeValueAsString(editProductInDiaryDto)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(productNotFoundMessage))
+                .andExpect(content().string(PRODUCT_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then
@@ -166,7 +166,7 @@ class DiaryControllerTest {
     void editProductAmountInDiary_userNotFound_returns404() throws Exception {
         //given
         when(diaryService.editProductAmountInDiary(any(), any()))
-                .thenThrow(new UsernameNotFoundException(userNotFoundMessage));
+                .thenThrow(new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
         //when
         mockMvc.perform(patch("/diary/product")
                         .with(jwt().jwt(j -> j.claim("roles", "ROLE_USER")))
@@ -174,7 +174,7 @@ class DiaryControllerTest {
                         .content(objectMapper.writeValueAsString(editProductInDiaryDto)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(userNotFoundMessage))
+                .andExpect(content().string(USER_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then
@@ -204,7 +204,7 @@ class DiaryControllerTest {
     void deleteProductFromDiary_productNotFound_returns404() throws Exception {
         //given
         when(diaryService.deleteProductFromDiary(any(), any()))
-                .thenThrow(new ProductNotFoundException(productNotFoundMessage));
+                .thenThrow(new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         //when
         mockMvc.perform(delete("/diary/product")
@@ -213,7 +213,7 @@ class DiaryControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(productNotFoundMessage))
+                .andExpect(content().string(PRODUCT_NOT_FOUND_MESSAGE))
                 .andDo(print());
 
         //then
@@ -224,7 +224,7 @@ class DiaryControllerTest {
     void deleteProductFromDiary_userNotFound_returns404() throws Exception {
         //given
         when(diaryService.deleteProductFromDiary(any(), any()))
-                .thenThrow(new UsernameNotFoundException(userNotFoundMessage));
+                .thenThrow(new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
 
         //when
         mockMvc.perform(delete("/diary/product")
@@ -233,7 +233,7 @@ class DiaryControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
-                .andExpect(content().string(userNotFoundMessage))
+                .andExpect(content().string(USER_NOT_FOUND_MESSAGE))
                 .andDo(print());
         //then
         verify(diaryService).deleteProductFromDiary(any(), any());

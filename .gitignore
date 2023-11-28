@@ -3,7 +3,7 @@
 /build
 /gradle
 /volumes
-/gradlew
+./gradlew
 /gradlew.bat
 /HELP.md
 /settings.gradle
