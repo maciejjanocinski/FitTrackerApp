@@ -149,4 +149,5 @@ public class User implements UserDetails {
         this.setPhone(updateProfileInfoDto.phone());
         this.setGender(User.setGenderFromString(updateProfileInfoDto.gender()));
     }
+
 }

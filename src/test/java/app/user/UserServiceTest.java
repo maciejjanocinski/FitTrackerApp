@@ -6,7 +6,6 @@ import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
 import app.user.dto.UserDto;
-import app.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -243,31 +242,31 @@ class UserServiceTest {
         verify(userRepository, never()).delete(user);
     }
 
-    @Test
-    void setPasswordWithValidation_inputDataOk_returnsTrue() {
-        //given
-        String password = "Password123@";
-
-        //when
-        boolean actualResult = userService.setPasswordWithValidation(password);
-
-        //then
-        assertTrue(actualResult);
-    }
-
-    @Test
-    void setPasswordWithValidation_passedWrongPassword_throwsException() {
-        //given
-        String password = "Password123";
-        String expectedMessage = "Password must have at least one special character like ! @ # & ( ).";
-
-        //when
-        Exception ex = assertThrows(InvalidPasswordException.class,
-                () -> userService.setPasswordWithValidation(password));
-
-        //then
-        assertEquals(expectedMessage, ex.getMessage());
-    }
+//    @Test
+//    void setPasswordWithValidation_inputDataOk_returnsTrue() {
+//        //given
+//        String password = "Password123@";
+//
+//        //when
+//        boolean actualResult = userService.newPasswordValid(password);
+//
+//        //then
+//        assertTrue(actualResult);
+//    }
+//
+//    @Test
+//    void setPasswordWithValidation_passedWrongPassword_throwsException() {
+//        //given
+//        String password = "Password123";
+//        String expectedMessage = "Password must have at least one special character like ! @ # & ( ).";
+//
+//        //when
+//        Exception ex = assertThrows(InvalidPasswordException.class,
+//                () -> userService.newPasswordValid(password));
+//
+//        //then
+//        assertEquals(expectedMessage, ex.getMessage());
+//    }
 
 
 

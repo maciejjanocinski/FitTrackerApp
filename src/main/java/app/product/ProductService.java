@@ -1,5 +1,8 @@
 package app.product;
 
+import app.nutrients.Nutrient;
+import app.nutrients.NutrientName;
+import app.nutrients.NutrientRepository;
 import app.user.User;
 import app.user.UserService;
 import app.util.exceptions.ProductNotFoundException;
@@ -19,6 +22,7 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productsRepository;
     private final UserService userService;
+    private final NutrientRepository nutrientRepository;
 
     @Value("${api.products.url}")
     private String baseUrl;
@@ -48,9 +52,10 @@ public class ProductService {
         productsRepository.deleteNotUsedProducts(user.getId());
 
         String url = createUrl(id, key, lowerCasedQuery);
-        ResponseDto response = getProductsFromApi(url);
+        ResponseDto response = getProductsResponseFromApi(url);
 
-        List<Product> products = Product.parseProductsFromResponseDto(response, lowerCasedQuery, user);
+        List<Product> products = getProducts(response, lowerCasedQuery, user);
+
 
         user.getLastSearchedProducts().addAll(products);
         productsRepository.saveAll(products);
@@ -72,7 +77,7 @@ public class ProductService {
         return productMapper.mapToProductDto(product);
     }
 
-    private ResponseDto getProductsFromApi(String url) {
+    private ResponseDto getProductsResponseFromApi(String url) {
         ResponseEntity<ResponseDto> responseEntity = restTemplate.getForEntity(url, ResponseDto.class);
         return responseEntity.getBody();
     }
@@ -92,5 +97,15 @@ public class ProductService {
                 .toList();
     }
 
+    private List<Product> getProducts(ResponseDto response, String lowerCasedQuery, User user) {
+        Nutrient protein = nutrientRepository.findByName(String.valueOf(NutrientName.PROTEIN))
+                .orElseThrow(() -> new RuntimeException("Nutrient not found"));
+        Nutrient carbohydrates = nutrientRepository.findByName(String.valueOf(NutrientName.CARBOHYDRATES))
+                .orElseThrow(() -> new RuntimeException("Nutrient not found"));
+        Nutrient fat = nutrientRepository.findByName(String.valueOf(NutrientName.FAT))
+                .orElseThrow(() -> new RuntimeException("Nutrient not found"));
+
+       return Product.parseProductsFromResponseDto(response, lowerCasedQuery, user, protein, carbohydrates, fat);
+    }
 
 }

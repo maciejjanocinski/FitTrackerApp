@@ -53,16 +53,16 @@ public class Diary {
             fetch = FetchType.EAGER
     )
     @JsonManagedReference
-    private List<ProductInDiary> productsInDiary;
+    private List<Product> productsInDiary;
 
 
-     void addProduct(ProductInDiary product) {
+     void addProduct(Product product) {
         productsInDiary.add(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
-    void removeProduct(ProductInDiary product) {
+    void removeProduct(Product product) {
         productsInDiary.remove(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();

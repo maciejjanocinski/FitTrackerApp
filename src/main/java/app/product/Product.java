@@ -1,5 +1,8 @@
 package app.product;
 
+import app.nutrients.Nutrient;
+import app.nutrients.NutrientsQuantity;
+import app.nutrients.ProductsNutrients;
 import app.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -29,13 +32,8 @@ public class Product {
 
     private BigDecimal kcal;
 
-    private BigDecimal protein;
-
-    private BigDecimal fat;
-
-    private BigDecimal carbohydrates;
-
-    private BigDecimal fiber;
+    @OneToOne(cascade = CascadeType.ALL)
+    private ProductsNutrients productsNutrients;
 
     private String image;
 
@@ -55,7 +53,12 @@ public class Product {
     @JsonBackReference
     private User user;
 
-    static List<Product> parseProductsFromResponseDto(ResponseDto response, String query, User user) {
+    static List<Product> parseProductsFromResponseDto(ResponseDto response,
+                                                      String query,
+                                                      User user,
+                                                      Nutrient protein,
+                                                      Nutrient carbohydrates,
+                                                      Nutrient fat) {
         if (response == null) {
             return Collections.emptyList();
         }
@@ -66,17 +69,11 @@ public class Product {
             Map<String, BigDecimal> nutrients = food.getNutrients();
 
 
-
             Product product = new Product();
             checkIfFieldsAreNotNullAndSetValues(
                     product,
                     food.getFoodId(),
                     food.getLabel(),
-                    nutrients.get("ENERC_KCAL"),
-                    nutrients.get("PROCNT"),
-                    nutrients.get("FAT"),
-                    nutrients.get("CHOCDF"),
-                    nutrients.get("FIBTG"),
                     food.getImage(),
                     query
             );
@@ -84,8 +81,17 @@ public class Product {
             List<Measure> measures = hint.getMeasures().stream().map(measureDto -> Measure.builder()
                     .name(measureDto.getLabel())
                     .weight(measureDto.getWeight())
-                    .build()).collect(Collectors.toList());
+                    .build())
+                    .collect(Collectors.toList());
 
+            ProductsNutrients productsNutrients = createProductsNutrients(
+                    protein,
+                    carbohydrates,
+                    fat,
+                    nutrients
+            );
+
+            product.setProductsNutrients(productsNutrients);
             product.setUsed(false);
             product.setMeasures(measures);
             product.setUser(user);
@@ -94,26 +100,33 @@ public class Product {
         return products;
     }
 
+    private static ProductsNutrients createProductsNutrients(Nutrient protein, Nutrient carbohydrates, Nutrient fat, Map<String, BigDecimal> nutrients) {
+        NutrientsQuantity nutrientsQuantity = NutrientsQuantity.builder()
+                .kcal(valueOrZero(nutrients.get("ENERC_KCAL")))
+                .proteinQuantity(valueOrZero(nutrients.get("PROCNT")))
+                .carbohydratesQuantity(valueOrZero(nutrients.get("CHOCDF")))
+                .fatQuantity(valueOrZero(nutrients.get("FAT")))
+                .fiber(valueOrZero(nutrients.get("FIBTG")))
+                .weightInGrams(BigDecimal.valueOf(100))
+                .build();
 
-    static void checkIfFieldsAreNotNullAndSetValues(Product product,
+        return ProductsNutrients.builder()
+                .protein(protein)
+                .carbohydrates(carbohydrates)
+                .fat(fat)
+                .nutrientsQuantity(nutrientsQuantity)
+                .build();
+    }
+
+    private static void checkIfFieldsAreNotNullAndSetValues(Product product,
                                                     String foodId,
                                                     String label,
-                                                    BigDecimal kcal,
-                                                    BigDecimal protein,
-                                                    BigDecimal fat,
-                                                    BigDecimal carbohydrates,
-                                                    BigDecimal fiber,
                                                     String image,
                                                     String query
     ) {
 
         product.setProductId(valueOrEmpty(foodId));
         product.setName(valueOrEmpty(label));
-        product.setKcal(valueOrZero(kcal));
-        product.setProtein(valueOrZero(protein));
-        product.setFat(valueOrZero(fat));
-        product.setCarbohydrates(valueOrZero(carbohydrates));
-        product.setFiber(valueOrZero(fiber));
         product.setImage(valueOrEmpty(image));
         product.setQuery(query);
     }
