@@ -1,6 +1,8 @@
 package app.diary;
 
 import app.diary.dto.*;
+import app.product.ProductDto;
+import app.product.ProductMapper;
 import app.user.UserService;
 import app.util.exceptions.ProductNotFoundException;
 import app.product.Product;
@@ -11,6 +13,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import static app.diary.DiaryMapper.mapDiaryToDiaryDto;
+import static app.product.ProductMapper.mapProductToProduct;
+import static app.product.ProductMapper.mapToProductDto;
 import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;
 
 
@@ -21,8 +26,6 @@ class DiaryService {
 
     private final ProductRepository productsRepository;
     private final UserService userService;
-    private final ProductsInDiaryRepository productsInDiaryRepository;
-    private final ProductInDiaryMapper productInDiaryMapper;
     private final DiaryMapper diaryMapper;
 
     public DiaryDto getDiary(Authentication authentication) {
@@ -31,10 +34,10 @@ class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return diaryMapper.mapDiaryToDiaryDto(diary);
+        return mapDiaryToDiaryDto(diary);
     }
 
-    public ProductInDiaryDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
+    public ProductDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         Product product = user.getLastSearchedProducts().stream()
@@ -42,53 +45,40 @@ class DiaryService {
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
+        Product newProduct = mapProductToProduct(product);
+        productsRepository.save(newProduct);
+
+        newProduct.setUsed(true);
         product.setUsed(true);
-
-        ProductInDiary productInDiary = diary.generateNewProductInDiary(
-                product,
-                addProductDto.measureLabel(),
-                addProductDto.quantity()
-        );
-
-        diary.addProduct(productInDiary);
-        return productInDiaryMapper.mapToProductInDiaryDto(productInDiary);
+        newProduct.setDiary(diary);
+        newProduct.editProductAmount(addProductDto.measureLabel(), addProductDto.quantity());
+        diary.addProduct(newProduct);
+        return mapToProductDto(newProduct);
     }
 
-    public ProductInDiaryDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
+    public ProductDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
-        ProductInDiary productInDiary = productsInDiaryRepository.findById(editProductDto.id())
+
+        Product product = productsRepository.findProductById(editProductDto.id())
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
-       Product product = productsRepository.findProductById(editProductDto.id())
-                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
-
-        ProductInDiary productWithNewValues = diary.generateNewProductInDiary(
-                product,
-                editProductDto.measureLabel(),
-                editProductDto.quantity()
-        );
-
-        productInDiaryMapper.mapToProductInDiary(productWithNewValues, productInDiary);
-
+        product.editProductAmount(editProductDto.measureLabel(), editProductDto.quantity());
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return productInDiaryMapper.mapToProductInDiaryDto(productInDiary);
+        return mapToProductDto(product);
     }
 
     public String deleteProductFromDiary(DeleteProductDto deleteProductDto, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
-        ProductInDiary productInDiary = productsInDiaryRepository.findById(deleteProductDto.id())
-                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
-        diary.removeProduct(productInDiary);
-        productsInDiaryRepository.deleteProductInDiaryById(productInDiary.getId());
 
         Product product = productsRepository.findProductById(deleteProductDto.id())
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         product.setUsed(false);
+        diary.removeProduct(product);
         return "Product deleted from diary successfully";
     }
 }

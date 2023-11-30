@@ -1,5 +1,6 @@
 package app.diary.dto;
 
+import app.product.ProductDto;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -22,5 +23,5 @@ public record DiaryDto(
         BigDecimal leftFat,
         BigDecimal leftCarbohydrates,
         BigDecimal leftFiber,
-        List<ProductInDiaryDto> productsInDiary) {
+        List<ProductDto> productsInDiary) {
 }

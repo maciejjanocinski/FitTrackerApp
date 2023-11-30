@@ -40,29 +40,14 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true)
-    @Size(min = 6, message = "Username must have at least 6 characters.")
-    @NotBlank(message = "Username cannot be blank.")
     private String username;
-
-    @NotEmpty(message = "You have to pass your name.")
-    @NotBlank(message = "Name cannot be blank.")
     private String name;
-
-    @NotEmpty(message = "You have to pass your surname.")
-    @NotBlank(message = "Surname cannot be blank.")
     private String surname;
-
     private Gender gender;
 
-    @Email(message = "Wrong email")
-    @NotEmpty(message = "You have to pass your email.")
-    @NotBlank(message = "Email cannot be blank.")
+    @Column(unique = true)
     private String email;
-
-    @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
-    @NotBlank(message = "Phone cannot be blank.")
     private String phone;
-
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)

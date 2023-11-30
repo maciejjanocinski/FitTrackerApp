@@ -1,8 +1,5 @@
 package app.product;
 
-import app.nutrients.Nutrient;
-import app.nutrients.NutrientName;
-import app.nutrients.NutrientRepository;
 import app.user.User;
 import app.user.UserService;
 import app.util.exceptions.ProductNotFoundException;
@@ -17,12 +14,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+import static app.product.ProductMapper.mapToProductDto;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productsRepository;
     private final UserService userService;
-    private final NutrientRepository nutrientRepository;
 
     @Value("${api.products.url}")
     private String baseUrl;
@@ -44,7 +42,7 @@ public class ProductService {
 
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
             List<Product> products = user.getLastSearchedProducts();
-            return mapToProductDto(products);
+            return mapToProductsDtoList(products);
         }
 
         clearNotUsedProducts(user);
@@ -54,13 +52,12 @@ public class ProductService {
         String url = createUrl(id, key, lowerCasedQuery);
         ResponseDto response = getProductsResponseFromApi(url);
 
-        List<Product> products = getProducts(response, lowerCasedQuery, user);
-
+        List<Product> products = Product.parseProductsFromResponseDto(response, lowerCasedQuery, user);
 
         user.getLastSearchedProducts().addAll(products);
         productsRepository.saveAll(products);
 
-        return mapToProductDto(products);
+        return mapToProductsDtoList(products);
     }
 
     void clearNotUsedProducts(User user) {
@@ -74,7 +71,7 @@ public class ProductService {
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException("Product with id: " + id + " not found."));
 
-        return productMapper.mapToProductDto(product);
+        return mapToProductDto(product);
     }
 
     private ResponseDto getProductsResponseFromApi(String url) {
@@ -91,21 +88,9 @@ public class ProductService {
                 .toUriString();
     }
 
-    private List<ProductDto> mapToProductDto(List<Product> products) {
+    private List<ProductDto> mapToProductsDtoList(List<Product> products) {
         return products.stream()
-                .map(productMapper::mapToProductDto)
+                .map(ProductMapper::mapToProductDto)
                 .toList();
     }
-
-    private List<Product> getProducts(ResponseDto response, String lowerCasedQuery, User user) {
-        Nutrient protein = nutrientRepository.findByName(String.valueOf(NutrientName.PROTEIN))
-                .orElseThrow(() -> new RuntimeException("Nutrient not found"));
-        Nutrient carbohydrates = nutrientRepository.findByName(String.valueOf(NutrientName.CARBOHYDRATES))
-                .orElseThrow(() -> new RuntimeException("Nutrient not found"));
-        Nutrient fat = nutrientRepository.findByName(String.valueOf(NutrientName.FAT))
-                .orElseThrow(() -> new RuntimeException("Nutrient not found"));
-
-       return Product.parseProductsFromResponseDto(response, lowerCasedQuery, user, protein, carbohydrates, fat);
-    }
-
 }

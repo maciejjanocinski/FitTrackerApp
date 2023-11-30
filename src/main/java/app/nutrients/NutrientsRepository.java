@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface NutrientRepository extends JpaRepository<Nutrient, Long> {
-    Optional<Nutrient> findByName(String name);
+public interface NutrientsRepository extends JpaRepository<Nutrients, Long> {
 }

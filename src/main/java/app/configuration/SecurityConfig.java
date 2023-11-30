@@ -1,6 +1,7 @@
 package app.configuration;
 
 import app.authentication.Role;
+import app.authentication.RoleRepository;
 import app.util.RsaKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -41,7 +42,7 @@ import java.util.Map;
 public class SecurityConfig {
 
     private final RsaKeyProperties keys;
-
+    private final RoleRepository roleRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,6 +50,13 @@ public class SecurityConfig {
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
         encoderMap.put(idForEncode, new BCryptPasswordEncoder());
         return new DelegatingPasswordEncoder(idForEncode, encoderMap);
+    }
+
+    @Bean
+    public void addRoles() {
+        roleRepository.save(Role.builder().name(Role.roleType.ROLE_USER_STANDARD.toString()).build());
+        roleRepository.save(Role.builder().name(Role.roleType.ROLE_USER_PREMIUM.toString()).build());
+        roleRepository.save(Role.builder().name(Role.roleType.ROLE_ADMIN.toString()).build());
     }
 
     @Bean

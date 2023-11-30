@@ -1,9 +1,9 @@
 package app.product;
 
-import app.nutrients.Nutrient;
-import app.nutrients.NutrientsQuantity;
-import app.nutrients.ProductsNutrients;
+import app.diary.Diary;
+import app.nutrients.Nutrients;
 import app.user.User;
+import app.util.exceptions.InvalidInputException;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -13,8 +13,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static app.nutrients.NutrientsMapper.mapNutrientsValues;
 
 @Data
 @Entity
@@ -26,20 +29,25 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String productId;
-
     private String name;
 
-    private BigDecimal kcal;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Nutrients nutrients;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private ProductsNutrients productsNutrients;
+    @JsonManagedReference
+    private Measure currentlyUsedMeasure;
+
+    private BigDecimal quantity;
 
     private String image;
 
     private boolean isUsed;
 
     private String query;
+
+    @ManyToOne
+    private Diary diary;
 
     @OneToMany(
             cascade = CascadeType.ALL,
@@ -55,10 +63,7 @@ public class Product {
 
     static List<Product> parseProductsFromResponseDto(ResponseDto response,
                                                       String query,
-                                                      User user,
-                                                      Nutrient protein,
-                                                      Nutrient carbohydrates,
-                                                      Nutrient fat) {
+                                                      User user) {
         if (response == null) {
             return Collections.emptyList();
         }
@@ -72,26 +77,22 @@ public class Product {
             Product product = new Product();
             checkIfFieldsAreNotNullAndSetValues(
                     product,
-                    food.getFoodId(),
                     food.getLabel(),
                     food.getImage(),
                     query
             );
 
-            List<Measure> measures = hint.getMeasures().stream().map(measureDto -> Measure.builder()
-                    .name(measureDto.getLabel())
-                    .weight(measureDto.getWeight())
-                    .build())
+            List<Measure> measures = hint.getMeasures().stream()
+                    .map(ProductMapper::mapToMeasure)
                     .collect(Collectors.toList());
 
-            ProductsNutrients productsNutrients = createProductsNutrients(
-                    protein,
-                    carbohydrates,
-                    fat,
-                    nutrients
-            );
+            Nutrients nutrientsForProduct = createNutrients(nutrients);
 
-            product.setProductsNutrients(productsNutrients);
+            Measure usedMeasure = getMeasureForProduct(measures);
+
+            product.setCurrentlyUsedMeasure(usedMeasure);
+            product.setQuantity(BigDecimal.valueOf(100));
+            product.setNutrients(nutrientsForProduct);
             product.setUsed(false);
             product.setMeasures(measures);
             product.setUser(user);
@@ -100,32 +101,32 @@ public class Product {
         return products;
     }
 
-    private static ProductsNutrients createProductsNutrients(Nutrient protein, Nutrient carbohydrates, Nutrient fat, Map<String, BigDecimal> nutrients) {
-        NutrientsQuantity nutrientsQuantity = NutrientsQuantity.builder()
+    private static Nutrients createNutrients(Map<String, BigDecimal> nutrients) {
+        return Nutrients.builder()
                 .kcal(valueOrZero(nutrients.get("ENERC_KCAL")))
-                .proteinQuantity(valueOrZero(nutrients.get("PROCNT")))
-                .carbohydratesQuantity(valueOrZero(nutrients.get("CHOCDF")))
-                .fatQuantity(valueOrZero(nutrients.get("FAT")))
-                .fiber(valueOrZero(nutrients.get("FIBTG")))
-                .weightInGrams(BigDecimal.valueOf(100))
-                .build();
-
-        return ProductsNutrients.builder()
-                .protein(protein)
-                .carbohydrates(carbohydrates)
-                .fat(fat)
-                .nutrientsQuantity(nutrientsQuantity)
+                .proteinQuantityInGrams(valueOrZero(nutrients.get("PROCNT")))
+                .carbohydratesQuantityInGrams(valueOrZero(nutrients.get("CHOCDF")))
+                .fatQuantityInGrams(valueOrZero(nutrients.get("FAT")))
+                .fiberQuantityInGrams(valueOrZero(nutrients.get("FIBTG")))
                 .build();
     }
 
+    private static Measure getMeasureForProduct(List<Measure> measures) {
+        return measures.stream()
+                .filter(m -> m.getName().equals("Gram"))
+                .findFirst()
+                .or(() -> measures.stream()
+                        .filter(m -> m.getName().equals("Piece"))
+                        .findFirst()
+                ).orElseThrow(() -> new InvalidInputException("Measure not found"));
+    }
+
     private static void checkIfFieldsAreNotNullAndSetValues(Product product,
-                                                    String foodId,
-                                                    String label,
-                                                    String image,
-                                                    String query
+                                                            String label,
+                                                            String image,
+                                                            String query
     ) {
 
-        product.setProductId(valueOrEmpty(foodId));
         product.setName(valueOrEmpty(label));
         product.setImage(valueOrEmpty(image));
         product.setQuery(query);
@@ -137,6 +138,30 @@ public class Product {
 
     static String valueOrEmpty(String textValue) {
         return textValue == null ? "" : textValue;
+    }
+
+    public void editProductAmount(String measureLabel, BigDecimal newQuantity) {
+        Measure newMeasure = measures.stream()
+                .filter(m -> m.getName().equals(measureLabel))
+                .findFirst()
+                .orElseThrow(() -> new InvalidInputException("Measure not found"));
+        BigDecimal newKcalQuantity = nutrients.getKcal().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
+        BigDecimal newProteinQuantity = nutrients.getProteinQuantityInGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
+        BigDecimal newCarbohydratesQuantity = nutrients.getCarbohydratesQuantityInGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
+        BigDecimal newFatQuantity = nutrients.getFatQuantityInGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
+        BigDecimal newFiberQuantity = nutrients.getFiberQuantityInGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
+
+        Nutrients newNutrients = Nutrients.builder()
+                .kcal(newKcalQuantity)
+                .proteinQuantityInGrams(newProteinQuantity)
+                .carbohydratesQuantityInGrams(newCarbohydratesQuantity)
+                .fatQuantityInGrams(newFatQuantity)
+                .fiberQuantityInGrams(newFiberQuantity)
+                .build();
+
+        quantity = newQuantity;
+        currentlyUsedMeasure = newMeasure;
+        mapNutrientsValues(nutrients, newNutrients);
     }
 }
 
