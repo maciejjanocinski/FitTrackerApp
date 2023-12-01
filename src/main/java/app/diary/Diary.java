@@ -1,9 +1,7 @@
 package app.diary;
 
 import app.goal.GoalDto;
-import app.goal.GoalValues;
 import app.nutrients.Nutrients;
-import app.product.Measure;
 import app.product.Product;
 import app.util.exceptions.InvalidInputException;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -11,7 +9,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static app.nutrients.NutrientsMapper.mapNutrientsValues;
+import static app.nutrients.NutrientsMapper.mapNutrientsToNutrients;
 
 @Data
 @AllArgsConstructor
@@ -32,17 +29,18 @@ public class Diary {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long diaryId;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Nutrients nutrientsSum;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Nutrients nutrientsLeft;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Nutrients goalNutrients;
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "diary")
+    @OneToMany(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Product> products;
 
@@ -105,7 +103,7 @@ public class Diary {
     public Diary setGoal(GoalDto goalDto, Gender gender) {
         validateGoalDto(goalDto);
         Nutrients newGoalNutrients = countGoal(goalDto, gender);
-        mapNutrientsValues(goalNutrients, newGoalNutrients);
+        mapNutrientsToNutrients(goalNutrients, newGoalNutrients);
         calculateNutrientsLeft();
         calculateNutrientsSum();
         return this;
@@ -134,9 +132,9 @@ public class Diary {
     }
 
     public Diary() {
-        this.nutrientsSum = new Nutrients();
-        this.nutrientsLeft = new Nutrients();
-        this.goalNutrients = new Nutrients();
-        this.products = new ArrayList<>();
+        nutrientsSum = new Nutrients();
+        nutrientsLeft = new Nutrients();
+        goalNutrients = new Nutrients();
+        products = new ArrayList<>();
     }
 }

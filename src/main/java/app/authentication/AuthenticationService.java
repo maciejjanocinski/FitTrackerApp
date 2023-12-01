@@ -70,6 +70,4 @@ class AuthenticationService {
     private boolean checkIfPasswordsAreTheSame(String password, String confirmPassword) {
         return password.equals(confirmPassword);
     }
-
-
 }

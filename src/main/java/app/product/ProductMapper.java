@@ -1,7 +1,8 @@
 package app.product;
 
+import app.nutrients.Nutrients;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -25,24 +26,19 @@ public interface ProductMapper {
                 .currentlyUsedMeasure(product.getCurrentlyUsedMeasure().getName())
                 .quantity(product.getQuantity())
                 .image(product.getImage())
-                .isUsed(product.isUsed())
                 .query(product.getQuery())
                 .measures(product.getMeasures())
                 .build();
     }
 
-    @Mapping(target = "id", ignore = true)
-    static Product mapProductToProduct(Product product) {
-        return Product.builder()
-                .name(product.getName())
-                .nutrients(product.getNutrients())
-                .currentlyUsedMeasure(product.getCurrentlyUsedMeasure())
-                .quantity(product.getQuantity())
-                .image(product.getImage())
-                .isUsed(product.isUsed())
-                .query(product.getQuery())
-                .measures(mapToMeasureList(product.getMeasures()))
-                .build();
+    static void mapProductToProduct(Product newProduct, Product product) {
+        newProduct.setName(product.getName());
+        newProduct.setNutrients(mapNutrientsToNutrients(product.getNutrients(), newProduct));
+        newProduct.setCurrentlyUsedMeasure(product.getCurrentlyUsedMeasure());
+        newProduct.setQuantity(product.getQuantity());
+        newProduct.setImage(product.getImage());
+        newProduct.setQuery(product.getQuery());
+        newProduct.setMeasures(mapMeasureListToMeasureList(product.getMeasures(), newProduct));
     }
 
     static Measure mapMeasureToMeasure(Measure measure) {
@@ -52,17 +48,28 @@ public interface ProductMapper {
                 .build();
     }
 
-    static List<Measure> mapToMeasureList(List<Measure> measures) {
+    static List<Measure> mapMeasureListToMeasureList(List<Measure> measures, Product newProduct) {
         return measures.stream()
                 .map(ProductMapper::mapMeasureToMeasure)
                 .toList();
     }
 
-    static Measure mapToMeasure(MeasureDto measureDto) {
+    static Measure mapToMeasure(MeasureDto measureDto, Product newProduct) {
         return Measure.builder()
                 .name(measureDto.getLabel())
                 .weight(measureDto.getWeight())
+                .product(newProduct)
                 .build();
     }
 
+    static Nutrients mapNutrientsToNutrients(Nutrients nutrients, Product newProduct) {
+        return Nutrients.builder()
+                .kcal(nutrients.getKcal())
+                .proteinQuantityInGrams(nutrients.getProteinQuantityInGrams())
+                .fatQuantityInGrams(nutrients.getFatQuantityInGrams())
+                .carbohydratesQuantityInGrams(nutrients.getCarbohydratesQuantityInGrams())
+                .fiberQuantityInGrams(nutrients.getFiberQuantityInGrams())
+                .product(newProduct)
+                .build();
+    }
 }

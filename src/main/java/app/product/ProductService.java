@@ -31,7 +31,6 @@ public class ProductService {
     @Value("${api.products.id}")
     private String id;
 
-    private final ProductMapper productMapper;
 
     private final RestTemplate restTemplate = new RestTemplate();
 

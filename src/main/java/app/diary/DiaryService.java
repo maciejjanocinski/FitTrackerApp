@@ -2,7 +2,6 @@ package app.diary;
 
 import app.diary.dto.*;
 import app.product.ProductDto;
-import app.product.ProductMapper;
 import app.user.UserService;
 import app.util.exceptions.ProductNotFoundException;
 import app.product.Product;
@@ -14,8 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import static app.diary.DiaryMapper.mapDiaryToDiaryDto;
-import static app.product.ProductMapper.mapProductToProduct;
-import static app.product.ProductMapper.mapToProductDto;
+import static app.product.ProductMapper.*;
 import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;
 
 
@@ -26,7 +24,6 @@ class DiaryService {
 
     private final ProductRepository productsRepository;
     private final UserService userService;
-    private final DiaryMapper diaryMapper;
 
     public DiaryDto getDiary(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
@@ -45,14 +42,15 @@ class DiaryService {
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
-        Product newProduct = mapProductToProduct(product);
-        productsRepository.save(newProduct);
+        Product newProduct = new Product();
+        mapProductToProduct(newProduct, product);
 
-        newProduct.setUsed(true);
-        product.setUsed(true);
         newProduct.setDiary(diary);
+        newProduct.setUser(user);
         newProduct.editProductAmount(addProductDto.measureLabel(), addProductDto.quantity());
         diary.addProduct(newProduct);
+
+        productsRepository.save(newProduct);
         return mapToProductDto(newProduct);
     }
 
@@ -77,7 +75,6 @@ class DiaryService {
         Product product = productsRepository.findProductById(deleteProductDto.id())
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
-        product.setUsed(false);
         diary.removeProduct(product);
         return "Product deleted from diary successfully";
     }

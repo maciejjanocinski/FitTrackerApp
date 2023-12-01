@@ -14,10 +14,13 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import static app.nutrients.NutrientsMapper.mapNutrientsValues;
+import static app.nutrients.NutrientsMapper.mapNutrientsToNutrients;
+import static app.product.ProductMapper.mapToMeasure;
 
 @Data
 @Entity
@@ -31,10 +34,14 @@ public class Product {
 
     private String name;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            orphanRemoval = true)
+    @JsonManagedReference
     private Nutrients nutrients;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
     @JsonManagedReference
     private Measure currentlyUsedMeasure;
 
@@ -42,24 +49,24 @@ public class Product {
 
     private String image;
 
-    private boolean isUsed;
-
     private String query;
-
-    @ManyToOne
-    private Diary diary;
 
     @OneToMany(
             cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER
+            fetch = FetchType.EAGER,
+            mappedBy = "product"
     )
     @JsonManagedReference
     private List<Measure> measures;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
+
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "diary_id")
+    private Diary diary;
 
     static List<Product> parseProductsFromResponseDto(ResponseDto response,
                                                       String query,
@@ -83,17 +90,17 @@ public class Product {
             );
 
             List<Measure> measures = hint.getMeasures().stream()
-                    .map(ProductMapper::mapToMeasure)
-                    .collect(Collectors.toList());
+                    .map(measureDto -> mapToMeasure(measureDto, product))
+                    .toList();
 
             Nutrients nutrientsForProduct = createNutrients(nutrients);
+            nutrientsForProduct.setProduct(product);
 
             Measure usedMeasure = getMeasureForProduct(measures);
 
             product.setCurrentlyUsedMeasure(usedMeasure);
             product.setQuantity(BigDecimal.valueOf(100));
             product.setNutrients(nutrientsForProduct);
-            product.setUsed(false);
             product.setMeasures(measures);
             product.setUser(user);
             products.add(product);
@@ -161,7 +168,7 @@ public class Product {
 
         quantity = newQuantity;
         currentlyUsedMeasure = newMeasure;
-        mapNutrientsValues(nutrients, newNutrients);
+        mapNutrientsToNutrients(nutrients, newNutrients);
     }
 }
 

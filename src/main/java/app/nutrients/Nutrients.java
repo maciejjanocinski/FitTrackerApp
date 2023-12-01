@@ -1,6 +1,8 @@
 package app.nutrients;
 
 import app.diary.Diary;
+import app.product.Product;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +24,11 @@ public class Nutrients {
     private BigDecimal carbohydratesQuantityInGrams;
     private BigDecimal fatQuantityInGrams;
     private BigDecimal fiberQuantityInGrams;
+
+    @OneToOne
+    @JsonBackReference
+    private Product product;
+
     public Nutrients() {
         kcal = BigDecimal.ZERO;
         proteinQuantityInGrams = BigDecimal.ZERO;
