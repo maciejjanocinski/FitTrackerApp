@@ -72,10 +72,13 @@ class DiaryService {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
 
-        Product product = productsRepository.findProductById(deleteProductDto.id())
+        Product product =  diary.getProducts().stream()
+                .filter(p -> p.getId().equals(deleteProductDto.id()))
+                .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         diary.removeProduct(product);
+        productsRepository.delete(product);
         return "Product deleted from diary successfully";
     }
 }

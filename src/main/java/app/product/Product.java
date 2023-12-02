@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static app.nutrients.NutrientsMapper.mapNutrientsToNutrients;
-import static app.product.ProductMapper.mapToMeasure;
+import static app.product.ProductMapper.mapMeasureDtoToMeasure;
 
 @Data
 @Entity
@@ -40,10 +40,7 @@ public class Product {
     @JsonManagedReference
     private Nutrients nutrients;
 
-    @ManyToOne(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private Measure currentlyUsedMeasure;
+    private String currentlyUsedMeasureName;
 
     private BigDecimal quantity;
 
@@ -51,11 +48,10 @@ public class Product {
 
     private String query;
 
-    @OneToMany(
-            cascade = CascadeType.ALL,
+    @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
-            mappedBy = "product"
-    )
+            mappedBy = "product",
+            orphanRemoval = true)
     @JsonManagedReference
     private List<Measure> measures;
 
@@ -65,7 +61,7 @@ public class Product {
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "diary_id")
+    @JoinColumn(name = "diary")
     private Diary diary;
 
     static List<Product> parseProductsFromResponseDto(ResponseDto response,
@@ -90,15 +86,15 @@ public class Product {
             );
 
             List<Measure> measures = hint.getMeasures().stream()
-                    .map(measureDto -> mapToMeasure(measureDto, product))
+                    .map(measureDto -> mapMeasureDtoToMeasure(measureDto, product))
                     .toList();
 
             Nutrients nutrientsForProduct = createNutrients(nutrients);
             nutrientsForProduct.setProduct(product);
 
-            Measure usedMeasure = getMeasureForProduct(measures);
+            Measure usedMeasure = searchForMeasure(measures, "Gram");
 
-            product.setCurrentlyUsedMeasure(usedMeasure);
+            product.setCurrentlyUsedMeasureName(usedMeasure.getName());
             product.setQuantity(BigDecimal.valueOf(100));
             product.setNutrients(nutrientsForProduct);
             product.setMeasures(measures);
@@ -107,6 +103,7 @@ public class Product {
         }
         return products;
     }
+
 
     private static Nutrients createNutrients(Map<String, BigDecimal> nutrients) {
         return Nutrients.builder()
@@ -118,14 +115,11 @@ public class Product {
                 .build();
     }
 
-    private static Measure getMeasureForProduct(List<Measure> measures) {
+    private static Measure searchForMeasure(List<Measure> measures, String measureLabel) {
         return measures.stream()
-                .filter(m -> m.getName().equals("Gram"))
+                .filter(m -> m.getName().equals(measureLabel))
                 .findFirst()
-                .or(() -> measures.stream()
-                        .filter(m -> m.getName().equals("Piece"))
-                        .findFirst()
-                ).orElseThrow(() -> new InvalidInputException("Measure not found"));
+                .orElseThrow(() -> new InvalidInputException("Measure not found"));
     }
 
     private static void checkIfFieldsAreNotNullAndSetValues(Product product,
@@ -147,11 +141,10 @@ public class Product {
         return textValue == null ? "" : textValue;
     }
 
-    public void editProductAmount(String measureLabel, BigDecimal newQuantity) {
-        Measure newMeasure = measures.stream()
-                .filter(m -> m.getName().equals(measureLabel))
-                .findFirst()
-                .orElseThrow(() -> new InvalidInputException("Measure not found"));
+    public void editProductAmount(String newMeasureLabel, BigDecimal newQuantity) {
+        Measure newMeasure = searchForMeasure(measures, newMeasureLabel);
+        Measure currentlyUsedMeasure = searchForMeasure(measures, currentlyUsedMeasureName);
+
         BigDecimal newKcalQuantity = nutrients.getKcal().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
         BigDecimal newProteinQuantity = nutrients.getProteinQuantityInGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
         BigDecimal newCarbohydratesQuantity = nutrients.getCarbohydratesQuantityInGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
@@ -164,10 +157,11 @@ public class Product {
                 .carbohydratesQuantityInGrams(newCarbohydratesQuantity)
                 .fatQuantityInGrams(newFatQuantity)
                 .fiberQuantityInGrams(newFiberQuantity)
+                .product(this)
                 .build();
 
         quantity = newQuantity;
-        currentlyUsedMeasure = newMeasure;
+        currentlyUsedMeasureName = newMeasure.getName();
         mapNutrientsToNutrients(nutrients, newNutrients);
     }
 }

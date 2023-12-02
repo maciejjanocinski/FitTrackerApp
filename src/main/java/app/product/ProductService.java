@@ -40,7 +40,9 @@ public class ProductService {
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
-            List<Product> products = user.getLastSearchedProducts();
+            List<Product> products = user.getLastSearchedProducts().stream()
+                    .filter(p -> p.getDiary() == null)
+                    .toList();
             return mapToProductsDtoList(products);
         }
 
@@ -60,7 +62,12 @@ public class ProductService {
     }
 
     void clearNotUsedProducts(User user) {
-        user.getLastSearchedProducts().removeAll(user.getLastSearchedProducts());
+        List<Product> products = user.getLastSearchedProducts();
+        products.forEach(p ->{
+            p.getMeasures().clear();
+            p.setNutrients(null);
+        } );
+        user.getLastSearchedProducts().removeAll(products);
     }
 
     ProductDto getProductById(Authentication authentication, Long id) {

@@ -3,6 +3,7 @@ package app.diary;
 import app.goal.GoalDto;
 import app.nutrients.Nutrients;
 import app.product.Product;
+import app.recipe.Recipe;
 import app.util.exceptions.InvalidInputException;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -40,10 +41,16 @@ public class Diary {
 
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
+            fetch = FetchType.EAGER,
+            mappedBy = "diary")
     @JsonManagedReference
     private List<Product> products;
 
+    @OneToMany(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            mappedBy = "diary")
+    @JsonManagedReference
+    private List<Recipe> recipes;
 
     void addProduct(Product product) {
         products.add(product);

@@ -9,6 +9,7 @@ public interface NutrientsMapper {
         oldNutrients.setCarbohydratesQuantityInGrams(newNutrients.getCarbohydratesQuantityInGrams());
         oldNutrients.setFatQuantityInGrams(newNutrients.getFatQuantityInGrams());
         oldNutrients.setFiberQuantityInGrams(newNutrients.getFiberQuantityInGrams());
+        oldNutrients.setProduct(newNutrients.getProduct());
     }
 
 }

@@ -25,7 +25,7 @@ public class Nutrients {
     private BigDecimal fatQuantityInGrams;
     private BigDecimal fiberQuantityInGrams;
 
-    @OneToOne
+    @OneToOne(mappedBy = "nutrients", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     private Product product;
 

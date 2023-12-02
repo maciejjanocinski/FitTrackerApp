@@ -23,7 +23,7 @@ public interface ProductMapper {
                 .fat(product.getNutrients().getFatQuantityInGrams())
                 .carbohydrates(product.getNutrients().getCarbohydratesQuantityInGrams())
                 .fiber(product.getNutrients().getFiberQuantityInGrams())
-                .currentlyUsedMeasure(product.getCurrentlyUsedMeasure().getName())
+                .currentlyUsedMeasure(product.getCurrentlyUsedMeasureName())
                 .quantity(product.getQuantity())
                 .image(product.getImage())
                 .query(product.getQuery())
@@ -34,27 +34,30 @@ public interface ProductMapper {
     static void mapProductToProduct(Product newProduct, Product product) {
         newProduct.setName(product.getName());
         newProduct.setNutrients(mapNutrientsToNutrients(product.getNutrients(), newProduct));
-        newProduct.setCurrentlyUsedMeasure(product.getCurrentlyUsedMeasure());
+        newProduct.setCurrentlyUsedMeasureName(product.getCurrentlyUsedMeasureName());
         newProduct.setQuantity(product.getQuantity());
         newProduct.setImage(product.getImage());
         newProduct.setQuery(product.getQuery());
         newProduct.setMeasures(mapMeasureListToMeasureList(product.getMeasures(), newProduct));
     }
 
-    static Measure mapMeasureToMeasure(Measure measure) {
-        return Measure.builder()
-                .name(measure.getName())
-                .weight(measure.getWeight())
-                .build();
-    }
+
 
     static List<Measure> mapMeasureListToMeasureList(List<Measure> measures, Product newProduct) {
         return measures.stream()
-                .map(ProductMapper::mapMeasureToMeasure)
+                .map(measure -> mapMeasureToMeasure(measure, newProduct))
                 .toList();
     }
 
-    static Measure mapToMeasure(MeasureDto measureDto, Product newProduct) {
+    static Measure mapMeasureToMeasure(Measure measure, Product newProduct) {
+        return Measure.builder()
+                .name(measure.getName())
+                .weight(measure.getWeight())
+                .product(newProduct)
+                .build();
+    }
+
+    static Measure mapMeasureDtoToMeasure(MeasureDto measureDto, Product newProduct) {
         return Measure.builder()
                 .name(measureDto.getLabel())
                 .weight(measureDto.getWeight())
