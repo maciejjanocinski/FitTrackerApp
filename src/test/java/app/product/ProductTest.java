@@ -124,7 +124,7 @@
 //
 //
 //    private ResponseDTO buildResponseDto() {
-//        Map<String, BigDecimal> nutrients = Map.of(
+//        Map<String, BigDecimal> productsNutrients = Map.of(
 //                "ENERC_KCAL", BigDecimal.valueOf(150),
 //                "PROCNT", BigDecimal.valueOf(10),
 //                "FAT", BigDecimal.valueOf(5),
@@ -139,7 +139,7 @@
 //                .category("category")
 //                .categoryLabel("categoryLabel")
 //                .image("image")
-//                .nutrients(nutrients)
+//                .productsNutrients(productsNutrients)
 //                .build();
 //
 //        MeasureDTO measureGram = MeasureDTO.builder()

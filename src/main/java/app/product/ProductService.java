@@ -14,6 +14,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+import static app.product.ProductMapper.mapToProductDto;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -29,7 +31,6 @@ public class ProductService {
     @Value("${api.products.id}")
     private String id;
 
-    private final ProductMapper productMapper;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -39,8 +40,10 @@ public class ProductService {
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
-            List<Product> products = user.getLastSearchedProducts();
-            return mapToProductDto(products);
+            List<Product> products = user.getLastSearchedProducts().stream()
+                    .filter(p -> p.getDiary() == null)
+                    .toList();
+            return mapToProductsDtoList(products);
         }
 
         clearNotUsedProducts(user);
@@ -48,18 +51,23 @@ public class ProductService {
         productsRepository.deleteNotUsedProducts(user.getId());
 
         String url = createUrl(id, key, lowerCasedQuery);
-        ResponseDTO response = getProductsFromApi(url);
+        ResponseDto response = getProductsResponseFromApi(url);
 
         List<Product> products = Product.parseProductsFromResponseDto(response, lowerCasedQuery, user);
 
         user.getLastSearchedProducts().addAll(products);
         productsRepository.saveAll(products);
 
-        return mapToProductDto(products);
+        return mapToProductsDtoList(products);
     }
 
     void clearNotUsedProducts(User user) {
-        user.getLastSearchedProducts().removeAll(user.getLastSearchedProducts());
+        List<Product> products = user.getLastSearchedProducts();
+        products.forEach(p ->{
+            p.getMeasures().clear();
+            p.setNutrients(null);
+        } );
+        user.getLastSearchedProducts().removeAll(products);
     }
 
     ProductDto getProductById(Authentication authentication, Long id) {
@@ -69,11 +77,11 @@ public class ProductService {
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException("Product with id: " + id + " not found."));
 
-        return productMapper.mapToProductDto(product);
+        return mapToProductDto(product);
     }
 
-    private ResponseDTO getProductsFromApi(String url) {
-        ResponseEntity<ResponseDTO> responseEntity = restTemplate.getForEntity(url, ResponseDTO.class);
+    private ResponseDto getProductsResponseFromApi(String url) {
+        ResponseEntity<ResponseDto> responseEntity = restTemplate.getForEntity(url, ResponseDto.class);
         return responseEntity.getBody();
     }
 
@@ -86,11 +94,9 @@ public class ProductService {
                 .toUriString();
     }
 
-    private List<ProductDto> mapToProductDto(List<Product> products) {
+    private List<ProductDto> mapToProductsDtoList(List<Product> products) {
         return products.stream()
-                .map(productMapper::mapToProductDto)
+                .map(ProductMapper::mapToProductDto)
                 .toList();
     }
-
-
 }

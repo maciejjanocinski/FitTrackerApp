@@ -29,5 +29,4 @@ public class ProductController {
                               @PathVariable Long id) {
         return productsService.getProductById(authentication, id);
     }
-
 }

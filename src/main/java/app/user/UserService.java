@@ -5,7 +5,6 @@ import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
 import app.user.dto.UserDto;
-import app.util.validation.passwordValidation.PasswordValidator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -15,7 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static app.util.UtilityClass.userNotFoundMessage;
+import static app.util.Utils.USER_NOT_FOUND_MESSAGE;
 
 @Service
 @AllArgsConstructor
@@ -28,61 +27,52 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(userNotFoundMessage));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
     }
 
     UserDto getUser(Authentication authentication) {
-        User user = this.getUserByUsername(authentication.getName());
+        User user = getUserByUsername(authentication.getName());
         return userMapper.mapUserToUserDto(user);
     }
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(userNotFoundMessage));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
     }
 
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
-        this.getUserByUsername(authentication.getName()).updateUserProfile(updateProfileInfoDto);
+        getUserByUsername(authentication.getName()).updateUserProfile(updateProfileInfoDto);
         return "Changes has been successfully approved";
     }
 
     @Transactional
     public String updatePassword(Authentication authentication, UpdatePasswordDto password) {
-        User user = this.getUserByUsername(authentication.getName());
+        User user = getUserByUsername(authentication.getName());
 
-        if (password.newPassword().equals(password.confirmNewPassword()) &&
-                passwordEncoder.matches(password.oldPassword(), user.getPassword())) {
-
-            if (setPasswordWithValidation(password.newPassword())) {
+        if (passwordsAreTheSameAndMatchOldPassword(password, user.getPassword())) {
                 user.setPassword(passwordEncoder.encode(password.newPassword()));
                 return "Password has been successfully changed";
-            }
+
         } else if (!password.newPassword().equals(password.confirmNewPassword())) {
             throw new InvalidPasswordException("Passwords are not the same.");
         }
-
         throw new InvalidPasswordException("You have passed wrong password.");
     }
 
     String deleteProfile(Authentication authentication, DeleteUserDto deleteUserDto) {
-        User user = this.getUserByUsername(authentication.getName());
+        User user = getUserByUsername(authentication.getName());
 
-        if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword()) &&
-                deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
+        if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword())) {
             userRepository.delete(user);
             return "Profile with username \"" + user.getUsername() + "\" has been deleted.";
-        } else if (!deleteUserDto.password().equals(deleteUserDto.confirmPassword())) {
-            throw new InvalidPasswordException("Passwords are not the same.");
         }
 
         throw new InvalidPasswordException("You have passed wrong password.");
     }
 
-    boolean setPasswordWithValidation(String password) {
-        PasswordValidator passwordValidator = new PasswordValidator();
-        return passwordValidator.isValidSetterCheck(password);
+    boolean passwordsAreTheSameAndMatchOldPassword(UpdatePasswordDto passwordDto, String currentPassword) {
+        return passwordDto.newPassword().equals(passwordDto.confirmNewPassword()) &&
+                passwordEncoder.matches(passwordDto.oldPassword(), currentPassword);
     }
-
-
 }

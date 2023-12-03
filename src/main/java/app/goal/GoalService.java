@@ -21,14 +21,15 @@ public class GoalService {
         diary.calculateNutrientsLeft();
         diary.calculateNutrientsSum();
 
-        return goalMapper.mapToGoalResponseDto(diary);
+//        return goalMapper.mapToGoalResponseDto(diary);
+    return null;
     }
 
     @Transactional
     public GoalResponseDto setGoal(Authentication authentication, GoalDto goalDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary().setGoal(goalDto, user.getGender());
-        //TODO change gender type to enum
-        return goalMapper.mapToGoalResponseDto(diary);
+//        return goalMapper.mapToGoalResponseDto(diary);
+    return null;
     }
 }

@@ -1,7 +1,9 @@
 version: '3'
 services:
+
   database:
     image: mysql
+    container_name: mysql
     environment:
       MYSQL_DATABASE: FitTrackerApp
       MYSQL_ROOT_PASSWORD: root
@@ -9,30 +11,24 @@ services:
       - "33006:3306"
     volumes:
       - /c/Users/mjktb/OneDrive/Dokumenty/projects/FitTrackerApp/volumes/db:/var/lib/mysql
-    networks:
-        - "fittrackerapp"
 
   jenkins:
+    container_name: jenkins
     image: jenkins/jenkins:lts
     ports:
       - "9091:8080"
     volumes:
       - /c/Users/mjktb/OneDrive/Dokumenty/projects/FitTrackerApp/volumes/jenkins
-    networks:
-      - "fittrackerapp"
 
-  ngrok:
-    image: ngrok/ngrok:alpine
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin
     environment:
-      - NGROK_AUTHTOKEN=2YRnb0LMlzT5UddZr4RaX6MjZNm_5izX959vcKPaeHAAke6Rc
-    command: http host.docker.internal:9091
-    networks:
-      - "fittrackerapp"
+      - PMA_ARBITRARY=1
+    ports:
+      - "8082:80"
 
 
 volumes:
   mysql_data:
   jenkins_data:
-
-networks:
-  fittrackerapp:

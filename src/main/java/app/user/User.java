@@ -4,10 +4,8 @@ import app.authentication.Role;
 import app.diary.Diary;
 import app.diary.Gender;
 import app.product.Product;
-
 import app.recipe.Recipe;
 import app.user.dto.UpdateProfileInfoDto;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.UnexpectedTypeException;
@@ -24,9 +22,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -42,29 +40,14 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true)
-    @Size(min = 6, message = "Username must have at least 6 characters.")
-    @NotBlank(message = "Username cannot be blank.")
     private String username;
-
-    @NotEmpty(message = "You have to pass your name.")
-    @NotBlank(message = "Name cannot be blank.")
     private String name;
-
-    @NotEmpty(message = "You have to pass your surname.")
-    @NotBlank(message = "Surname cannot be blank.")
     private String surname;
-
     private Gender gender;
 
-    @Email(message = "Wrong email")
-    @NotEmpty(message = "You have to pass your email.")
-    @NotBlank(message = "Email cannot be blank.")
+    @Column(unique = true)
     private String email;
-
-    @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
-    @NotBlank(message = "Phone cannot be blank.")
     private String phone;
-
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -106,12 +89,12 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.password;
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
     @Override
@@ -151,4 +134,5 @@ public class User implements UserDetails {
         this.setPhone(updateProfileInfoDto.phone());
         this.setGender(User.setGenderFromString(updateProfileInfoDto.gender()));
     }
+
 }

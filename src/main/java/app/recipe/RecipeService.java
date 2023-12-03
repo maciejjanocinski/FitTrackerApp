@@ -56,7 +56,6 @@ public class RecipeService {
                     RecipeDto recipeDto = recipeAndLinkDto.getRecipe();
                     recipeDto.calculateNutrientsPerServing();
                     Recipe recipe = recipeMapper.mapToRecipe(recipeDto);
-                    recipe.setUsed(false);
                     recipe.setUser(user);
                     recipe.setQuery(lowerCasedQuery);
                     return recipe;
@@ -72,7 +71,7 @@ public class RecipeService {
         User user = userService.getUserByUsername(authentication.getName());
 
         for (Recipe recipe : user.getLastSearchedRecipes()) {
-            if (recipe.getId().equals(id) && recipe.isUsed()) {
+            if (recipe.getId().equals(id) && recipe.getDiary() != null) {
                 throw new RecipeAlreadyAddedException("Recipe already added");
             }
         }
@@ -80,14 +79,14 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-        recipe.setUsed(true);
+        recipe.setDiary(user.getDiary());
         return recipe;
     }
 
     public List<Recipe> getMyRecipes(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         return user.getLastSearchedRecipes().stream()
-                .filter(Recipe::isUsed)
+                .filter(r -> r.getDiary() != null)
                 .toList();
     }
 

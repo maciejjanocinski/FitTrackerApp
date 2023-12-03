@@ -1,10 +1,11 @@
 package app.product;
 
-import java.math.BigDecimal;
+import lombok.Builder;
 import java.util.List;
+import java.math.BigDecimal;
+@Builder
 public record ProductDto(
         Long id,
-        String productId,
         String name,
         BigDecimal kcal,
         BigDecimal protein,
@@ -12,6 +13,8 @@ public record ProductDto(
         BigDecimal carbohydrates,
         BigDecimal fiber,
         String image,
+        BigDecimal quantity,
+        String currentlyUsedMeasure,
         boolean isUsed,
         String query,
         List<Measure> measures

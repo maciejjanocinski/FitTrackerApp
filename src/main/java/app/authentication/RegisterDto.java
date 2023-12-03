@@ -11,7 +11,6 @@ import lombok.Builder;
 public record RegisterDto(
         @Size(min = 6, message = "Username must have at least 6 characters.")
         @Size(max = 20, message = "Username cannot have more than 20 characters.")
-        @Column(unique = true)
         String username,
 
         @ValidPassword
@@ -30,7 +29,6 @@ public record RegisterDto(
         String gender,
 
         @NotEmpty(message = "You have to pass your email.")
-        @Column(unique = true)
         @Email
         String email,
 

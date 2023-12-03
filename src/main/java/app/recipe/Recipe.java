@@ -1,8 +1,8 @@
 package app.recipe;
 
+import app.diary.Diary;
 import app.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,6 @@ public class Recipe {
     private double carbsPerServing;
     private double fatPerServing;
     private double fiberPerServing;
-    private boolean isUsed;
     private String query;
 
     @OneToMany(
@@ -44,8 +43,11 @@ public class Recipe {
     private List<IngredientLine> ingredientLines;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     @JsonBackReference
-    @JsonIgnore
     private User user;
+
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "diary")
+    private Diary diary;
 }

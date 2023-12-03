@@ -3,6 +3,7 @@ package app.authentication;
 import app.diary.Diary;
 import app.user.User;
 import app.user.UserRepository;
+import app.util.exceptions.InvalidInputException;
 import app.util.exceptions.InvalidPasswordException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,10 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.RoleInfoNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static app.util.UtilityClass.roleNotFoundMessage;
+import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @AllArgsConstructor
@@ -29,7 +31,7 @@ class AuthenticationService {
     RegisterDto register(RegisterDto registerDto) {
 
         Role role = roleRepository.findByName(Role.roleType.ROLE_USER_STANDARD.toString())
-                .orElseThrow(() -> new RuntimeException(roleNotFoundMessage));
+                .orElseThrow(() -> new InvalidInputException(ROLE_NOT_FOUND_MESSAGE));
 
         Set<Role> authorities = new HashSet<>();
         authorities.add(role);
@@ -68,6 +70,4 @@ class AuthenticationService {
     private boolean checkIfPasswordsAreTheSame(String password, String confirmPassword) {
         return password.equals(confirmPassword);
     }
-
-
 }

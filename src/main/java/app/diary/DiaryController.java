@@ -1,6 +1,7 @@
 package app.diary;
 
 import app.diary.dto.*;
+import app.product.ProductDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -22,14 +23,14 @@ class DiaryController {
     }
 
     @PostMapping("/product")
-    ProductInDiaryDto addProductToDiary(@CurrentSecurityContext(expression = "authentication")
+    ProductDto addProductToDiary(@CurrentSecurityContext(expression = "authentication")
                                                                   Authentication authentication,
-                                        @RequestBody AddProductToDiaryDto addProductDto) {
+                                 @RequestBody AddProductToDiaryDto addProductDto) {
         return diaryService.addProductToDiary(addProductDto, authentication);
     }
 
     @PatchMapping("/product")
-    ProductInDiaryDto editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
+    ProductDto editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
                                                                          Authentication authentication,
                                                @RequestBody EditProductInDiaryDto editProductDto) {
         return diaryService.editProductAmountInDiary(editProductDto, authentication);

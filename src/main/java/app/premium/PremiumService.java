@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import static app.util.UtilityClass.roleNotFoundMessage;
+import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class PremiumService {
     public String getPremium(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Role rolePremium = roleRepository.findByName(Role.roleType.ROLE_USER_PREMIUM.toString())
-                .orElseThrow(() -> new RuntimeException(roleNotFoundMessage));
+                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MESSAGE));
         user.addRole(rolePremium);
 
         return  tokenService.generateJwt(user.getAuthorities(), user.getUsername());
