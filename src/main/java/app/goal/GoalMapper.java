@@ -7,5 +7,14 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface GoalMapper {
-    GoalResponseDto mapToGoalResponseDto(Diary diary);
+
+    static GoalResponseDto mapToGoalResponseDto(Diary diary) {
+        return GoalResponseDto.builder()
+                .kcalGoal(diary.getGoalNutrients().getKcal())
+                .proteinInGram(diary.getGoalNutrients().getProteinQuantityInGrams())
+                .carbohydratesInGram(diary.getGoalNutrients().getCarbohydratesQuantityInGrams())
+                .fatInGram(diary.getGoalNutrients().getFatQuantityInGrams())
+                .fiberInGram(diary.getGoalNutrients().getFiberQuantityInGrams())
+                .build();
+    };
 }

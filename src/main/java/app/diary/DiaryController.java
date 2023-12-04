@@ -1,14 +1,17 @@
 package app.diary;
 
-import app.diary.dto.*;
+import app.diary.dto.AddProductToDiaryDto;
+import app.diary.dto.DeleteProductDto;
+import app.diary.dto.DiaryDto;
+import app.diary.dto.EditProductInDiaryDto;
 import app.product.ProductDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/diary")
