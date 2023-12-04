@@ -62,11 +62,11 @@ public class ProductService {
     }
 
     void clearNotUsedProducts(User user) {
-        List<Product> products = user.getLastSearchedProducts();
-        products.forEach(p ->{
+        List<Product> products = user.getLastSearchedProducts().stream().filter(p -> p.getDiary() == null).toList();
+        products.forEach(p -> {
             p.getMeasures().clear();
             p.setNutrients(null);
-        } );
+        });
         user.getLastSearchedProducts().removeAll(products);
     }
 

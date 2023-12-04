@@ -8,28 +8,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import static app.goal.GoalMapper.mapToGoalResponseDto;
+
 @Service
 @RequiredArgsConstructor
 public class GoalService {
 
     private final UserService userService;
-    private final GoalMapper goalMapper;
-
     GoalResponseDto getGoal(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         diary.calculateNutrientsLeft();
         diary.calculateNutrientsSum();
-
-//        return goalMapper.mapToGoalResponseDto(diary);
-    return null;
+        return mapToGoalResponseDto(diary);
     }
 
     @Transactional
     public GoalResponseDto setGoal(Authentication authentication, GoalDto goalDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary().setGoal(goalDto, user.getGender());
-//        return goalMapper.mapToGoalResponseDto(diary);
-    return null;
+        return mapToGoalResponseDto(diary);
     }
 }
