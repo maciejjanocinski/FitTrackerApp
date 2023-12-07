@@ -1,32 +1,45 @@
-package app.payment;
+package app.stripe;
 
-
+import app.user.User;
+import app.user.UserRepository;
+import app.user.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import io.swagger.v3.core.util.Json;
+import jakarta.transaction.Transactional;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
+import java.util.Objects;
+
 import static com.stripe.Stripe.apiKey;
 
-@RestController
 @RequiredArgsConstructor
-public class Server {
+@Service
+public class StripeService {
 
-    @PostMapping("/create-checkout-session")
-    public String createCheckoutSession() throws StripeException {
+    private final UserService userService;
+    private final UserRepository userRepository;
+    User user;
+    @Transactional
+    public String getChecoutSession(Authentication authentication) throws StripeException {
 
-
+        User user = userService.getUserByUsername(authentication.getName());
 
         String YOUR_DOMAIN = "http://localhost:4200";
         SessionCreateParams params =
@@ -44,17 +57,16 @@ public class Server {
 
                         .build();
         Session session = Session.create(params);
+        user.setStripeCheckoutSessionId(session.getId());
         return session.getUrl();
     }
 
-
-
-    @PostMapping("/create-customer-portal-session")
-    public String createBillingSession() throws JsonProcessingException {
+    public String getBillingSession(Authentication authentication) throws JsonProcessingException {
+        User user = userService.getUserByUsername(authentication.getName());
 
         String stripeApiUrl = "https://api.stripe.com/v1/billing_portal/sessions";
 
-        String customerId = "cus_P92uMFtsOeLxTR";
+        String customerId = user.getStripeCustomerId();
         String returnUrl = "http://localhost:4200";
 
         HttpHeaders headers = new HttpHeaders();
@@ -76,4 +88,43 @@ public class Server {
         }
     }
 
+    @PostMapping
+    @Transactional
+    public ResponseEntity<String> handleWebhookEvent(@RequestBody WebhookData webhookData) {
+        try {
+            if ("checkout.session.completed".equals(webhookData.getType())) {
+                String checkoutSessionId = webhookData.getData().getObject().getId();
+
+                List<User> users = userRepository.findAll();
+                user = users.stream().filter(u -> Objects.equals(u.getStripeCheckoutSessionId(), checkoutSessionId)).findFirst().get();
+                user.setStripeCustomerId(webhookData.getData().getObject().getCustomer());
+                return ResponseEntity.ok("Webhook processed successfully");
+            } else {
+                return ResponseEntity.ok("Webhook processed successfully");
+
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error processing webhook: " + e.getMessage());
+        }
+    }
+}
+
+@Data
+class WebhookData {
+    private String type;
+    private EventData data;
+}
+
+@Data
+class EventData {
+    private ObjectData object;
+
+}
+
+@Data
+class ObjectData {
+    private String id;
+    private String customer;
+    private String hosted_invoice_url;
+    private String invoice_pdf;
 }

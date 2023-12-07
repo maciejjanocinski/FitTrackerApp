@@ -49,6 +49,10 @@ public class User implements UserDetails {
     private String email;
     private String phone;
     private String password;
+    private String stripeCustomerId;
+    private String stripeCheckoutSessionId;
+    private String hostedInvoice;
+    private String invoicePdf;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
