@@ -32,7 +32,7 @@ public class TokenService {
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    public  String generateJwt(Collection<? extends GrantedAuthority> authorities, String username) {
+    public String generateJwt(Collection<? extends GrantedAuthority> authorities, String username) {
         String roles = concatRoles(authorities);
 
         JwtClaimsSet claims = JwtClaimsSet.builder()

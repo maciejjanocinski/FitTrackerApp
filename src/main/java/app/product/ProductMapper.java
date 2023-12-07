@@ -3,6 +3,7 @@ package app.product;
 import app.nutrients.Nutrients;
 import org.mapstruct.Mapper;
 
+import java.math.RoundingMode;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -18,11 +19,11 @@ public interface ProductMapper {
         return ProductDto.builder()
                 .id(product.getId())
                 .name(product.getName())
-                .kcal(product.getNutrients().getKcal())
-                .protein(product.getNutrients().getProteinQuantityInGrams())
-                .fat(product.getNutrients().getFatQuantityInGrams())
-                .carbohydrates(product.getNutrients().getCarbohydratesQuantityInGrams())
-                .fiber(product.getNutrients().getFiberQuantityInGrams())
+                .kcal(product.getNutrients().getKcal().setScale(1, RoundingMode.HALF_UP))
+                .protein(product.getNutrients().getProteinQuantityInGrams().setScale(1, RoundingMode.HALF_UP))
+                .fat(product.getNutrients().getFatQuantityInGrams().setScale(1, RoundingMode.HALF_UP))
+                .carbohydrates(product.getNutrients().getCarbohydratesQuantityInGrams().setScale(1, RoundingMode.HALF_UP))
+                .fiber(product.getNutrients().getFiberQuantityInGrams().setScale(1, RoundingMode.HALF_UP))
                 .currentlyUsedMeasure(product.getCurrentlyUsedMeasureName())
                 .quantity(product.getQuantity())
                 .image(product.getImage())
@@ -30,6 +31,7 @@ public interface ProductMapper {
                 .measures(product.getMeasures())
                 .build();
     }
+
 
     static void mapProductToProduct(Product newProduct, Product product) {
         newProduct.setName(product.getName());

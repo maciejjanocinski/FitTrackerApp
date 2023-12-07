@@ -11,7 +11,6 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
 import static app.diary.DiaryMapper.mapDiaryToDiaryDto;
 import static app.product.ProductMapper.*;
 import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;

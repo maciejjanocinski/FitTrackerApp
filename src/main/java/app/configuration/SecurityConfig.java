@@ -92,6 +92,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(
                                 mvcMatcherBuilder.pattern("/"),
+                                mvcMatcherBuilder.pattern("/create-checkout-session"),
+                                mvcMatcherBuilder.pattern("/create-customer-portal-session"),
                                 mvcMatcherBuilder.pattern("/auth/**"),
                                 mvcMatcherBuilder.pattern("/v3/api-docs/**"),
                                 mvcMatcherBuilder.pattern("swagger-ui/**")

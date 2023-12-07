@@ -4,6 +4,7 @@ import app.util.exceptions.InvalidPasswordException;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
+import app.authentication.TokenService;
 import app.user.dto.UserDto;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final TokenService tokenService;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
@@ -43,7 +45,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
         getUserByUsername(authentication.getName()).updateUserProfile(updateProfileInfoDto);
-        return "Changes has been successfully approved";
+        return tokenService.generateJwt(authentication.getAuthorities(), updateProfileInfoDto.username());
     }
 
     @Transactional
