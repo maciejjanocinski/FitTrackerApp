@@ -28,4 +28,9 @@ public class PremiumService {
 
         return  tokenService.generateJwt(user.getAuthorities(), user.getUsername());
     }
+
+    public String confirmCredentials(Authentication authentication) {
+        User user = userService.getUserByUsername(authentication.getName());
+        return  tokenService.generateJwt(user.getAuthorities(), user.getUsername());
+    }
 }

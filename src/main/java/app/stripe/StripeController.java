@@ -2,9 +2,7 @@ package app.stripe;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -24,7 +22,6 @@ public class StripeController {
                                         Authentication authentication) throws StripeException {
         return stripeService.getChecoutSession(authentication);
     }
-
 
     @GetMapping("/create-customer-portal-session")
     public String createBillingSession(@CurrentSecurityContext(expression = "authentication")

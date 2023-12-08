@@ -1,5 +1,7 @@
 package app.stripe;
 
+import app.authentication.Role;
+import app.authentication.RoleRepository;
 import app.user.User;
 import app.user.UserRepository;
 import app.user.UserService;
@@ -27,6 +29,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 import java.util.Objects;
 
+import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 import static com.stripe.Stripe.apiKey;
 
 @RequiredArgsConstructor
@@ -35,6 +38,8 @@ public class StripeService {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
     User user;
     @Transactional
     public String getChecoutSession(Authentication authentication) throws StripeException {
@@ -65,7 +70,6 @@ public class StripeService {
         User user = userService.getUserByUsername(authentication.getName());
 
         String stripeApiUrl = "https://api.stripe.com/v1/billing_portal/sessions";
-
         String customerId = user.getStripeCustomerId();
         String returnUrl = "http://localhost:4200";
 
@@ -77,7 +81,7 @@ public class StripeService {
                 .queryParam("return_url", returnUrl);
 
         HttpEntity<String> request = new HttpEntity<>(headers);
-        ResponseEntity<String> responseEntity = new RestTemplate().exchange(builder.toUriString(), HttpMethod.POST, request, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, request, String.class);
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -90,7 +94,7 @@ public class StripeService {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> handleWebhookEvent(@RequestBody WebhookData webhookData) {
+    public void handleWebhookEvent(@RequestBody WebhookData webhookData) {
         try {
             if ("checkout.session.completed".equals(webhookData.getType())) {
                 String checkoutSessionId = webhookData.getData().getObject().getId();
@@ -98,13 +102,22 @@ public class StripeService {
                 List<User> users = userRepository.findAll();
                 user = users.stream().filter(u -> Objects.equals(u.getStripeCheckoutSessionId(), checkoutSessionId)).findFirst().get();
                 user.setStripeCustomerId(webhookData.getData().getObject().getCustomer());
-                return ResponseEntity.ok("Webhook processed successfully");
-            } else {
-                return ResponseEntity.ok("Webhook processed successfully");
+                user.setStripeSubscriptionId(webhookData.getData().getObject().getSubscription());
+            } else if("customer.subscription.deleted".equals(webhookData.getType())){
+                List<User> users = userRepository.findAll();
+                String customerId = webhookData.getData().getObject().getCustomer();
 
+                user = users.stream().filter(u -> Objects.equals(u.getStripeCustomerId(), customerId)).findFirst().get();
+                user.setStripeCustomerId(null);
+                user.setStripeCheckoutSessionId(null);
+                user.setStripeSubscriptionId(null);
+
+                Role rolePremium = roleRepository.findByName(Role.roleType.ROLE_USER_PREMIUM.toString())
+                        .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MESSAGE));
+                user.removeRole(rolePremium);
             }
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error processing webhook: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }
@@ -125,6 +138,5 @@ class EventData {
 class ObjectData {
     private String id;
     private String customer;
-    private String hosted_invoice_url;
-    private String invoice_pdf;
+    private String subscription;
 }

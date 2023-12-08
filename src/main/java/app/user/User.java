@@ -51,8 +51,7 @@ public class User implements UserDetails {
     private String password;
     private String stripeCustomerId;
     private String stripeCheckoutSessionId;
-    private String hostedInvoice;
-    private String invoicePdf;
+    private String stripeSubscriptionId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
@@ -89,6 +88,9 @@ public class User implements UserDetails {
 
     public void addRole(Role role) {
         authorities.add(role);
+    }
+    public void removeRole(Role role) {
+        authorities.remove(role);
     }
 
     @Override
