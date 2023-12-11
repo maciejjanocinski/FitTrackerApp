@@ -1,7 +1,7 @@
 package app.recipe;
 
-import app.product.Product;
-import app.product.ProductDto;
+import static app.recipe.RecipeMapper.mapRecipeDtoToRecipeDtoList;
+import static app.recipe.RecipeMapper.mapToRecipeDto;
 import app.user.User;
 import app.user.UserService;
 import app.util.exceptions.RecipeAlreadyAddedException;
@@ -29,7 +29,6 @@ public class RecipeService {
 
     @Value("${api.recipes.id}")
     private String id;
-
     private final RecipeMapper recipeMapper;
 
     private final UserService userService;
@@ -41,7 +40,7 @@ public class RecipeService {
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastRecipeQuery() != null && user.getLastRecipeQuery().equals(lowerCasedQuery)) {
-            return  mapToRecipeDto(user.getLastSearchedRecipes());
+            return  mapRecipeDtoToRecipeDtoList(user.getLastSearchedRecipes());
         }
 
         clearNotUsedRecipes(user);
@@ -63,7 +62,7 @@ public class RecipeService {
                 .toList();
 
         recipeRepository.saveAll(recipes);
-        return mapToRecipeDto(recipes);
+        return mapRecipeDtoToRecipeDtoList(recipes);
     }
 
     @Transactional
@@ -115,11 +114,5 @@ public class RecipeService {
                 .queryParam("type", "public")
                 .queryParam("app_id", id)
                 .toUriString();
-    }
-
-    private List<RecipeDto> mapToRecipeDto(List<Recipe> recipes) {
-        return recipes.stream()
-                .map(recipeMapper::mapToRecipeDto)
-                .toList();
     }
 }
