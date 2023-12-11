@@ -52,7 +52,7 @@ public class Diary {
     @JsonManagedReference
     private List<Recipe> recipes;
 
-    void addProduct(Product product) {
+    public void addProduct(Product product) {
         products.add(product);
         calculateNutrientsLeft();
         calculateNutrientsSum();

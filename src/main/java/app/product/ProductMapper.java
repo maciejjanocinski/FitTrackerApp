@@ -1,15 +1,17 @@
 package app.product;
 
 import app.nutrients.Nutrients;
+import app.recipe.Recipe;
 import org.mapstruct.Mapper;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-   static List<ProductDto> mapToProductDtoList(List<Product> products) {
+    static List<ProductDto> mapToProductDtoList(List<Product> products) {
         return products.stream()
                 .map(ProductMapper::mapToProductDto)
                 .toList();
@@ -44,7 +46,6 @@ public interface ProductMapper {
     }
 
 
-
     static List<Measure> mapMeasureListToMeasureList(List<Measure> measures, Product newProduct) {
         return measures.stream()
                 .map(measure -> mapMeasureToMeasure(measure, newProduct))
@@ -77,4 +78,55 @@ public interface ProductMapper {
                 .product(newProduct)
                 .build();
     }
+
+    static Product mapRecipeToProduct(Recipe recipe) {
+        return Product.builder()
+                .name(recipe.getLabel())
+                .nutrients(Nutrients.builder()
+                        .kcal(recipe.getCaloriesPerServing())
+                        .proteinQuantityInGrams(recipe.getProteinPerServing())
+                        .fatQuantityInGrams(recipe.getCarbsPerServing())
+                        .carbohydratesQuantityInGrams(recipe.getFatPerServing())
+                        .fiberQuantityInGrams(recipe.getFiberPerServing())
+                        .build()
+                )
+                .currentlyUsedMeasureName("Portion")
+                .quantity(BigDecimal.ONE)
+                .image(recipe.getImage())
+                .query(recipe.getQuery())
+                .measures(List.of(Measure.builder()
+                        .name("Portion")
+                        .weight(BigDecimal.ONE)
+                        .build()))
+                .build();
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

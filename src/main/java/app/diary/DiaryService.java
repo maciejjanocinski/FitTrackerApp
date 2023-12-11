@@ -19,7 +19,7 @@ import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;
 @Service
 @AllArgsConstructor
 @Transactional
-class DiaryService {
+public class DiaryService {
 
     private final ProductRepository productsRepository;
     private final UserService userService;

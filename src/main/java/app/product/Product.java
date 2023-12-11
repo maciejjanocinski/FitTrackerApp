@@ -44,6 +44,7 @@ public class Product {
 
     private BigDecimal quantity;
 
+    @Column(columnDefinition = "TEXT")
     private String image;
 
     private String query;
