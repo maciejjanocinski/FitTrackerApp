@@ -96,7 +96,7 @@ public interface ProductMapper {
                 .query(recipe.getQuery())
                 .measures(List.of(Measure.builder()
                         .name("Portion")
-                        .weight(BigDecimal.ONE)
+                        .weight(BigDecimal.valueOf(100))
                         .build()))
                 .build();
 
