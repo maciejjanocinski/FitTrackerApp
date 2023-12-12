@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -28,11 +29,11 @@ public class Recipe {
     private String url;
     private int yield;
 
-    private double caloriesPerServing;
-    private double proteinPerServing;
-    private double carbsPerServing;
-    private double fatPerServing;
-    private double fiberPerServing;
+    private BigDecimal caloriesPerServing;
+    private BigDecimal proteinPerServing;
+    private BigDecimal carbsPerServing;
+    private BigDecimal fatPerServing;
+    private BigDecimal fiberPerServing;
     private String query;
 
     @OneToMany(

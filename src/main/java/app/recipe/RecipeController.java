@@ -1,5 +1,6 @@
 package app.recipe;
 
+import app.product.ProductDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,13 @@ public class RecipeController {
     }
 
     @PostMapping("/")
+    ProductDto addRecipeToDiary(@RequestBody AddRecipeToDiaryDto addProductToDiaryDto,
+                                @CurrentSecurityContext(expression = "authentication")
+                                 Authentication authentication) {
+        return RecipeService.addRecipeToDiary(addProductToDiaryDto, authentication);
+    }
+
+    @PostMapping("/favourites")
     Recipe addRecipeToFavourites(@RequestBody Long id,
                                  @CurrentSecurityContext(expression = "authentication")
                                  Authentication authentication) {

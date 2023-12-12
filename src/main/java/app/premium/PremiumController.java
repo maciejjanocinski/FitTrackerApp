@@ -20,4 +20,10 @@ public class PremiumController {
                       Authentication authentication) {
         return premiumService.getPremium(authentication);
     }
+
+    @GetMapping("/confirm-credentials")
+    String confirmCredentials(@CurrentSecurityContext(expression = "authentication")
+                      Authentication authentication) {
+        return premiumService.confirmCredentials(authentication);
+    }
 }

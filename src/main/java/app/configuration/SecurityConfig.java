@@ -94,7 +94,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 mvcMatcherBuilder.pattern("/"),
                                 mvcMatcherBuilder.pattern("/auth/**"),
                                 mvcMatcherBuilder.pattern("/v3/api-docs/**"),
-                                mvcMatcherBuilder.pattern("swagger-ui/**")
+                                mvcMatcherBuilder.pattern("swagger-ui/**"),
+                                mvcMatcherBuilder.pattern("/webhook")
                         ).permitAll()
                         .requestMatchers(mvcMatcherBuilder.pattern("/recipes/**")).hasAuthority(Role.roleType.ROLE_USER_PREMIUM.toString())
                         .anyRequest().authenticated()

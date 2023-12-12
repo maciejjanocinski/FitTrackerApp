@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -42,7 +43,7 @@ class IngredientLineDto {
 @Builder
  class Nutrient {
     private String label;
-    private double quantity;
+    private BigDecimal quantity;
     private String unit;
 }
 @Data

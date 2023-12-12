@@ -1,7 +1,14 @@
 package app.recipe;
 
+import static app.product.ProductMapper.mapRecipeToProduct;
+import static app.product.ProductMapper.mapToProductDto;
+import static app.recipe.RecipeMapper.mapRecipeDtoToRecipeDtoList;
+
+import app.diary.Diary;
+import app.diary.DiaryService;
 import app.product.Product;
 import app.product.ProductDto;
+import app.product.ProductRepository;
 import app.user.User;
 import app.user.UserService;
 import app.util.exceptions.RecipeAlreadyAddedException;
@@ -29,19 +36,19 @@ public class RecipeService {
 
     @Value("${api.recipes.id}")
     private String id;
-
     private final RecipeMapper recipeMapper;
 
     private final UserService userService;
 
     private final RecipeRepository recipeRepository;
+    private final ProductRepository productRepository;
 
     List<RecipeDto> searchRecipes(String query, Authentication authentication) {
         String lowerCasedQuery = query.toLowerCase();
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastRecipeQuery() != null && user.getLastRecipeQuery().equals(lowerCasedQuery)) {
-            return  mapToRecipeDto(user.getLastSearchedRecipes());
+            return  mapRecipeDtoToRecipeDtoList(user.getLastSearchedRecipes());
         }
 
         clearNotUsedRecipes(user);
@@ -63,8 +70,25 @@ public class RecipeService {
                 .toList();
 
         recipeRepository.saveAll(recipes);
-        return mapToRecipeDto(recipes);
+        return mapRecipeDtoToRecipeDtoList(recipes);
     }
+
+    public ProductDto addRecipeToDiary(AddRecipeToDiaryDto addProductToDiaryDto, Authentication authentication) {
+        User user = userService.getUserByUsername(authentication.getName());
+        Diary diary = user.getDiary();
+        Recipe recipe = recipeRepository.findByIdAndUser(addProductToDiaryDto.id(), user)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+
+        Product product = mapRecipeToProduct(recipe);
+
+        product.getMeasures().forEach(measure -> measure.setProduct(product));
+        product.setUser(user);
+        product.setDiary(diary);
+        diary.addProduct(product);
+        productRepository.save(product);
+        return mapToProductDto(product);
+    }
+
 
     @Transactional
     public Recipe addRecipeToFavourites(Long id, Authentication authentication) {
@@ -117,9 +141,5 @@ public class RecipeService {
                 .toUriString();
     }
 
-    private List<RecipeDto> mapToRecipeDto(List<Recipe> recipes) {
-        return recipes.stream()
-                .map(recipeMapper::mapToRecipeDto)
-                .toList();
-    }
+
 }

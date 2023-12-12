@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static app.product.ProductMapper.mapToProductDto;
@@ -30,8 +33,6 @@ public class ProductService {
 
     @Value("${api.products.id}")
     private String id;
-
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Transactional
@@ -54,6 +55,8 @@ public class ProductService {
         ResponseDto response = getProductsResponseFromApi(url);
 
         List<Product> products = Product.parseProductsFromResponseDto(response, lowerCasedQuery, user);
+        products.sort(Comparator.comparing(p -> p.getImage().length(), Comparator.reverseOrder()));
+        setImagesToAllEmptyProducts(products);
 
         user.getLastSearchedProducts().addAll(products);
         productsRepository.saveAll(products);
@@ -98,5 +101,12 @@ public class ProductService {
         return products.stream()
                 .map(ProductMapper::mapToProductDto)
                 .toList();
+    }
+
+    private void setImagesToAllEmptyProducts(List<Product> products) {
+        String image = products.get(0).getImage();
+        products.stream().filter(p -> p.getImage().isEmpty()).forEach(p -> {
+            p.setImage(image);
+        });
     }
 }
