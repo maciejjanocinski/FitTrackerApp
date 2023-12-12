@@ -37,3 +37,12 @@ api:
     url: "https://api.edamam.com/api/recipes/v2"
     key: "ee6c03e03b5649f47cc9d7eadd5a3183"
     id: "f8e22404"
+
+frontend:
+  url: "http://localhost:4200"
+
+stripe:
+  apiKey: "sk_test_51OKQhgKu0TQyqhCeJYJ8H0kYLChtXsf3QgEBEYUdK18PTX2i9kewxffKovuAzFRS2MnfFXSZhCJN33542quMpIod00Jd57EvIT"
+  price: "price_1OKhrLKu0TQyqhCeOQx8KRd4"
+  api:
+    url: "https://api.stripe.com/v1/billing_portal/sessions"

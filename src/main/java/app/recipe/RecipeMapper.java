@@ -9,7 +9,9 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface RecipeMapper {
 
+    @Mapping(target = "diary", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "id", ignore = true)
     Recipe mapToRecipe(RecipeDto recipeRequestDto);
 
 
