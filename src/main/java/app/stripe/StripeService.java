@@ -44,12 +44,12 @@ public class StripeService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final RestTemplate restTemplate = new RestTemplate();
-    ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    @Value("${stripe.apiKey}")
+    @Value("${stripe.api.key}")
     private String stripeApiKey;
 
     @Value("${stripe.api.url}")

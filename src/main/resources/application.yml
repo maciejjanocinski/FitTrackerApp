@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/FitTrackerApp
-    username: root
-    password: root
+    url: ${DB_URL}  #jdbc:mysql://localhost:3306/FitTrackerApp
+    username: ${DB_USERNAME} #root
+    password: ${DB_PASSWORD} #root
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -27,22 +27,25 @@ logging:
 server:
   port: 8081
 
+
+
+
 api:
   products:
-    url: "https://api.edamam.com/api/food-database/v2/parser"
-    key: "919ca3a0f24fe88e3f071676227e522b"
-    id: "74461f79"
+    url: ${PRODUCTS_API_URL} #"https://api.edamam.com/api/food-database/v2/parser"
+    key: ${PRODUCTS_API_KEY} #"919ca3a0f24fe88e3f071676227e522b"
+    id: ${PRODUCTS_API_ID} #"74461f79"
 
   recipes:
-    url: "https://api.edamam.com/api/recipes/v2"
-    key: "ee6c03e03b5649f47cc9d7eadd5a3183"
-    id: "f8e22404"
+    url: ${RECIPES_API_URL} #"https://api.edamam.com/api/recipes/v2"
+    key: ${RECIPES_API_KEY} #"ee6c03e03b5649f47cc9d7eadd5a3183"
+    id: ${RECIPES_API_ID} #"f8e22404"
 
 frontend:
-  url: "http://localhost:4200"
+  url: ${FRONTEND_URL} #"http://localhost:4200"
 
 stripe:
-  apiKey: "sk_test_51OKQhgKu0TQyqhCeJYJ8H0kYLChtXsf3QgEBEYUdK18PTX2i9kewxffKovuAzFRS2MnfFXSZhCJN33542quMpIod00Jd57EvIT"
-  price: "price_1OKhrLKu0TQyqhCeOQx8KRd4"
+  price: ${STRIPE_API_KEY} #"price_1OKhrLKu0TQyqhCeOQx8KRd4"
   api:
-    url: "https://api.stripe.com/v1/billing_portal/sessions"
+    key: ${STRIPE_API_KEY} #"sk_test_51OKQhgKu0TQyqhCeJYJ8H0kYLChtXsf3QgEBEYUdK18PTX2i9kewxffKovuAzFRS2MnfFXSZhCJN33542quMpIod00Jd57EvIT"
+    url: ${STRIPE_BILLING_PORTAL_API_URL} #"https://api.stripe.com/v1/billing_portal/sessions"
