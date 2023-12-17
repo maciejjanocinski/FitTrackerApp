@@ -1,15 +1,15 @@
 package app.workout;
 
+import app.activity.Activity;
+import app.diary.Diary;
 import app.user.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Duration;
 import java.util.Date;
 
 
@@ -20,16 +20,19 @@ import java.util.Date;
 @NoArgsConstructor
 public class Workout {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String activityId;
     private String workoutType;
     private String description;
     private Double kcalBurned;
-    private Duration duration;
+    private Double durationInMinutes;
     private int intensityLevel;
     private Date date;
 
     @ManyToOne
-    private User user;
+    @JsonBackReference
+    private Diary diary;
 
 
     static Workout generateNewCustomWorkout(AddCustomWorkoutDto addCustomWorkoutDto) {
@@ -37,12 +40,22 @@ public class Workout {
                 .workoutType(addCustomWorkoutDto.workoutType())
                 .description(addCustomWorkoutDto.description())
                 .kcalBurned(addCustomWorkoutDto.kcalBurned())
-                .duration(addCustomWorkoutDto.duration())
+                .durationInMinutes(addCustomWorkoutDto.durationInMinutes())
                 .date(new Date())
                 .build();
     }
 
-
+    static Workout generateNewWorkout(AddWorkoutDto addWorkoutDto, Activity activity, Double burnedCalorie) {
+        return Workout.builder()
+                .activityId(activity.getId())
+                .workoutType(activity.getActivity())
+                .description(activity.getDescription())
+                .kcalBurned(burnedCalorie)
+                .durationInMinutes(addWorkoutDto.activitymin())
+                .intensityLevel(activity.getIntensityLevel())
+                .date(new Date())
+                .build();
+    }
 
 
 

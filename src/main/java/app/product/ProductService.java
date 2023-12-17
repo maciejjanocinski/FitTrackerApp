@@ -78,7 +78,7 @@ public class ProductService {
         Product product = user.getLastSearchedProducts().stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new ProductNotFoundException("Product with id: " + id + " not found."));
+                .orElseThrow(() -> new ProductNotFoundException("Product with activityid: " + id + " not found."));
 
         return mapToProductDto(product);
     }

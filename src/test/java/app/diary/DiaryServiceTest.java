@@ -121,9 +121,9 @@
 //
 //        when(authentication.getName()).thenReturn(USERNAME);
 //        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
-//        when(productsInDiaryRepository.findById(editProductInDiaryDto.id()))
+//        when(productsInDiaryRepository.findById(editProductInDiaryDto.activityid()))
 //                .thenReturn(Optional.of(productInDiary));
-//        when(productsRepository.findProductById(editProductInDiaryDto.id()))
+//        when(productsRepository.findProductById(editProductInDiaryDto.activityid()))
 //                .thenReturn(Optional.of(product));
 //        when(this.productInDiaryMapper.mapToProductInDiaryDto(any()))
 //                .thenReturn(buildProductInDiaryDto());
@@ -136,7 +136,7 @@
 //
 //        verify(authentication).getName();
 //        verify(userService).getUserByUsername(USERNAME);
-//        verify(productsInDiaryRepository).findById(editProductInDiaryDto.id());
+//        verify(productsInDiaryRepository).findById(editProductInDiaryDto.activityid());
 //        verify(this.productInDiaryMapper).mapToProductInDiary(any(), any());
 //        verify(diary).calculateNutrientsLeft();
 //        verify(diary).calculateNutrientsSum();
@@ -152,7 +152,7 @@
 //
 //        when(authentication.getName()).thenReturn(USERNAME);
 //        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
-//        when(productsInDiaryRepository.findById(editProductInDiaryDto.id()))
+//        when(productsInDiaryRepository.findById(editProductInDiaryDto.activityid()))
 //                .thenReturn(Optional.empty());
 //
 //        //when
@@ -164,7 +164,7 @@
 //
 //        verify(authentication).getName();
 //        verify(userService).getUserByUsername(USERNAME);
-//        verify(productsInDiaryRepository).findById(editProductInDiaryDto.id());
+//        verify(productsInDiaryRepository).findById(editProductInDiaryDto.activityid());
 //        verify(productsRepository, never()).findProductById(productInDiary.getId());
 //        verify(this.productInDiaryMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
 //        verify(diary, never()).calculateNutrientsLeft();
@@ -181,7 +181,7 @@
 //
 //        when(authentication.getName()).thenReturn(USERNAME);
 //        when(userService.getUserByUsername(USERNAME)).thenReturn(user);
-//        when(productsInDiaryRepository.findById(editProductInDiaryDto.id()))
+//        when(productsInDiaryRepository.findById(editProductInDiaryDto.activityid()))
 //                .thenReturn(Optional.of(productInDiary));
 //        when(productsRepository.findProductById(productInDiary.getId()))
 //                .thenReturn(Optional.empty());
@@ -195,7 +195,7 @@
 //
 //        verify(authentication).getName();
 //        verify(userService).getUserByUsername(USERNAME);
-//        verify(productsInDiaryRepository).findById(editProductInDiaryDto.id());
+//        verify(productsInDiaryRepository).findById(editProductInDiaryDto.activityid());
 //        verify(productsRepository).findProductById(productInDiary.getId());
 //        verify(this.productInDiaryMapper, never()).mapToProductInDiary(any(ProductInDiary.class), any(ProductInDiary.class));
 //        verify(diary, never()).calculateNutrientsLeft();
@@ -329,7 +329,7 @@
 //
 //    private ProductInDiary buildProductInDiary() {
 //        return ProductInDiary.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .productId("foodId")
 //                .productName("name")
 //                .kcal(BigDecimal.valueOf(100))
@@ -345,9 +345,9 @@
 //    }
 //
 //
-//    private Product buildProduct(Long id) {
+//    private Product buildProduct(Long activityid) {
 //        return Product.builder()
-//                .id(id)
+//                .activityid(activityid)
 //                .productId("foodId")
 //                .name("name")
 //                .kcal(BigDecimal.valueOf(100))
@@ -365,9 +365,9 @@
 //                .build();
 //    }
 //
-//    private AddProductToDiaryDto buildAddProductToDiaryDto(Long id) {
+//    private AddProductToDiaryDto buildAddProductToDiaryDto(Long activityid) {
 //        return AddProductToDiaryDto.builder()
-//                .id(id)
+//                .activityid(activityid)
 //                .measureLabel("measureLabel")
 //                .quantity(BigDecimal.valueOf(100))
 //                .build();
@@ -375,7 +375,7 @@
 //
 //    private EditProductInDiaryDto buildEditProductInDiaryDto() {
 //        return EditProductInDiaryDto.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .measureLabel("measureLabel")
 //                .quantity(BigDecimal.valueOf(100))
 //                .build();
@@ -383,7 +383,7 @@
 //
 //    private DeleteProductDto buildDeleteProductDto() {
 //        return DeleteProductDto.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .build();
 //    }
 //

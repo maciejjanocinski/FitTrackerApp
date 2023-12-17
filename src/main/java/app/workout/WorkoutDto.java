@@ -1,14 +1,14 @@
 package app.workout;
 
-import java.time.Duration;
 import java.util.Date;
 
 public record WorkoutDto(
          Long id,
+         String activityId,
          String workoutType,
-         String descritpion,
+         String description,
          Double kcalBurned,
-         Duration duration,
+         Double durationInMinutes,
          int intensityLevel,
          Date date
  ) {}

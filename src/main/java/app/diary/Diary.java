@@ -5,6 +5,7 @@ import app.nutrients.Nutrients;
 import app.product.Product;
 import app.recipe.Recipe;
 import app.util.exceptions.InvalidInputException;
+import app.workout.Workout;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -51,6 +52,11 @@ public class Diary {
             mappedBy = "diary")
     @JsonManagedReference
     private List<Recipe> recipes;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "diary")
+    @JsonManagedReference
+    private List<Workout> workouts;
+
 
     public void addProduct(Product product) {
         products.add(product);

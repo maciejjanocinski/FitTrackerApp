@@ -41,10 +41,14 @@ api:
     key: ${RECIPES_API_KEY} #"ee6c03e03b5649f47cc9d7eadd5a3183"
     id: ${RECIPES_API_ID} #"f8e22404"
 
-  workouts:
+  activities:
     url: "https://fitness-calculator.p.rapidapi.com/activities"
     key: "aa1b080260mshd8f566c12a89594p1ba130jsna4f57523640c"
     host: "fitness-calculator.p.rapidapi.com"
+
+  burnedCalories:
+    url: 'https://fitness-calculator.p.rapidapi.com/burnedcalorie'
+
 
 frontend:
   url: ${FRONTEND_URL} #"http://localhost:4200"

@@ -1,6 +1,5 @@
 package app;
 
-import com.stripe.Stripe;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,4 +9,6 @@ public class FitTrackerAppApplication {
     public static void main(String[] args) {
         SpringApplication.run(FitTrackerAppApplication.class, args);
     }
+
+
 }

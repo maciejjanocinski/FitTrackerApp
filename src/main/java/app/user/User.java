@@ -76,8 +76,7 @@ public class User implements UserDetails {
     private String lastProductQuery;
     private String lastRecipeQuery;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Workout> workouts;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

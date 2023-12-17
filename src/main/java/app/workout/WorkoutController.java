@@ -4,10 +4,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @AllArgsConstructor
@@ -19,22 +17,25 @@ public class WorkoutController {
     private final WorkoutService workoutService;
 
     @GetMapping("/")
-    List<WorkoutDto> getWorkouts(@CurrentSecurityContext(expression = "authentication")
-                                 Authentication authentication) {
+    List<WorkoutDto> getMyWorkouts(@CurrentSecurityContext(expression = "authentication")
+                                   Authentication authentication) {
         return workoutService.getWorkouts(authentication);
     }
 
-    @PostMapping("/")
+    @PostMapping("/custom")
     WorkoutDto addCustomWorkout(@CurrentSecurityContext(expression = "authentication")
-                                 Authentication authentication,
-                                      AddCustomWorkoutDto addCustomWorkoutDto
-                                ) {
+                                Authentication authentication,
+                                @RequestBody AddCustomWorkoutDto addCustomWorkoutDto
+    ) {
         return workoutService.addCustomWorkout(authentication, addCustomWorkoutDto);
     }
 
-    @GetMapping("/api")
-    WorkoutApiResponse getWorkoutApiResponse() {
-        return workoutService.getWorkoutApiResponse();
+    @PostMapping("/")
+    Object addWorkout(@CurrentSecurityContext(expression = "authentication")
+                      Authentication authentication,
+                      @RequestBody AddWorkoutDto addWorkoutDto
+    ) {
+        return workoutService.addWorkout(authentication, addWorkoutDto);
     }
 
 }
