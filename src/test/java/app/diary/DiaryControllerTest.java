@@ -264,9 +264,9 @@
 //                .build();
 //    }
 //
-//    private ProductInDiaryDto buildProductInDiaryDto(String id) {
+//    private ProductInDiaryDto buildProductInDiaryDto(String activityid) {
 //        return ProductInDiaryDto.builder()
-//                .productId(id)
+//                .productId(activityid)
 //                .productName("bread")
 //                .kcal(200)
 //                .protein(1212)
@@ -282,7 +282,7 @@
 //
 //    private AddProductToDiaryDto buildAddProductInDiaryDto() {
 //        return AddProductToDiaryDto.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .measureLabel("g")
 //                .quantity(BigDecimal.valueOf(100))
 //                .build();
@@ -290,7 +290,7 @@
 //
 //    private DeleteProductDto buildDeleteProductDto() {
 //        return DeleteProductDto.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .build();
 //    }
 //}

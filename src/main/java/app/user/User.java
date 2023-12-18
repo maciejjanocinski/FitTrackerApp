@@ -6,6 +6,7 @@ import app.diary.Gender;
 import app.product.Product;
 import app.recipe.Recipe;
 import app.user.dto.UpdateProfileInfoDto;
+import app.workout.Workout;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.UnexpectedTypeException;
@@ -74,6 +75,8 @@ public class User implements UserDetails {
 
     private String lastProductQuery;
     private String lastRecipeQuery;
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

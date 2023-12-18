@@ -164,7 +164,7 @@
 //
 //    private AddProductToDiaryDto buildAddProductToDiaryDto() {
 //        return AddProductToDiaryDto.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .measureLabel("Gram")
 //                .quantity(BigDecimal.valueOf(1))
 //                .build();
@@ -172,7 +172,7 @@
 //
 //    private EditProductInDiaryDto buildEditProductInDiaryDto() {
 //        return EditProductInDiaryDto.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .measureLabel("Gram")
 //                .quantity(BigDecimal.valueOf(200))
 //                .build();
@@ -180,7 +180,7 @@
 //
 //    private DeleteProductDto buildDeleteProductDto() {
 //        return DeleteProductDto.builder()
-//                .id(1L)
+//                .activityid(1L)
 //                .build();
 //    }
 //
