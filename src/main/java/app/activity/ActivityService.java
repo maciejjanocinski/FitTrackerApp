@@ -1,6 +1,5 @@
 package app.activity;
 
-import app.recipe.RecipeDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

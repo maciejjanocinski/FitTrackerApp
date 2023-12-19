@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -25,13 +27,14 @@ public class Workout {
     private String activityId;
     private String workoutType;
     private String description;
-    private Double kcalBurned;
+    private BigDecimal kcalBurned;
     private Double durationInMinutes;
     private int intensityLevel;
-    private Date date;
+    private LocalDate date;
 
     @ManyToOne
     @JsonBackReference
+    @JoinColumn(name = "diary_id")
     private Diary diary;
 
 
@@ -41,11 +44,11 @@ public class Workout {
                 .description(addCustomWorkoutDto.description())
                 .kcalBurned(addCustomWorkoutDto.kcalBurned())
                 .durationInMinutes(addCustomWorkoutDto.durationInMinutes())
-                .date(new Date())
+                .date(LocalDate.now())
                 .build();
     }
 
-    static Workout generateNewWorkout(AddWorkoutDto addWorkoutDto, Activity activity, Double burnedCalorie) {
+    static Workout generateNewWorkout(AddWorkoutDto addWorkoutDto, Activity activity, BigDecimal burnedCalorie) {
         return Workout.builder()
                 .activityId(activity.getId())
                 .workoutType(activity.getActivity())
@@ -53,7 +56,7 @@ public class Workout {
                 .kcalBurned(burnedCalorie)
                 .durationInMinutes(addWorkoutDto.activitymin())
                 .intensityLevel(activity.getIntensityLevel())
-                .date(new Date())
+                .date(LocalDate.now())
                 .build();
     }
 

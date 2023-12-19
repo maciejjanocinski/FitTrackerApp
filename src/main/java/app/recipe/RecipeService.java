@@ -48,7 +48,7 @@ public class RecipeService {
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastRecipeQuery() != null && user.getLastRecipeQuery().equals(lowerCasedQuery)) {
-            return  mapRecipeDtoToRecipeDtoList(user.getLastSearchedRecipes());
+            return mapRecipeDtoToRecipeDtoList(user.getLastSearchedRecipes());
         }
 
         clearNotUsedRecipes(user);
@@ -93,7 +93,7 @@ public class RecipeService {
     @Transactional
     public Recipe addRecipeToFavourites(Long id, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
-
+        Diary diary = user.getDiary();
         for (Recipe recipe : user.getLastSearchedRecipes()) {
             if (recipe.getId().equals(id) && recipe.getDiary() != null) {
                 throw new RecipeAlreadyAddedException("Recipe already added");
@@ -103,7 +103,8 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-        recipe.setDiary(user.getDiary());
+        diary.getRecipes().add(recipe);
+        recipe.setDiary(diary);
         return recipe;
     }
 

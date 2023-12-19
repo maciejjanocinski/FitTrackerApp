@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static app.user.UserMapper.mapUserToUserDto;
 import static app.util.Utils.USER_NOT_FOUND_MESSAGE;
 
 @Service
@@ -34,7 +35,7 @@ public class UserService implements UserDetailsService {
 
     UserDto getUser(Authentication authentication) {
         User user = getUserByUsername(authentication.getName());
-        return userMapper.mapUserToUserDto(user);
+        return mapUserToUserDto(user);
     }
 
     public User getUserByUsername(String username) {
@@ -67,7 +68,7 @@ public class UserService implements UserDetailsService {
 
         if (passwordEncoder.matches(deleteUserDto.password(), user.getPassword())) {
             userRepository.delete(user);
-            return "Profile with username \"" + user.getUsername() + "\" has been deleted.";
+            return "Profile with name \"" + user.getUsername() + "\" has been deleted.";
         }
 
         throw new InvalidPasswordException("You have passed wrong password.");

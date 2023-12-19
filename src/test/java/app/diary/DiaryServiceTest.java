@@ -306,7 +306,7 @@
 //
 //    private User buildUser() {
 //        return User.builder()
-//                .username(USERNAME)
+//                .name(USERNAME)
 //                .diary(diary)
 //                .lastSearchedProducts(List.of(buildProduct(1L)))
 //                .build();

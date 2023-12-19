@@ -77,10 +77,10 @@
 //                .andDo(print());
 //
 //        //then
-//        Optional<User> actualUser = userRepository.findByUsername(registerDto.username());
+//        Optional<User> actualUser = userRepository.findByUsername(registerDto.name());
 //
 //        assertTrue(actualUser.isPresent());
-//        assertEquals(actualUser.get().getUsername(), registerDto.username());
+//        assertEquals(actualUser.get().getUsername(), registerDto.name());
 //    }
 //
 //    @Test
@@ -100,20 +100,20 @@
 //                .andExpect(content().contentType(parseMediaType("text/plain;charset=UTF-8")))
 //                .andDo(print());
 //
-//        Optional<User> actualUser = userRepository.findByUsername(loginDto.username());
+//        Optional<User> actualUser = userRepository.findByUsername(loginDto.name());
 //
 //        assertTrue(actualUser.isPresent());
-//        assertEquals(actualUser.get().getUsername(), loginDto.username());
+//        assertEquals(actualUser.get().getUsername(), loginDto.name());
 //        assertEquals(jwtDecoder.decode(resultActions
 //                        .andReturn()
 //                        .getResponse()
 //                        .getContentAsString())
-//                .getSubject(), loginDto.username()); //validate token
+//                .getSubject(), loginDto.name()); //validate token
 //    }
 //
 //    private RegisterDto buildRegisterDto() {
 //        return RegisterDto.builder()
-//                .username("username")
+//                .name("name")
 //                .password("Password123!")
 //                .confirmPassword("Password123!")
 //                .name("name")
@@ -126,7 +126,7 @@
 //
 //    private LoginDto buildLoginDto() {
 //        return LoginDto.builder()
-//                .username("username")
+//                .name("name")
 //                .password("Password123!")
 //                .build();
 //    }

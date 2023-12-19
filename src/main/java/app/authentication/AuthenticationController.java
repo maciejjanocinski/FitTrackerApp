@@ -13,7 +13,7 @@ class AuthenticationController {
    private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-     RegisterDto register(@RequestBody @Valid RegisterDto registerDto) {
+    RegisterResponseDto register(@RequestBody @Valid RegisterDto registerDto) {
         return authenticationService.register(registerDto);
     }
 

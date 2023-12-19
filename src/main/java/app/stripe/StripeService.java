@@ -12,9 +12,7 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import io.swagger.v3.core.util.Json;
 import jakarta.transaction.Transactional;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -29,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
@@ -42,6 +38,7 @@ public class StripeService {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final StripeCustomerRepository stripeCustomerRepository;
     private final RoleRepository roleRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -62,7 +59,7 @@ public class StripeService {
     @Transactional
     public String getChecoutSession(Authentication authentication) throws StripeException {
         Stripe.apiKey = stripeApiKey;
-        User user = userService.getUserByUsername(authentication.getName());
+        StripeCustomer data = userService.getUserByUsername(authentication.getName()).getStripeCustomer();
 
 
         SessionCreateParams params =
@@ -80,15 +77,15 @@ public class StripeService {
 
                         .build();
         Session session = Session.create(params);
-        user.setStripeCheckoutSessionId(session.getId());
+        data.setCheckoutSessionId(session.getId());
         return session.getUrl();
     }
 
     public String getBillingSession(Authentication authentication) throws JsonProcessingException {
         Stripe.apiKey = stripeApiKey;
-        User user = userService.getUserByUsername(authentication.getName());
+        StripeCustomer data = userService.getUserByUsername(authentication.getName()).getStripeCustomer();
 
-        String customerId = user.getStripeCustomerId();
+        String customerId = data.getCustomerId();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(apiKey, "");
@@ -115,31 +112,31 @@ public class StripeService {
             Stripe.apiKey = stripeApiKey;
             if ("checkout.session.completed".equals(webhookData.getType())) {
                 String checkoutSessionId = webhookData.getData().getObject().getId();
-                Optional<User> userOptional = userRepository.findByStripeCheckoutSessionId(checkoutSessionId);
+                Optional<StripeCustomer> stripeDataOptional = stripeCustomerRepository.findByCheckoutSessionId(checkoutSessionId);
 
-                if (userOptional.isEmpty()) {
+                if (stripeDataOptional.isEmpty()) {
                     throw new UsernameNotFoundException("User not found");
                 }
 
-                User user = userOptional.get();
-                user.setStripeCustomerId(webhookData.getData().getObject().getCustomer());
-                user.setStripeSubscriptionId(webhookData.getData().getObject().getSubscription());
+                StripeCustomer data = stripeDataOptional.get();
+                data.setCustomerId(webhookData.getData().getObject().getCustomer());
+                data.setSubscriptionId(webhookData.getData().getObject().getSubscription());
             } else if ("customer.subscription.deleted".equals(webhookData.getType())) {
-                List<User> users = userRepository.findAll();
                 String customerId = webhookData.getData().getObject().getCustomer();
-                Optional<User> userOptional = userRepository.findByStripeCustomerId(customerId);
+                Optional<StripeCustomer> stripeDataOptional = stripeCustomerRepository.findByCustomerId(customerId);
 
-                if (userOptional.isEmpty()) {
+                if (stripeDataOptional.isEmpty()) {
                     throw new UsernameNotFoundException("User not found");
                 }
 
-                User user = userOptional.get();
-                user.setStripeCustomerId(null);
-                user.setStripeCheckoutSessionId(null);
-                user.setStripeSubscriptionId(null);
+                StripeCustomer data = stripeDataOptional.get();
+                data.setCustomerId(null);
+                data.setCheckoutSessionId(null);
+                data.setSubscriptionId(null);
 
                 Role rolePremium = roleRepository.findByName(Role.roleType.ROLE_USER_PREMIUM.toString())
                         .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MESSAGE));
+                User user = data.getUser();
                 user.removeRole(rolePremium);
             }
         } catch (Exception e) {

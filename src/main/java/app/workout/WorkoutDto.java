@@ -1,14 +1,18 @@
 package app.workout;
 
-import java.util.Date;
+import lombok.Builder;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Builder
 public record WorkoutDto(
          Long id,
          String activityId,
          String workoutType,
          String description,
-         Double kcalBurned,
+         BigDecimal kcalBurned,
          Double durationInMinutes,
          int intensityLevel,
-         Date date
+         LocalDate date
  ) {}

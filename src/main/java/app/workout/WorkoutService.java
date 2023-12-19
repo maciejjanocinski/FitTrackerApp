@@ -17,19 +17,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 import static app.workout.Workout.generateNewCustomWorkout;
 import static app.workout.Workout.generateNewWorkout;
+import static app.workout.WorkoutMapper.staticMapWorkoutListToWorkoutListDto;
+import static app.workout.WorkoutMapper.staticMapWorkoutToWorkoutDto;
 
 @Service
 @RequiredArgsConstructor
 public class WorkoutService {
 
     private final UserService userService;
-    private final WorkoutMapper workoutMapper;
     private final ActivityRepository activityRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -44,7 +46,7 @@ public class WorkoutService {
 
     List<WorkoutDto> getWorkouts(Authentication authentication) {
         Diary diary = userService.getUserByUsername(authentication.getName()).getDiary();
-        return workoutMapper.mapWorkoutListToWorkoutListDto(diary.getWorkouts());
+        return staticMapWorkoutListToWorkoutListDto(diary.getWorkouts());
     }
 
     @Transactional
@@ -54,7 +56,7 @@ public class WorkoutService {
         Workout workout = generateNewCustomWorkout(addCustomWorkoutDto);
         workout.setDiary(diary);
         diary.getWorkouts().add(workout);
-        return workoutMapper.mapWorkoutToWorkoutDto(workout);
+        return staticMapWorkoutToWorkoutDto(workout);
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class WorkoutService {
         if (caloriesBurnedApiResponse.getStatus_code() != 200) {
             throw new RuntimeException("Something went wrong");
         }
-        Double burnedCalorie = caloriesBurnedApiResponse.getData().getBurnedCalorie();
+        BigDecimal burnedCalorie = BigDecimal.valueOf(caloriesBurnedApiResponse.getData().getBurnedCalorie());
 
         Workout workout = generateNewWorkout(addWorkoutDto,
                 activity.get(),
@@ -78,6 +80,8 @@ public class WorkoutService {
 
         workout.setDiary(diary);
         diary.getWorkouts().add(workout);
+        diary.calculateBurnedCalories();
+        diary.calculateNutrientsLeft();
         return workout;
     }
 
@@ -90,10 +94,6 @@ public class WorkoutService {
                 restTemplate.exchange(caloriesBurnedUrlBuilder(addWorkoutDto), CaloriesBurnedApiResponse.class);
         return responseEntity.getBody();
     }
-
-
-
-
 
     private RequestEntity<Void> caloriesBurnedUrlBuilder(AddWorkoutDto addWorkoutDto) {
         URI uri = UriComponentsBuilder.fromUriString(burnedCaloriesUrl)

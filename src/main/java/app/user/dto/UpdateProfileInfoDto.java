@@ -1,6 +1,5 @@
 package app.user.dto;
 
-import app.util.validation.genderValidation.ValidGender;
 import app.util.validation.phoneValidation.ValidPhone;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
@@ -13,7 +12,7 @@ public record UpdateProfileInfoDto(
         @Size(min = 6, message = "Username must have at least 6 characters.")
         @Size(max = 20, message = "Username cannot have more than 20 characters.")
         @Column(unique = true)
-        @NotEmpty(message = "You have to pass your username.")
+        @NotEmpty(message = "You have to pass your name.")
         String username,
 
         @NotEmpty(message = "You have to pass your name.")
@@ -21,9 +20,6 @@ public record UpdateProfileInfoDto(
 
         @NotEmpty(message = "You have to pass your surname.")
         String surname,
-
-        @ValidGender
-        String gender,
 
         @NotEmpty(message = "You have to pass your email.")
         @Column(unique = true)

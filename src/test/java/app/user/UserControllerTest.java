@@ -81,7 +81,7 @@
 //    void updateProfile_inputDataOk_returns200() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("Name")
 //                .surname("Surname")
 //                .gender("MALE")
@@ -109,7 +109,7 @@
 //    void updateProfile_wrongUsernameMoreThan20Chars_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Usernameeeeeeeeeeeeeeeeeeeeeeeeee")
+//                .name("Usernameeeeeeeeeeeeeeeeeeeeeeeeee")
 //                .name("Name")
 //                .surname("Surname")
 //                .gender("MALE")
@@ -137,7 +137,7 @@
 //    void updateProfile_wrongUsernameLessThan6Chars_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("User")
+//                .name("User")
 //                .name("Name")
 //                .surname("Surname")
 //                .gender("MALE")
@@ -172,7 +172,7 @@
 //                .phone("123456789")
 //                .build();
 //
-//        String message = "You have to pass your username.";
+//        String message = "You have to pass your name.";
 //
 //        //when
 //        mockMvc.perform(patch("/user/")
@@ -192,7 +192,7 @@
 //    void updateProfile_wrongNameEmpty_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("")
 //                .surname("Surname")
 //                .gender("MALE")
@@ -220,7 +220,7 @@
 //    void updateProfile_wrongSurnameEmpty_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("name")
 //                .surname("")
 //                .gender("MALE")
@@ -248,7 +248,7 @@
 //    void updateProfile_wrongGender_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("name")
 //                .surname("Surname")
 //                .gender("M")
@@ -276,7 +276,7 @@
 //    void updateProfile_wrongEmailEmpty_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("name")
 //                .surname("Surname")
 //                .gender("MALE")
@@ -304,7 +304,7 @@
 //    void updateProfile_wrongEmail_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("name")
 //                .surname("Surname")
 //                .gender("MALE")
@@ -332,7 +332,7 @@
 //    void updateProfile_wrongPhone_returns400() throws Exception {
 //        //given
 //        UpdateProfileInfoDto profileInfoDto = UpdateProfileInfoDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("name")
 //                .surname("Surname")
 //                .gender("MALE")
@@ -508,7 +508,7 @@
 //
 //    private UserDto buildUserDto() {
 //        return UserDto.builder()
-//                .username("Username")
+//                .name("Username")
 //                .name("Name")
 //                .surname("Surname")
 //                .gender(setGenderFromString("MALE").toString())
