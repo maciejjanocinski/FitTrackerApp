@@ -23,17 +23,4 @@ public class ActivityController {
         return activityService.searchActivity(activity);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

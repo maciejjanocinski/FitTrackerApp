@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 
 import static app.product.ProductMapper.mapToProductDtoList;
 import static app.recipe.RecipeMapper.mapRecipeDtoToRecipeDtoList;
-import static app.workout.WorkoutMapper.staticMapWorkoutListToWorkoutListDto;
+import static app.workout.WorkoutMapper.mapWorkoutListToWorkoutListDto;
 
 @Mapper(componentModel = "spring")
 interface DiaryMapper {
@@ -31,7 +31,8 @@ interface DiaryMapper {
                 .leftFiber(diary.getNutrientsLeft().getFiberQuantityInGrams().setScale(1, RoundingMode.HALF_UP))
                 .productsInDiary(mapToProductDtoList(diary.getProducts()))
                 .favouriteRecipes(mapRecipeDtoToRecipeDtoList(diary.getRecipes()))
-                .workouts(staticMapWorkoutListToWorkoutListDto(diary.getWorkouts()))
+                .workouts(mapWorkoutListToWorkoutListDto(diary.getWorkouts()))
+                .kcalBurned(diary.getKcalBurned().setScale(1, RoundingMode.HALF_UP))
                 .build();
     }
 }

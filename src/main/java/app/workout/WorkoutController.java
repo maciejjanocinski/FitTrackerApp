@@ -31,11 +31,27 @@ public class WorkoutController {
     }
 
     @PostMapping("/")
-    Object addWorkout(@CurrentSecurityContext(expression = "authentication")
+    WorkoutDto addWorkout(@CurrentSecurityContext(expression = "authentication")
                       Authentication authentication,
                       @RequestBody AddWorkoutDto addWorkoutDto
     ) {
         return workoutService.addWorkout(authentication, addWorkoutDto);
+    }
+
+    @PatchMapping("/")
+    WorkoutDto editWorkout(@CurrentSecurityContext(expression = "authentication")
+                      Authentication authentication,
+                      @RequestBody EditWorkoutDto editWorkoutDto
+    ) {
+        return workoutService.editWorkout(authentication, editWorkoutDto);
+    }
+
+    @DeleteMapping("/")
+    void deleteWorkout(@CurrentSecurityContext(expression = "authentication")
+                           Authentication authentication,
+                           @RequestBody DeleteWorkoutDto deleteWorkoutDto
+    ) {
+        workoutService.deleteWorkout(authentication, deleteWorkoutDto);
     }
 
 }

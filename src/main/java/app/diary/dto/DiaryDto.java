@@ -29,6 +29,8 @@ public record DiaryDto(
         BigDecimal leftFiber,
         List<ProductDto> productsInDiary,
         List<RecipeDto> favouriteRecipes,
-        List<WorkoutDto> workouts
+        List<WorkoutDto> workouts,
+
+        BigDecimal kcalBurned
 ) {
 }

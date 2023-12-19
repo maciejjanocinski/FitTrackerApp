@@ -7,13 +7,13 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface WorkoutMapper {
 
-    static List<WorkoutDto> staticMapWorkoutListToWorkoutListDto(List<Workout> workouts) {
+    static List<WorkoutDto> mapWorkoutListToWorkoutListDto(List<Workout> workouts) {
         return workouts.stream()
-                .map(WorkoutMapper::staticMapWorkoutToWorkoutDto)
+                .map(WorkoutMapper::mapWorkoutToWorkoutDto)
                 .toList();
     }
 
-    static WorkoutDto staticMapWorkoutToWorkoutDto(Workout workout) {
+    static WorkoutDto mapWorkoutToWorkoutDto(Workout workout) {
         return WorkoutDto.builder()
                 .id(workout.getId())
                 .activityId(workout.getActivityId())
