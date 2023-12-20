@@ -23,6 +23,7 @@ public class BodyMetricsService {
     public BodyMetricsDto setBodyMetrics(Authentication authentication, AddBodyMetricsDto addBodyMetricsDto) {
         BodyMetrics bodyMetrics = userService.getUserByUsername(authentication.getName()).getBodyMetrics();
         updateBodyMetrics(bodyMetrics, addBodyMetricsDto);
+
         return mapBodyMetricsToBodyMetricsDto(bodyMetrics);
     }
 }

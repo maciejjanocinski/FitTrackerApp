@@ -1,11 +1,13 @@
 package app.bodyMetrics;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import static app.bodyMetrics.BodyMetrics.setGenderFromString;
 
 @Mapper(componentModel = "spring")
 public interface BodyMetricsMapper {
+
 
     static BodyMetricsDto mapBodyMetricsToBodyMetricsDto(BodyMetrics source) {
         return BodyMetricsDto.builder()

@@ -144,4 +144,8 @@ public class User implements UserDetails {
         this.setPhone(updateProfileInfoDto.phone());
     }
 
+    void updateBodyMetrics(BodyMetrics bodyMetrics) {
+        this.setBodyMetrics(bodyMetrics);
+    }
+
 }
