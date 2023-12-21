@@ -1,5 +1,6 @@
 package app.user;
 
+import app.product.Product;
 import app.util.exceptions.InvalidPasswordException;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
@@ -15,6 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayDeque;
+import java.util.List;
+
 import static app.user.UserMapper.mapUserToUserDto;
 import static app.util.Utils.USER_NOT_FOUND_MESSAGE;
 
@@ -24,7 +28,6 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
     private final TokenService tokenService;
 
     @Override
@@ -36,6 +39,11 @@ public class UserService implements UserDetailsService {
     UserDto getUser(Authentication authentication) {
         User user = getUserByUsername(authentication.getName());
         return mapUserToUserDto(user);
+    }
+
+    List<Product> getlastlyAddedProducts(Authentication authentication) {
+        User user = getUserByUsername(authentication.getName());
+        return user.getLastlyAddedProducts();
     }
 
     public User getUserByUsername(String username) {

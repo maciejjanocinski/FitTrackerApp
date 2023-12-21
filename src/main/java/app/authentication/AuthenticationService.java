@@ -2,6 +2,7 @@ package app.authentication;
 
 import app.bodyMetrics.BodyMetrics;
 import app.diary.Diary;
+import app.product.Product;
 import app.stripe.StripeCustomer;
 import app.user.User;
 import app.user.UserRepository;
@@ -15,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.management.relation.RoleInfoNotFoundException;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,6 +41,7 @@ class AuthenticationService {
         Set<Role> authorities = new HashSet<>();
         BodyMetrics bodyMetrics = new BodyMetrics();
         StripeCustomer stripeCustomer = new StripeCustomer();
+        List<Product> lastlyAddedProducts = new ArrayList<>();
         authorities.add(role);
         Diary diary = new Diary();
         User user = User.builder()
@@ -50,6 +54,7 @@ class AuthenticationService {
                 .stripeCustomer(stripeCustomer)
                 .authorities(authorities)
                 .bodyMetrics(bodyMetrics)
+                .lastlyAddedProducts(lastlyAddedProducts)
                 .build();
 
         bodyMetrics.setUser(user);

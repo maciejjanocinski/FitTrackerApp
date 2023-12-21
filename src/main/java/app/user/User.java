@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -71,11 +72,14 @@ public class User implements UserDetails {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
-    private List<Recipe> lastSearchedRecipes;
+    private List<Recipe> lastlySearchedRecipes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
-    private List<Product> lastSearchedProducts;
+    private List<Product> lastlySearchedProducts;
+
+    @OneToMany
+    private List<Product> lastlyAddedProducts;
 
     private String lastProductQuery;
     private String lastRecipeQuery;
@@ -90,7 +94,7 @@ public class User implements UserDetails {
     }
 
     public void removeProduct(Product product) {
-        lastSearchedProducts.remove(product);
+        lastlySearchedProducts.remove(product);
     }
 
     public void addRole(Role role) {
@@ -146,6 +150,13 @@ public class User implements UserDetails {
 
     void updateBodyMetrics(BodyMetrics bodyMetrics) {
         this.setBodyMetrics(bodyMetrics);
+    }
+
+   public void updateLastlyAddedProducts(Product product) {
+        if (lastlyAddedProducts.size() == 15) {
+            lastlyAddedProducts.remove(0);
+        }
+        lastlyAddedProducts.add(product);
     }
 
 }
