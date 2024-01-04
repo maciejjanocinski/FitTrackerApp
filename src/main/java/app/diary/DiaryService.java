@@ -11,6 +11,8 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import java.util.List;
+
 import static app.diary.DiaryMapper.mapDiaryToDiaryDto;
 import static app.product.ProductMapper.*;
 import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;
@@ -36,7 +38,7 @@ public class DiaryService {
     public ProductDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
-        Product product = user.getLastSearchedProducts().stream()
+        Product product = user.getLastlySearchedProducts().stream()
                 .filter(p -> p.getId().equals(addProductDto.id()))
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
@@ -48,6 +50,7 @@ public class DiaryService {
         newProduct.setUser(user);
         newProduct.editProductAmount(addProductDto.measureLabel(), addProductDto.quantity());
         diary.addProduct(newProduct);
+        user.updateLastlyAddedProducts(newProduct);
 
         productsRepository.save(newProduct);
         return mapToProductDto(newProduct);

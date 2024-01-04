@@ -11,11 +11,10 @@ public interface RecipeMapper {
 
     @Mapping(target = "diary", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(target = "id", ignore = true)
     Recipe mapToRecipe(RecipeDto recipeRequestDto);
 
 
-    static RecipeDto mapToRecipeDto(Recipe recipe) {
+    static RecipeDto mapRecipeToRecipeDto(Recipe recipe) {
         return RecipeDto.builder()
                 .id(recipe.getId())
                 .label(recipe.getLabel())
@@ -35,7 +34,7 @@ public interface RecipeMapper {
 
     static List<RecipeDto> mapRecipeDtoToRecipeDtoList(List<Recipe> recipes) {
         return recipes.stream()
-                .map(RecipeMapper::mapToRecipeDto)
+                .map(RecipeMapper::mapRecipeToRecipeDto)
                 .toList();
     }
 

@@ -2,12 +2,12 @@ package app.diary;
 
 import app.diary.dto.DiaryDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import static app.product.ProductMapper.mapToProductDtoList;
+import static app.recipe.RecipeMapper.mapRecipeDtoToRecipeDtoList;
+import static app.workout.WorkoutMapper.mapWorkoutListToWorkoutListDto;
 
 @Mapper(componentModel = "spring")
 interface DiaryMapper {
@@ -30,6 +30,9 @@ interface DiaryMapper {
                 .leftCarbohydrates(diary.getNutrientsLeft().getCarbohydratesQuantityInGrams().setScale(1, RoundingMode.HALF_UP))
                 .leftFiber(diary.getNutrientsLeft().getFiberQuantityInGrams().setScale(1, RoundingMode.HALF_UP))
                 .productsInDiary(mapToProductDtoList(diary.getProducts()))
+                .favouriteRecipes(mapRecipeDtoToRecipeDtoList(diary.getRecipes()))
+                .workouts(mapWorkoutListToWorkoutListDto(diary.getWorkouts()))
+                .kcalBurned(diary.getKcalBurned().setScale(1, RoundingMode.HALF_UP))
                 .build();
     }
 }

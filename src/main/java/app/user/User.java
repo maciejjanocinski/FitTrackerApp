@@ -1,19 +1,14 @@
 package app.user;
 
 import app.authentication.Role;
+import app.bodyMetrics.BodyMetrics;
 import app.diary.Diary;
-import app.diary.Gender;
 import app.product.Product;
 import app.recipe.Recipe;
+import app.stripe.StripeCustomer;
 import app.user.dto.UpdateProfileInfoDto;
-import app.workout.Workout;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.UnexpectedTypeException;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,9 +17,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,15 +41,23 @@ public class User implements UserDetails {
     private String username;
     private String name;
     private String surname;
-    private Gender gender;
 
     @Column(unique = true)
     private String email;
     private String phone;
     private String password;
-    private String stripeCustomerId;
-    private String stripeCheckoutSessionId;
-    private String stripeSubscriptionId;
+
+    @OneToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            mappedBy = "user")
+    @JsonManagedReference
+    private StripeCustomer stripeCustomer;
+
+    @OneToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            mappedBy = "user")
+    @JsonManagedReference
+    private BodyMetrics bodyMetrics;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
@@ -67,11 +72,14 @@ public class User implements UserDetails {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
-    private List<Recipe> lastSearchedRecipes;
+    private List<Recipe> lastlySearchedRecipes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
-    private List<Product> lastSearchedProducts;
+    private List<Product> lastlySearchedProducts;
+
+    @OneToMany
+    private List<Product> lastlyAddedProducts;
 
     private String lastProductQuery;
     private String lastRecipeQuery;
@@ -86,7 +94,7 @@ public class User implements UserDetails {
     }
 
     public void removeProduct(Product product) {
-        lastSearchedProducts.remove(product);
+        lastlySearchedProducts.remove(product);
     }
 
     public void addRole(Role role) {
@@ -94,6 +102,10 @@ public class User implements UserDetails {
     }
     public void removeRole(Role role) {
         authorities.remove(role);
+    }
+
+    public int getYears() {
+        return Period.between(bodyMetrics.getBirthDate(), LocalDate.now()).getYears();
     }
 
     @Override
@@ -126,14 +138,7 @@ public class User implements UserDetails {
         return true;
     }
 
-    public static Gender setGenderFromString(String gender) {
-        if (Objects.equals(gender, "MALE")) {
-            return Gender.MALE;
-        } else if (Objects.equals(gender, "FEMALE")) {
-            return Gender.FEMALE;
-        }
-        throw new UnexpectedTypeException("Gender doesn't match any of the values. Should be \"MALE\" or \"FEMALE\".");
-    }
+
 
     void updateUserProfile(UpdateProfileInfoDto updateProfileInfoDto) {
         this.setUsername(updateProfileInfoDto.username());
@@ -141,7 +146,17 @@ public class User implements UserDetails {
         this.setSurname(updateProfileInfoDto.surname());
         this.setEmail(updateProfileInfoDto.email());
         this.setPhone(updateProfileInfoDto.phone());
-        this.setGender(User.setGenderFromString(updateProfileInfoDto.gender()));
+    }
+
+    void updateBodyMetrics(BodyMetrics bodyMetrics) {
+        this.setBodyMetrics(bodyMetrics);
+    }
+
+   public void updateLastlyAddedProducts(Product product) {
+        if (lastlyAddedProducts.size() == 15) {
+            lastlyAddedProducts.remove(0);
+        }
+        lastlyAddedProducts.add(product);
     }
 
 }

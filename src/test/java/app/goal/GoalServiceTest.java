@@ -35,7 +35,7 @@
 //        //given
 //        GoalResponseDto expectedResponse = buildGoalResponseDto();
 //        User user = User.builder()
-//                .username(USERNAME)
+//                .name(USERNAME)
 //                .diary(diary)
 //                .build();
 //
@@ -61,7 +61,7 @@
 //        GoalResponseDto expectedResponse = buildGoalResponseDto();
 //        GoalDto goalDto = buildGoalDto();
 //        User user = User.builder()
-//                .username(USERNAME)
+//                .name(USERNAME)
 //                .gender(User.setGenderFromString("FEMALE"))
 //                .diary(diary)
 //                .build();

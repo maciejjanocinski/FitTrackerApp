@@ -20,10 +20,17 @@ public class GoalController {
         return goalService.getGoal(authentication);
     }
 
-    @PostMapping("/")
-     GoalResponseDto setGoals(@CurrentSecurityContext(expression = "authentication")
+    @PostMapping("/custom")
+     GoalResponseDto setCustomGoal(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication,
-                                                        @RequestBody GoalDto goalsDto) {
-        return goalService.setGoal(authentication, goalsDto);
+                                   @RequestBody AddCustomGoalDto goalsDto) {
+        return goalService.setCustomGoal(authentication, goalsDto);
+    }
+
+    @PostMapping("/")
+    GoalResponseDto setGoal(@CurrentSecurityContext(expression = "authentication")
+                                  Authentication authentication,
+                                  @RequestBody AddGoalDto addGoalDto) {
+        return goalService.setGoal(authentication, addGoalDto);
     }
 }

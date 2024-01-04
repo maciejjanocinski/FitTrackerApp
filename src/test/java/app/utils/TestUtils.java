@@ -11,16 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static app.user.User.setGenderFromString;
 public class TestUtils {
-//    public static final String USERNAME = "username";
+//    public static final String USERNAME = "name";
 //    public static final String QUERY = "bread";
 //    public static final String USER_NOT_FOUND_MESSAGE = "User not found";
 //    public static final String PRODUCT_NOT_FOUND_MESSAGE = "Product not found";
 //
 //    public static User buildUser(Set<Role> roles) {
 //        return User.builder()
-//                .username("username")
+//                .name("name")
 //                .password("password124M!")
 //                .name("name")
 //                .surname("surname")
@@ -34,7 +33,7 @@ public class TestUtils {
 //
 //    public static User buildUser(Set<Role> roles, String password) {
 //        return User.builder()
-//                .username("username")
+//                .name("name")
 //                .password(password)
 //                .name("name")
 //                .surname("surname")

@@ -5,7 +5,6 @@ import static app.product.ProductMapper.mapToProductDto;
 import static app.recipe.RecipeMapper.mapRecipeDtoToRecipeDtoList;
 
 import app.diary.Diary;
-import app.diary.DiaryService;
 import app.product.Product;
 import app.product.ProductDto;
 import app.product.ProductRepository;
@@ -48,7 +47,7 @@ public class RecipeService {
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastRecipeQuery() != null && user.getLastRecipeQuery().equals(lowerCasedQuery)) {
-            return  mapRecipeDtoToRecipeDtoList(user.getLastSearchedRecipes());
+            return mapRecipeDtoToRecipeDtoList(user.getLastlySearchedRecipes());
         }
 
         clearNotUsedRecipes(user);
@@ -93,8 +92,8 @@ public class RecipeService {
     @Transactional
     public Recipe addRecipeToFavourites(Long id, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
-
-        for (Recipe recipe : user.getLastSearchedRecipes()) {
+        Diary diary = user.getDiary();
+        for (Recipe recipe : user.getLastlySearchedRecipes()) {
             if (recipe.getId().equals(id) && recipe.getDiary() != null) {
                 throw new RecipeAlreadyAddedException("Recipe already added");
             }
@@ -103,19 +102,20 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-        recipe.setDiary(user.getDiary());
+        diary.getRecipes().add(recipe);
+        recipe.setDiary(diary);
         return recipe;
     }
 
     public List<Recipe> getMyRecipes(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
-        return user.getLastSearchedRecipes().stream()
+        return user.getLastlySearchedRecipes().stream()
                 .filter(r -> r.getDiary() != null)
                 .toList();
     }
 
     private void clearNotUsedRecipes(User user) {
-        user.getLastSearchedRecipes().removeAll(user.getLastSearchedRecipes());
+        user.getLastlySearchedRecipes().removeAll(user.getLastlySearchedRecipes());
     }
 
 

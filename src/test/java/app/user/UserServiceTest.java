@@ -125,7 +125,7 @@
 //
 //        //then
 //        assertEquals(expectedMessage, actualMessage);
-//        assertEquals(user.getUsername(), updateProfileInfoDto.username());
+//        assertEquals(user.getUsername(), updateProfileInfoDto.name());
 //
 //        verify(authentication).getName();
 //        verify(userRepository).findByUsername(USERNAME);
@@ -200,7 +200,7 @@
 //    @Test
 //    void deleteProfile_inputDataOk_returnsString() {
 //        //given
-//        String expectedMessage = "Profile with username \"" + user.getUsername() + "\" has been deleted.";
+//        String expectedMessage = "Profile with name \"" + user.getUsername() + "\" has been deleted.";
 //        DeleteUserDto deleteUserDto = buildDeleteUserDto();
 //
 //        when(authentication.getName()).thenReturn(USERNAME);
@@ -311,7 +311,7 @@
 //
 //    private UpdateProfileInfoDto buildUpdateProfileInfoDto() {
 //        return UpdateProfileInfoDto.builder()
-//                .username(USERNAME)
+//                .name(USERNAME)
 //                .name("name")
 //                .surname("surname")
 //                .gender("MALE")
@@ -323,7 +323,7 @@
 //
 //    private UserDto buildUserDto() {
 //        return UserDto.builder()
-//                .username(USERNAME)
+//                .name(USERNAME)
 //                .email("email")
 //                .gender("MALE")
 //                .build();

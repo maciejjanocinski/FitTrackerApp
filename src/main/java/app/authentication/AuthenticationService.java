@@ -1,6 +1,9 @@
 package app.authentication;
 
+import app.bodyMetrics.BodyMetrics;
 import app.diary.Diary;
+import app.product.Product;
+import app.stripe.StripeCustomer;
 import app.user.User;
 import app.user.UserRepository;
 import app.util.exceptions.InvalidInputException;
@@ -13,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.management.relation.RoleInfoNotFoundException;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,33 +33,48 @@ class AuthenticationService {
     private final TokenService tokenService;
     private final RoleRepository roleRepository;
 
-    RegisterDto register(RegisterDto registerDto) {
+    RegisterResponseDto register(RegisterDto registerDto) {
 
         Role role = roleRepository.findByName(Role.roleType.ROLE_USER_STANDARD.toString())
                 .orElseThrow(() -> new InvalidInputException(ROLE_NOT_FOUND_MESSAGE));
 
         Set<Role> authorities = new HashSet<>();
+        BodyMetrics bodyMetrics = new BodyMetrics();
+        StripeCustomer stripeCustomer = new StripeCustomer();
+        List<Product> lastlyAddedProducts = new ArrayList<>();
         authorities.add(role);
         Diary diary = new Diary();
         User user = User.builder()
                 .name(registerDto.name().trim())
                 .surname(registerDto.surname().trim())
                 .username(registerDto.username().trim())
-                .gender(User.setGenderFromString(registerDto.gender()))
                 .email(registerDto.email().trim())
                 .phone(registerDto.phone().trim())
                 .diary(diary)
+                .stripeCustomer(stripeCustomer)
                 .authorities(authorities)
+                .bodyMetrics(bodyMetrics)
+                .lastlyAddedProducts(lastlyAddedProducts)
                 .build();
 
-        if(checkIfPasswordsAreTheSame(registerDto.password(), registerDto.confirmPassword())) {
+        bodyMetrics.setUser(user);
+        stripeCustomer.setUser(user);
+        if (checkIfPasswordsAreTheSame(registerDto.password(), registerDto.confirmPassword())) {
             user.setPassword(passwordEncoder.encode(registerDto.password()));
         } else {
             throw new InvalidPasswordException("Passwords are not the same");
         }
 
         userRepository.save(user);
-        return registerDto;
+
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(registerDto.username(), registerDto.password())
+        );
+
+        return RegisterResponseDto.builder()
+                .jwt(tokenService.generateJwt(auth))
+                .name(registerDto.name())
+                .build();
     }
 
 

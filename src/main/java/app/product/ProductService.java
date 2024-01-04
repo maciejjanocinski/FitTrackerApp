@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -41,7 +39,7 @@ public class ProductService {
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
-            List<Product> products = user.getLastSearchedProducts().stream()
+            List<Product> products = user.getLastlySearchedProducts().stream()
                     .filter(p -> p.getDiary() == null)
                     .toList();
             return mapToProductsDtoList(products);
@@ -58,24 +56,24 @@ public class ProductService {
         products.sort(Comparator.comparing(p -> p.getImage().length(), Comparator.reverseOrder()));
         setImagesToAllEmptyProducts(products);
 
-        user.getLastSearchedProducts().addAll(products);
+        user.getLastlySearchedProducts().addAll(products);
         productsRepository.saveAll(products);
 
         return mapToProductsDtoList(products);
     }
 
     void clearNotUsedProducts(User user) {
-        List<Product> products = user.getLastSearchedProducts().stream().filter(p -> p.getDiary() == null).toList();
+        List<Product> products = user.getLastlySearchedProducts().stream().filter(p -> p.getDiary() == null).toList();
         products.forEach(p -> {
             p.getMeasures().clear();
             p.setNutrients(null);
         });
-        user.getLastSearchedProducts().removeAll(products);
+        user.getLastlySearchedProducts().removeAll(products);
     }
 
     ProductDto getProductById(Authentication authentication, Long id) {
         User user = userService.getUserByUsername(authentication.getName());
-        Product product = user.getLastSearchedProducts().stream()
+        Product product = user.getLastlySearchedProducts().stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException("Product with activityid: " + id + " not found."));

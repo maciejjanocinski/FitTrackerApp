@@ -25,9 +25,6 @@ public record RegisterDto(
         @NotEmpty(message = "You have to pass your surname.")
         String surname,
 
-        @NotEmpty(message = "You have to pass your gender.")
-        String gender,
-
         @NotEmpty(message = "You have to pass your email.")
         @Email
         String email,

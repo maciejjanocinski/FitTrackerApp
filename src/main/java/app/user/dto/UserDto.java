@@ -1,6 +1,7 @@
 package app.user.dto;
 
 
+import app.bodyMetrics.BodyMetricsDto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -20,17 +21,18 @@ public record UserDto(
         @NotEmpty(message = "You have to pass your surname.")
         String surname,
 
-        @NotEmpty(message = "You have to pass your gender.")
-        @Size(max = 1, min = 1, message = "One character is enough.")
-        String gender,
-
         @NotEmpty(message = "You have to pass your email.")
         @Column(unique = true)
         @Email
         String email,
 
         @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
-        String phone) {
+        String phone,
+
+        BodyMetricsDto bodyMetrics
+
+
+        ) {
 
 }
 

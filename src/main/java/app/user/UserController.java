@@ -1,5 +1,6 @@
 package app.user;
 
+import app.product.Product;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
@@ -10,6 +11,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -24,6 +27,12 @@ class UserController {
     UserDto getUser(@CurrentSecurityContext(expression = "authentication")
                                          Authentication authentication) {
         return userService.getUser(authentication);
+    }
+
+    @GetMapping("/lastly-added-products")
+    List<Product> getLastlyUsedProducts(@CurrentSecurityContext(expression = "authentication")
+                    Authentication authentication) {
+        return userService.getlastlyAddedProducts(authentication);
     }
 
     @PatchMapping("/")

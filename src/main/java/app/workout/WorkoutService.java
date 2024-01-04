@@ -17,19 +17,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 import static app.workout.Workout.generateNewCustomWorkout;
 import static app.workout.Workout.generateNewWorkout;
+import static app.workout.WorkoutMapper.mapWorkoutListToWorkoutListDto;
+import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
 
 @Service
 @RequiredArgsConstructor
 public class WorkoutService {
 
     private final UserService userService;
-    private final WorkoutMapper workoutMapper;
     private final ActivityRepository activityRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -44,7 +46,7 @@ public class WorkoutService {
 
     List<WorkoutDto> getWorkouts(Authentication authentication) {
         Diary diary = userService.getUserByUsername(authentication.getName()).getDiary();
-        return workoutMapper.mapWorkoutListToWorkoutListDto(diary.getWorkouts());
+        return mapWorkoutListToWorkoutListDto(diary.getWorkouts());
     }
 
     @Transactional
@@ -54,52 +56,90 @@ public class WorkoutService {
         Workout workout = generateNewCustomWorkout(addCustomWorkoutDto);
         workout.setDiary(diary);
         diary.getWorkouts().add(workout);
-        return workoutMapper.mapWorkoutToWorkoutDto(workout);
+        return mapWorkoutToWorkoutDto(workout);
     }
 
     @Transactional
-    public Object addWorkout(Authentication authentication, AddWorkoutDto addWorkoutDto) {
-        Diary diary = userService.getUserByUsername(authentication.getName()).getDiary();
+    public WorkoutDto addWorkout(Authentication authentication, AddWorkoutDto addWorkoutDto) {
+        User user = userService.getUserByUsername(authentication.getName());
+        Diary diary = user.getDiary();
+        Double weight = user.getBodyMetrics().getWeight();
         Optional<Activity> activity = activityRepository.findActivityById(addWorkoutDto.activityid());
         if (activity.isEmpty()) {
             throw new RuntimeException("Activity not found.");
         }
-        CaloriesBurnedApiResponse caloriesBurnedApiResponse = getCaloriesBurnedApiResponse(addWorkoutDto);
+        CaloriesBurnedApiResponse caloriesBurnedApiResponse = getCaloriesBurnedApiResponse(addWorkoutDto.activityid(), addWorkoutDto.activitymin(), weight);
 
         if (caloriesBurnedApiResponse.getStatus_code() != 200) {
             throw new RuntimeException("Something went wrong");
         }
-        Double burnedCalorie = caloriesBurnedApiResponse.getData().getBurnedCalorie();
-
-        Workout workout = generateNewWorkout(addWorkoutDto,
+        BigDecimal burnedCalorie = BigDecimal.valueOf(caloriesBurnedApiResponse.getData().getBurnedCalorie());
+        Workout workout = generateNewWorkout(
+                addWorkoutDto,
                 activity.get(),
                 burnedCalorie
         );
 
         workout.setDiary(diary);
         diary.getWorkouts().add(workout);
-        return workout;
+        diary.calculateBurnedCalories();
+        diary.calculateNutrientsLeft();
+
+        return mapWorkoutToWorkoutDto(workout);
+    }
+
+    @Transactional
+    public WorkoutDto editWorkout(Authentication authentication, EditWorkoutDto editWorkoutDto) {
+        User user = userService.getUserByUsername(authentication.getName());
+        Diary diary = user.getDiary();
+        Double weight = user.getBodyMetrics().getWeight();
+        List<Workout> workouts = user.getDiary().getWorkouts();
+
+        Workout workout = workouts.stream()
+                .filter(w -> w.getId().equals(editWorkoutDto.id()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Workout not found"));
+
+
+        CaloriesBurnedApiResponse caloriesBurnedApiResponse = getCaloriesBurnedApiResponse(workout.getActivityId(), editWorkoutDto.activitymin(), weight);
+        BigDecimal burnedCalorie = BigDecimal.valueOf(caloriesBurnedApiResponse.getData().getBurnedCalorie());
+        workout.setDurationInMinutes(editWorkoutDto.activitymin());
+        workout.setKcalBurned(burnedCalorie);
+
+        diary.calculateBurnedCalories();
+        diary.calculateNutrientsLeft();
+
+        return mapWorkoutToWorkoutDto(workout);
+    }
+    @Transactional
+    public void deleteWorkout(Authentication authentication, DeleteWorkoutDto deleteWorkoutDto) {
+        User user = userService.getUserByUsername(authentication.getName());
+        Diary diary = user.getDiary();
+        List<Workout> workouts = user.getDiary().getWorkouts();
+        Workout workout = workouts.stream()
+                .filter(w -> w.getId().equals(deleteWorkoutDto.id()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Workout not found"));
+
+        workouts.remove(workout);
+        workout.setDiary(null);
+
+        diary.calculateBurnedCalories();
+        diary.calculateNutrientsLeft();
     }
 
 
-
-
-
-    private CaloriesBurnedApiResponse getCaloriesBurnedApiResponse(AddWorkoutDto addWorkoutDto) {
+    private CaloriesBurnedApiResponse getCaloriesBurnedApiResponse(String activityId, Double activityMin, Double weight) {
         ResponseEntity<CaloriesBurnedApiResponse> responseEntity =
-                restTemplate.exchange(caloriesBurnedUrlBuilder(addWorkoutDto), CaloriesBurnedApiResponse.class);
+                restTemplate.exchange(caloriesBurnedUrlBuilder(activityId, activityMin, weight), CaloriesBurnedApiResponse.class);
         return responseEntity.getBody();
     }
 
-
-
-
-
-    private RequestEntity<Void> caloriesBurnedUrlBuilder(AddWorkoutDto addWorkoutDto) {
+    private RequestEntity<Void> caloriesBurnedUrlBuilder(String activityId, Double activityMin, Double weight) {
         URI uri = UriComponentsBuilder.fromUriString(burnedCaloriesUrl)
-                .queryParam("activityid", addWorkoutDto.activityid())
-                .queryParam("activitymin", addWorkoutDto.activitymin())
-                .queryParam("weight", addWorkoutDto.weight())
+                .queryParam("activityid", activityId)
+                .queryParam("activitymin", activityMin)
+                .queryParam("weight", weight)
                 .build()
                 .toUri();
 
@@ -109,6 +149,8 @@ public class WorkoutService {
 
         return new RequestEntity<>(headers, HttpMethod.GET, uri);
     }
+
+
 
 }
 

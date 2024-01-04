@@ -1,9 +1,11 @@
 package app.workout;
 
+import java.math.BigDecimal;
+
 public record AddCustomWorkoutDto(
         String workoutType,
         String description,
-        Double kcalBurned,
+        BigDecimal kcalBurned,
         int intensityLevel,
         Double durationInMinutes
 ) {
