@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RecipeRepository extends JpaRepository<Recipe, Long> {
+ interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     @Modifying
     @Transactional

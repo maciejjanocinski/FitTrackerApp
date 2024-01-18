@@ -24,7 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RecipeService {
+ class RecipeService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${api.recipes.url}")

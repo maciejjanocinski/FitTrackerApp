@@ -11,7 +11,7 @@ import static app.bodyMetrics.BodyMetricsMapper.updateBodyMetrics;
 
 @Service
 @RequiredArgsConstructor
-public class BodyMetricsService {
+ class BodyMetricsService {
     private final UserService userService;
 
     public BodyMetricsDto getBodyMetrics(Authentication authentication) {

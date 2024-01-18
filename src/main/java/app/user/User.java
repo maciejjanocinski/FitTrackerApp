@@ -1,6 +1,6 @@
 package app.user;
 
-import app.authentication.Role;
+import app.roles.Role;
 import app.bodyMetrics.BodyMetrics;
 import app.diary.Diary;
 import app.product.Product;
@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;

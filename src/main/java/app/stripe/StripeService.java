@@ -1,7 +1,7 @@
 package app.stripe;
 
-import app.authentication.Role;
-import app.authentication.RoleRepository;
+import app.roles.Role;
+import app.roles.RoleRepository;
 import app.user.User;
 import app.user.UserRepository;
 import app.user.UserService;
@@ -34,7 +34,7 @@ import static com.stripe.Stripe.apiKey;
 
 @RequiredArgsConstructor
 @Service
-public class StripeService {
+ class StripeService {
 
     private final UserService userService;
     private final UserRepository userRepository;

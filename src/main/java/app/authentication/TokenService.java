@@ -1,5 +1,6 @@
 package app.authentication;
 
+import app.roles.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

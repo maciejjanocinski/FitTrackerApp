@@ -80,6 +80,7 @@ public class DiaryService {
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         diary.removeProduct(product);
+        user.getLastlyAddedProducts().remove(product);
         productsRepository.delete(product);
         return "Product deleted from diary successfully";
     }

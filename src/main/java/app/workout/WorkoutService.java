@@ -29,7 +29,7 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
 
 @Service
 @RequiredArgsConstructor
-public class WorkoutService {
+ class WorkoutService {
 
     private final UserService userService;
     private final ActivityRepository activityRepository;
@@ -70,7 +70,7 @@ public class WorkoutService {
         }
         CaloriesBurnedApiResponse caloriesBurnedApiResponse = getCaloriesBurnedApiResponse(addWorkoutDto.activityid(), addWorkoutDto.activitymin(), weight);
 
-        if (caloriesBurnedApiResponse.getStatus_code() != 200) {
+        if (caloriesBurnedApiResponse.getStatusCode() != 200) {
             throw new RuntimeException("Something went wrong");
         }
         BigDecimal burnedCalorie = BigDecimal.valueOf(caloriesBurnedApiResponse.getData().getBurnedCalorie());

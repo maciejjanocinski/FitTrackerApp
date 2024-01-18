@@ -1,6 +1,6 @@
 //package app.user;
 //
-//import app.authentication.Role;
+//import app.roles.Role;
 //import app.util.exceptions.InvalidPasswordException;
 //import app.user.dto.DeleteUserDto;
 //import app.user.dto.UpdatePasswordDto;

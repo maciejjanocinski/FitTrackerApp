@@ -13,7 +13,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/recipes")
-public class RecipeController {
+ class RecipeController {
 
     private final RecipeService RecipeService;
 

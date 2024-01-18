@@ -1,7 +1,7 @@
 package app.premium;
 
-import app.authentication.Role;
-import app.authentication.RoleRepository;
+import app.roles.Role;
+import app.roles.RoleRepository;
 import app.authentication.TokenService;
 import app.user.User;
 import app.user.UserService;
@@ -14,7 +14,7 @@ import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
-public class PremiumService {
+ class PremiumService {
     private final UserService userService;
     private final TokenService tokenService;
     private final RoleRepository roleRepository;

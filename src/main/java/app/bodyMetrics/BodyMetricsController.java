@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/body-metrics")
-public class BodyMetricsController {
+ class BodyMetricsController {
 
     private final BodyMetricsService bodyMetricsService;
 

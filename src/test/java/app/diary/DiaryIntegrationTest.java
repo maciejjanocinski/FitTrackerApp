@@ -1,7 +1,7 @@
 //package app.diary;
 //
-//import app.authentication.Role;
-//import app.authentication.RoleRepository;
+//import app.roles.Role;
+//import app.roles.RoleRepository;
 //import app.authentication.TokenService;
 //import app.diary.dto.AddProductToDiaryDto;
 //import app.diary.dto.DeleteProductDto;

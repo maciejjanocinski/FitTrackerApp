@@ -3,7 +3,7 @@ package app.workout;
 import lombok.Builder;
 
 @Builder
-public record EditWorkoutDto(
+ record EditWorkoutDto(
         Long id,
         Double activitymin) {
 }

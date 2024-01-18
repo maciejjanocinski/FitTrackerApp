@@ -2,7 +2,6 @@ package app.user;
 
 import app.user.dto.UserDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import static app.bodyMetrics.BodyMetricsMapper.mapBodyMetricsToBodyMetricsDto;
 

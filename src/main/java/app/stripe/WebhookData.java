@@ -3,7 +3,7 @@ package app.stripe;
 import lombok.Data;
 
 @Data
-public class WebhookData {
+ class WebhookData {
     private String type;
     private EventData data;
 }

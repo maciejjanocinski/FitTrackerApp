@@ -1,9 +1,7 @@
 package app.diary.dto;
 
 import app.product.ProductDto;
-import app.recipe.Recipe;
 import app.recipe.RecipeDto;
-import app.workout.Workout;
 import app.workout.WorkoutDto;
 import lombok.Builder;
 

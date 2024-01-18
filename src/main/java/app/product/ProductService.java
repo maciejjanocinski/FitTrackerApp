@@ -19,7 +19,7 @@ import static app.product.ProductMapper.mapToProductDto;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+ class ProductService {
     private final ProductRepository productsRepository;
     private final UserService userService;
 

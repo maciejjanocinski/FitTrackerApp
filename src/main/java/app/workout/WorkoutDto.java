@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
-public record WorkoutDto(
+public record WorkoutDto (
          Long id,
          String activityId,
          String workoutType,

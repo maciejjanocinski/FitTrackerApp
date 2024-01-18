@@ -3,6 +3,8 @@ package app.authentication;
 import app.bodyMetrics.BodyMetrics;
 import app.diary.Diary;
 import app.product.Product;
+import app.roles.Role;
+import app.roles.RoleRepository;
 import app.stripe.StripeCustomer;
 import app.user.User;
 import app.user.UserRepository;
@@ -15,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleInfoNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;

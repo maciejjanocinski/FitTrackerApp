@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class IngredientLine {
+ class IngredientLine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

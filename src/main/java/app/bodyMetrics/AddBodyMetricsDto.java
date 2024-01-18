@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record AddBodyMetricsDto(
+record AddBodyMetricsDto(
         @NotNull(message = "You have to pass your gender.")
         Gender gender,
         @NotNull(message = "You have to pass your birth date.")

@@ -1,11 +1,16 @@
 package app.workout;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class CaloriesBurnedApiResponse {
-    private int status_code;
-    private String request_result;
+ class CaloriesBurnedApiResponse {
+    @JsonProperty("status_code")
+    private int statusCode;
+
+    @JsonProperty("request_result")
+    private String requestResult;
+
     private KcalBurned data;
 }
 

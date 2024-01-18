@@ -1,4 +1,4 @@
-package app.authentication;
+package app.roles;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,9 +19,9 @@ public class Role implements GrantedAuthority {
 
     private String name;
 
-   public enum roleType {
+    public enum roleType {
         ROLE_USER_STANDARD,
-       ROLE_USER_PREMIUM,
+        ROLE_USER_PREMIUM,
         ROLE_ADMIN
     }
 
