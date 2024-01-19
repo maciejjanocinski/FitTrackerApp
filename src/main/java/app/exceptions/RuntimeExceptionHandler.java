@@ -1,4 +1,4 @@
-package app.util.exceptions;
+package app.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.UnexpectedTypeException;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-
+//
 @RestControllerAdvice
 public class RuntimeExceptionHandler {
     @ExceptionHandler(InvalidInputException.class)

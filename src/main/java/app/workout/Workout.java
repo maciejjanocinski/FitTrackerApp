@@ -28,12 +28,11 @@ public class Workout {
     private String workoutType;
     private String description;
     private BigDecimal kcalBurned;
-    private Double durationInMinutes;
+    private BigDecimal durationInMinutes;
     private int intensityLevel;
     private LocalDate date;
 
     @ManyToOne
-    @JsonBackReference
     @JoinColumn(name = "diary_id")
     private Diary diary;
 

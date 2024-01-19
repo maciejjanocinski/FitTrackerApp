@@ -19,11 +19,7 @@ public class Role implements GrantedAuthority {
 
     private String name;
 
-    public enum roleType {
-        ROLE_USER_STANDARD,
-        ROLE_USER_PREMIUM,
-        ROLE_ADMIN
-    }
+
 
     @Override
     public String getAuthority() {

@@ -1,22 +1,29 @@
-package app.bodyMetrics;
+package app.bodymetrics;
 
+import app.common.Gender;
+import app.util.validation.genderValidation.ValidGender;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Getter
 record AddBodyMetricsDto(
         @NotNull(message = "You have to pass your gender.")
+        @ValidGender
         Gender gender,
         @NotNull(message = "You have to pass your birth date.")
         LocalDate birthDate,
         @NotNull(message = "You have to pass your height.")
-        Double height,
+        BigDecimal height,
         @NotNull(message = "You have to pass your weight.")
-        Double weight,
+        BigDecimal weight,
         @NotNull(message = "You have to pass your neck size (cm).")
-        Double neck,
+        BigDecimal neck,
         @NotNull(message = "You have to pass your waist size (cm).")
-        Double waist,
+        BigDecimal waist,
         @NotNull(message = "You have to pass your hip size (cm).")
-        Double hip) {
+        BigDecimal hip) {
 }

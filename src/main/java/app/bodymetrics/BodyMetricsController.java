@@ -1,4 +1,4 @@
-package app.bodyMetrics;
+package app.bodymetrics;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
     BodyMetricsDto setBodyMetrics(@CurrentSecurityContext(expression = "authentication")
                                   Authentication authentication,
                                   @RequestBody @Valid AddBodyMetricsDto addBodyMetricsDto) {
-        return bodyMetricsService.setBodyMetrics(authentication, addBodyMetricsDto);
+        return bodyMetricsService.updateBodyMetrics(authentication, addBodyMetricsDto);
     }
 
 }

@@ -7,6 +7,6 @@ import java.math.BigDecimal;
         String description,
         BigDecimal kcalBurned,
         int intensityLevel,
-        Double durationInMinutes
+        BigDecimal durationInMinutes
 ) {
 }

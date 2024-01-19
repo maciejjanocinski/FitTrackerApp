@@ -12,7 +12,7 @@ public record WorkoutDto (
          String workoutType,
          String description,
          BigDecimal kcalBurned,
-         Double durationInMinutes,
+         BigDecimal durationInMinutes,
          int intensityLevel,
          LocalDate date
  ) {}

@@ -1,5 +1,6 @@
 package app.diary.dto;
 
+import app.nutrients.NutrientsDto;
 import app.product.ProductDto;
 import app.recipe.RecipeDto;
 import app.workout.WorkoutDto;
@@ -10,25 +11,12 @@ import java.util.List;
 
 @Builder
 public record DiaryDto(
-        BigDecimal sumKcal,
-        BigDecimal sumProtein,
-        BigDecimal sumCarbohydrates,
-        BigDecimal sumFat,
-        BigDecimal sumFiber,
-        BigDecimal goalKcal,
-        BigDecimal goalProtein,
-        BigDecimal goalFat,
-        BigDecimal goalCarbohydrates,
-        BigDecimal goalFiber,
-        BigDecimal leftKcal,
-        BigDecimal leftProtein,
-        BigDecimal leftFat,
-        BigDecimal leftCarbohydrates,
-        BigDecimal leftFiber,
-        List<ProductDto> productsInDiary,
-        List<RecipeDto> favouriteRecipes,
+        NutrientsDto sumNutrients,
+        NutrientsDto goalNutrients,
+        NutrientsDto leftNutrients,
+        List<ProductDto> products,
+        List<RecipeDto> recipes,
         List<WorkoutDto> workouts,
-
         BigDecimal kcalBurned
 ) {
 }

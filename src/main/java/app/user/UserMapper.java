@@ -3,7 +3,6 @@ package app.user;
 import app.user.dto.UserDto;
 import org.mapstruct.Mapper;
 
-import static app.bodyMetrics.BodyMetricsMapper.mapBodyMetricsToBodyMetricsDto;
 
 @Mapper(componentModel = "spring")
 interface UserMapper {
@@ -15,7 +14,7 @@ interface UserMapper {
                 .surname(source.getSurname())
                 .email(source.getEmail())
                 .phone(source.getPhone())
-                .bodyMetrics(mapBodyMetricsToBodyMetricsDto(source.getBodyMetrics()))
+//                .bodyMetrics(mapBodyMetricsToBodyMetricsDto(source.getBodyMetrics()))
                 .build();
    };
 }

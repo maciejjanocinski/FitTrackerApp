@@ -63,7 +63,7 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
     public WorkoutDto addWorkout(Authentication authentication, AddWorkoutDto addWorkoutDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
-        Double weight = user.getBodyMetrics().getWeight();
+        BigDecimal weight = user.getBodyMetrics().getWeight();
         Optional<Activity> activity = activityRepository.findActivityById(addWorkoutDto.activityid());
         if (activity.isEmpty()) {
             throw new RuntimeException("Activity not found.");
@@ -92,7 +92,7 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
     public WorkoutDto editWorkout(Authentication authentication, EditWorkoutDto editWorkoutDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
-        Double weight = user.getBodyMetrics().getWeight();
+        BigDecimal weight = user.getBodyMetrics().getWeight();
         List<Workout> workouts = user.getDiary().getWorkouts();
 
         Workout workout = workouts.stream()
@@ -129,13 +129,13 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
     }
 
 
-    private CaloriesBurnedApiResponse getCaloriesBurnedApiResponse(String activityId, Double activityMin, Double weight) {
+    private CaloriesBurnedApiResponse getCaloriesBurnedApiResponse(String activityId, BigDecimal activityMin, BigDecimal weight) {
         ResponseEntity<CaloriesBurnedApiResponse> responseEntity =
                 restTemplate.exchange(caloriesBurnedUrlBuilder(activityId, activityMin, weight), CaloriesBurnedApiResponse.class);
         return responseEntity.getBody();
     }
 
-    private RequestEntity<Void> caloriesBurnedUrlBuilder(String activityId, Double activityMin, Double weight) {
+    private RequestEntity<Void> caloriesBurnedUrlBuilder(String activityId, BigDecimal activityMin, BigDecimal weight) {
         URI uri = UriComponentsBuilder.fromUriString(burnedCaloriesUrl)
                 .queryParam("activityid", activityId)
                 .queryParam("activitymin", activityMin)

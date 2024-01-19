@@ -1,7 +1,7 @@
 package app.user;
 
 import app.product.Product;
-import app.util.exceptions.InvalidPasswordException;
+import app.exceptions.InvalidPasswordException;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayDeque;
 import java.util.List;
 
 import static app.user.UserMapper.mapUserToUserDto;

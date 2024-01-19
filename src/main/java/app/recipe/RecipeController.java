@@ -19,7 +19,7 @@ import java.util.List;
 
     @GetMapping("/search")
     List<RecipeDto> searchProducts(@RequestParam String recipe,
-                                @CurrentSecurityContext(expression = "authentication")
+                                   @CurrentSecurityContext(expression = "authentication")
                                 Authentication authentication) {
         return RecipeService.searchRecipes(recipe, authentication);
     }

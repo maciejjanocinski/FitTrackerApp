@@ -1,7 +1,7 @@
 package app.user;
 
 import app.roles.Role;
-import app.bodyMetrics.BodyMetrics;
+import app.bodymetrics.BodyMetrics;
 import app.diary.Diary;
 import app.product.Product;
 import app.recipe.Recipe;
@@ -49,13 +49,11 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "user")
-    @JsonManagedReference
     private StripeCustomer stripeCustomer;
 
     @OneToOne(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "user")
-    @JsonManagedReference
     private BodyMetrics bodyMetrics;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -66,15 +64,12 @@ public class User implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "diary_id")
-    @JsonManagedReference
     private Diary diary;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonManagedReference
     private List<Recipe> lastlySearchedRecipes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonManagedReference
     private List<Product> lastlySearchedProducts;
 
     @OneToMany

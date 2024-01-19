@@ -67,7 +67,7 @@ public class TestUtils {
 //                .leftProtein(BigDecimal.valueOf(100))
 //                .leftFat(BigDecimal.valueOf(100))
 //                .leftFiber(BigDecimal.valueOf(100))
-//                .productsInDiary(new ArrayList<>())
+//                .products(new ArrayList<>())
 //                .build();
 //    }
 //

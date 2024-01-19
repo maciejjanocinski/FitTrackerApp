@@ -34,7 +34,7 @@ class ParsedDto {
 @Builder
 class HintDto {
     private FoodDto food;
-    private List<MeasureDto> measures;
+    private List<MeasureResponseDto> measures;
 
 }
 
@@ -57,7 +57,7 @@ class FoodDto {
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-class MeasureDto {
+class MeasureResponseDto {
     private String uri;
     private String label;
     private BigDecimal weight;

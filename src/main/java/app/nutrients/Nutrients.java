@@ -1,15 +1,13 @@
 package app.nutrients;
 
-import app.diary.Diary;
 import app.product.Product;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Entity
 @AllArgsConstructor
@@ -20,20 +18,28 @@ public class Nutrients {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private BigDecimal kcal;
-    private BigDecimal proteinQuantityInGrams;
-    private BigDecimal carbohydratesQuantityInGrams;
-    private BigDecimal fatQuantityInGrams;
-    private BigDecimal fiberQuantityInGrams;
+    private BigDecimal proteinGrams;
+    private BigDecimal carbohydratesGrams;
+    private BigDecimal fatGrams;
+    private BigDecimal fiberGrams;
 
-    @OneToOne(mappedBy = "nutrients", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @OneToOne
     private Product product;
 
     public Nutrients() {
         kcal = BigDecimal.ZERO;
-        proteinQuantityInGrams = BigDecimal.ZERO;
-        carbohydratesQuantityInGrams = BigDecimal.ZERO;
-        fatQuantityInGrams = BigDecimal.ZERO;
-        fiberQuantityInGrams = BigDecimal.ZERO;
+        proteinGrams = BigDecimal.ZERO;
+        carbohydratesGrams = BigDecimal.ZERO;
+        fatGrams = BigDecimal.ZERO;
+        fiberGrams = BigDecimal.ZERO;
     }
+
+    public Nutrients(Nutrients nutrients) {
+        this.kcal = nutrients.getKcal();
+        this.proteinGrams = nutrients.getProteinGrams();
+        this.carbohydratesGrams = nutrients.getCarbohydratesGrams();
+        this.fatGrams = nutrients.getFatGrams();
+        this.fiberGrams = nutrients.getFiberGrams();
+    }
+
 }

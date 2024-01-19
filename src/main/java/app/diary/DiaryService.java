@@ -2,8 +2,9 @@ package app.diary;
 
 import app.diary.dto.*;
 import app.product.ProductDto;
+import app.product.ProductMapper;
 import app.user.UserService;
-import app.util.exceptions.ProductNotFoundException;
+import app.exceptions.ProductNotFoundException;
 import app.product.Product;
 import app.product.ProductRepository;
 import app.user.User;
@@ -11,10 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
-import static app.diary.DiaryMapper.mapDiaryToDiaryDto;
-import static app.product.ProductMapper.*;
 import static app.util.Utils.PRODUCT_NOT_FOUND_MESSAGE;
 
 
@@ -25,6 +23,8 @@ public class DiaryService {
 
     private final ProductRepository productsRepository;
     private final UserService userService;
+    private final DiaryMapper diaryMapper = DiaryMapper.INSTANCE;
+    private final ProductMapper productMapper = ProductMapper.INSTANCE;
 
     public DiaryDto getDiary(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
@@ -32,7 +32,7 @@ public class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return mapDiaryToDiaryDto(diary);
+        return diaryMapper.mapToDto(diary);
     }
 
     public ProductDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
@@ -43,9 +43,7 @@ public class DiaryService {
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
-        Product newProduct = new Product();
-        mapProductToProduct(newProduct, product);
-
+        Product newProduct = new Product(product);
         newProduct.setDiary(diary);
         newProduct.setUser(user);
         newProduct.editProductAmount(addProductDto.measureLabel(), addProductDto.quantity());
@@ -53,7 +51,7 @@ public class DiaryService {
         user.updateLastlyAddedProducts(newProduct);
 
         productsRepository.save(newProduct);
-        return mapToProductDto(newProduct);
+        return productMapper.mapToDto(newProduct);
     }
 
     public ProductDto editProductAmountInDiary(EditProductInDiaryDto editProductDto, Authentication authentication) {
@@ -67,7 +65,7 @@ public class DiaryService {
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
-        return mapToProductDto(product);
+        return productMapper.mapToDto(product);
     }
 
     public String deleteProductFromDiary(DeleteProductDto deleteProductDto, Authentication authentication) {

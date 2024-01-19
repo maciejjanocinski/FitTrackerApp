@@ -1,4 +1,4 @@
-package app.bodyMetrics;
+package app.bodymetrics;
 
 import app.user.UserService;
 import jakarta.transaction.Transactional;
@@ -6,24 +6,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import static app.bodyMetrics.BodyMetricsMapper.mapBodyMetricsToBodyMetricsDto;
-import static app.bodyMetrics.BodyMetricsMapper.updateBodyMetrics;
 
 @Service
 @RequiredArgsConstructor
  class BodyMetricsService {
     private final UserService userService;
+    private final BodyMetricsMapper bodyMetricsMapper = BodyMetricsMapper.INSTANCE;
 
     public BodyMetricsDto getBodyMetrics(Authentication authentication) {
         BodyMetrics bodyMetrics = userService.getUserByUsername(authentication.getName()).getBodyMetrics();
-        return mapBodyMetricsToBodyMetricsDto(bodyMetrics);
+        return bodyMetricsMapper.mapToDto(bodyMetrics);
     }
 
     @Transactional
-    public BodyMetricsDto setBodyMetrics(Authentication authentication, AddBodyMetricsDto addBodyMetricsDto) {
+    public BodyMetricsDto updateBodyMetrics(Authentication authentication, AddBodyMetricsDto addBodyMetricsDto) {
         BodyMetrics bodyMetrics = userService.getUserByUsername(authentication.getName()).getBodyMetrics();
-        updateBodyMetrics(bodyMetrics, addBodyMetricsDto);
+        bodyMetrics.updateBodyMetrics(addBodyMetricsDto);
 
-        return mapBodyMetricsToBodyMetricsDto(bodyMetrics);
+        return bodyMetricsMapper.mapToDto(bodyMetrics);
     }
 }

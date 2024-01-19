@@ -2,6 +2,7 @@ package app.stripe;
 
 import app.roles.Role;
 import app.roles.RoleRepository;
+import app.roles.RoleType;
 import app.user.User;
 import app.user.UserRepository;
 import app.user.UserService;
@@ -134,7 +135,7 @@ import static com.stripe.Stripe.apiKey;
                 data.setCheckoutSessionId(null);
                 data.setSubscriptionId(null);
 
-                Role rolePremium = roleRepository.findByName(Role.roleType.ROLE_USER_PREMIUM.toString())
+                Role rolePremium = roleRepository.findByName(RoleType.ROLE_USER_PREMIUM.toString())
                         .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MESSAGE));
                 User user = data.getUser();
                 user.removeRole(rolePremium);

@@ -1,4 +1,4 @@
-package app.bodyMetrics;
+package app.common;
 
 public enum Gender {
     MALE,

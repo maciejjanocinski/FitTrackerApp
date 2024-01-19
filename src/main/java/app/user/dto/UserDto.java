@@ -1,7 +1,7 @@
 package app.user.dto;
 
 
-import app.bodyMetrics.BodyMetricsDto;
+import app.bodymetrics.BodyMetricsDto;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
