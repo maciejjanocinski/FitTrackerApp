@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static app.user.UserMapper.mapUserToUserDto;
 import static app.util.Utils.USER_NOT_FOUND_MESSAGE;
 
 @Service
@@ -28,6 +27,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final UserMapper userMapper = UserMapper.INSTANCE;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
@@ -37,7 +37,7 @@ public class UserService implements UserDetailsService {
 
     UserDto getUser(Authentication authentication) {
         User user = getUserByUsername(authentication.getName());
-        return mapUserToUserDto(user);
+        return userMapper.mapToDto(user);
     }
 
     List<Product> getlastlyAddedProducts(Authentication authentication) {

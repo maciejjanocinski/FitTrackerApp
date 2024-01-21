@@ -10,31 +10,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-//
 @RestControllerAdvice
 public class RuntimeExceptionHandler {
-    @ExceptionHandler(InvalidInputException.class)
-    private ResponseEntity<String> handleMethodArgumentNotValidException(InvalidInputException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-    @ExceptionHandler(RecipeAlreadyAddedException.class)
-    private ResponseEntity<String> handleRecipeAlreadyAddedExceptionException(RecipeAlreadyAddedException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-    @ExceptionHandler(InvalidPasswordException.class)
-    private ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     private ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         String defaultMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
         return new ResponseEntity<>(defaultMessage, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    private ResponseEntity<String> handleSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -53,13 +35,13 @@ public class RuntimeExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UnexpectedTypeException.class)
-    private ResponseEntity<String> handleUnexpectedTypeException(Exception ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(BadRequestExceptions.class)
+    private ResponseEntity<String> handleBadRequestExceptions(BadRequestExceptions ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    private ResponseEntity<String> handleUsernameNotFoundException(Exception ex) {
+    @ExceptionHandler(UnexpectedTypeException.class)
+    private ResponseEntity<String> handleUnexpectedTypeException(UnexpectedTypeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

@@ -8,8 +8,6 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-@Getter
 record AddBodyMetricsDto(
         @NotNull(message = "You have to pass your gender.")
         @ValidGender

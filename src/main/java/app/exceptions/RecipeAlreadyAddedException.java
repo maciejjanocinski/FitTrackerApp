@@ -1,5 +1,5 @@
 package app.exceptions;
-public class RecipeAlreadyAddedException extends RuntimeException{
+public final class RecipeAlreadyAddedException extends BadRequestExceptions{
     public RecipeAlreadyAddedException(String message) {
         super(message);
     }

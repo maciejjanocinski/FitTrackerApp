@@ -4,6 +4,8 @@ import app.bodymetrics.BodyMetrics;
 import app.common.Gender;
 import app.diary.Diary;
 import app.nutrients.Nutrients;
+import app.nutrients.NutrientsDto;
+import app.nutrients.NutrientsMapper;
 import app.user.User;
 import app.user.UserService;
 import jakarta.transaction.Transactional;
@@ -22,7 +24,6 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Objects;
 
-import static app.goal.GoalMapper.mapToGoalResponseDto;
 import static app.util.Utils.FIBER_FEMALE;
 import static app.util.Utils.FIBER_MALE;
 
@@ -31,8 +32,8 @@ import static app.util.Utils.FIBER_MALE;
 public class GoalService {
 
     private final UserService userService;
-
     private final RestTemplate restTemplate = new RestTemplate();
+    private final NutrientsMapper nutrientsMapper = NutrientsMapper.INSTANCE;
 
     @Value("${api.activities.key}")
     private String workoutsKey;
@@ -44,25 +45,25 @@ public class GoalService {
     private String url;
 
 
-    GoalResponseDto getGoal(Authentication authentication) {
+    NutrientsDto getGoal(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         diary.calculateNutrientsLeft();
         diary.calculateNutrientsSum();
-        return mapToGoalResponseDto(diary);
+        return nutrientsMapper.mapToDto(diary.getGoalNutrients());
     }
 
     @Transactional
-    public GoalResponseDto setCustomGoal(Authentication authentication, AddCustomGoalDto addCustomGoalDto) {
+    public NutrientsDto setCustomGoal(Authentication authentication, AddCustomGoalDto addCustomGoalDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         diary.setCustomGoal(addCustomGoalDto, user.getBodyMetrics().getGender());
 
-        return mapToGoalResponseDto(diary);
+        return nutrientsMapper.mapToDto(diary.getGoalNutrients());
     }
 
     @Transactional
-    public GoalResponseDto setGoal(Authentication authentication, AddGoalDto addGoalDto) {
+    public NutrientsDto setGoal(Authentication authentication, AddGoalDto addGoalDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         BodyMetrics bodyMetrics = user.getBodyMetrics();
@@ -74,9 +75,9 @@ public class GoalService {
 
         MacroCalculatorApiResponse response = GetGoalFromApi(addGoalDto, age, gender, height, weight);
         Nutrients nutrients = parseDataFromApiResponse(response, addGoalDto, fiber);
-        Diary res = diary.setGoal(nutrients);
+        diary.setGoal(nutrients);
 
-        return mapToGoalResponseDto(res);
+        return nutrientsMapper.mapToDto(diary.getGoalNutrients());
     }
 
     private MacroCalculatorApiResponse GetGoalFromApi(AddGoalDto addGoalDto, int age, Gender gender, BigDecimal height, BigDecimal weight) {

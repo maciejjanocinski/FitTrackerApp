@@ -1,5 +1,5 @@
 package app.exceptions;
-public class ProductsApiException extends RuntimeException{
+public final class ProductsApiException extends BadRequestExceptions{
     public ProductsApiException(String message) {
         super(message);
     }

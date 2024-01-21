@@ -15,7 +15,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
-import static app.nutrients.NutrientsMapper.mapNutrientsToNutrients;
 import static app.product.Measure.mapToList;
 
 @Data
@@ -76,7 +75,7 @@ public class Product {
     }
 
 
-     Nutrients createNutrients(Map<String, BigDecimal> nutrients) {
+    Nutrients createNutrients(Map<String, BigDecimal> nutrients) {
         return Nutrients.builder()
                 .kcal(valueOrZero(nutrients.get("ENERC_KCAL")))
                 .proteinGrams(valueOrZero(nutrients.get("PROCNT")))
@@ -87,7 +86,7 @@ public class Product {
                 .build();
     }
 
-     BigDecimal valueOrZero(BigDecimal numValue) {
+    BigDecimal valueOrZero(BigDecimal numValue) {
         return numValue == null ? BigDecimal.ZERO : numValue;
     }
 
@@ -116,7 +115,7 @@ public class Product {
 
         quantity = newQuantity;
         currentlyUsedMeasureName = newMeasure.getLabel();
-        mapNutrientsToNutrients(nutrients, newNutrients);
+        nutrients = new Nutrients(newNutrients);
     }
 
     public Product(Product product) {

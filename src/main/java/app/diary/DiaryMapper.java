@@ -9,4 +9,5 @@ interface DiaryMapper {
     DiaryMapper INSTANCE = Mappers.getMapper(DiaryMapper.class);
 
     DiaryDto mapToDto(Diary diary);
+
 }

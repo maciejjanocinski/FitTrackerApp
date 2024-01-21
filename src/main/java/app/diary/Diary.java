@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static app.nutrients.NutrientsMapper.mapNutrientsToNutrients;
 import static app.util.Utils.FIBER_FEMALE;
 import static app.util.Utils.FIBER_MALE;
 
@@ -122,16 +121,15 @@ public class Diary {
     public void setCustomGoal(AddCustomGoalDto addCustomGoalDto, Gender gender) {
         validateGoalDto(addCustomGoalDto);
         Nutrients newGoalNutrients = countCustomGoal(addCustomGoalDto, gender);
-        mapNutrientsToNutrients(goalNutrients, newGoalNutrients);
+        goalNutrients = new Nutrients(newGoalNutrients);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
-    public Diary setGoal(Nutrients newGoalNutrients) {
-        mapNutrientsToNutrients(goalNutrients, newGoalNutrients);
+    public void setGoal(Nutrients newGoalNutrients) {
+        goalNutrients = new Nutrients(newGoalNutrients);
         calculateNutrientsLeft();
         calculateNutrientsSum();
-        return this;
     }
 
     void validateGoalDto(AddCustomGoalDto addCustomGoalDto) {

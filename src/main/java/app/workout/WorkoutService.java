@@ -24,16 +24,15 @@ import java.util.Optional;
 
 import static app.workout.Workout.generateNewCustomWorkout;
 import static app.workout.Workout.generateNewWorkout;
-import static app.workout.WorkoutMapper.mapWorkoutListToWorkoutListDto;
-import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
 
 @Service
 @RequiredArgsConstructor
- class WorkoutService {
+class WorkoutService {
 
     private final UserService userService;
     private final ActivityRepository activityRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+    private final WorkoutMapper workoutMapper = WorkoutMapper.INSTANCE;
 
     @Value("${api.activities.key}")
     private String workoutsKey;
@@ -46,7 +45,7 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
 
     List<WorkoutDto> getWorkouts(Authentication authentication) {
         Diary diary = userService.getUserByUsername(authentication.getName()).getDiary();
-        return mapWorkoutListToWorkoutListDto(diary.getWorkouts());
+        return workoutMapper.mapToDto(diary.getWorkouts());
     }
 
     @Transactional
@@ -56,7 +55,7 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
         Workout workout = generateNewCustomWorkout(addCustomWorkoutDto);
         workout.setDiary(diary);
         diary.getWorkouts().add(workout);
-        return mapWorkoutToWorkoutDto(workout);
+        return workoutMapper.mapToDto(workout);
     }
 
     @Transactional
@@ -85,7 +84,7 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
         diary.calculateBurnedCalories();
         diary.calculateNutrientsLeft();
 
-        return mapWorkoutToWorkoutDto(workout);
+        return workoutMapper.mapToDto(workout);
     }
 
     @Transactional
@@ -109,8 +108,9 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
         diary.calculateBurnedCalories();
         diary.calculateNutrientsLeft();
 
-        return mapWorkoutToWorkoutDto(workout);
+        return workoutMapper.mapToDto(workout);
     }
+
     @Transactional
     public void deleteWorkout(Authentication authentication, DeleteWorkoutDto deleteWorkoutDto) {
         User user = userService.getUserByUsername(authentication.getName());
@@ -149,7 +149,6 @@ import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
 
         return new RequestEntity<>(headers, HttpMethod.GET, uri);
     }
-
 
 
 }
