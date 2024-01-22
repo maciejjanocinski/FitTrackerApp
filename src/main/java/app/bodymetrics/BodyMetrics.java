@@ -39,13 +39,15 @@ public class BodyMetrics {
         hip = DEFAULT_HIP_SIZE;
     }
 
-    void updateBodyMetrics(AddBodyMetricsDto dto) {
-        this.setGender(dto.gender());
-        this.setBirthDate(dto.birthDate());
-        this.setHeight(dto.height());
-        this.setWeight(dto.weight());
-        this.setNeck(dto.neck());
-        this.setWaist(dto.waist());
-        this.setHip(dto.hip());
+    void updateBodyMetrics(UpdateBodyMetricsDto dto) {
+        gender = dto.gender();
+        birthDate = dto.birthDate();
+        height = dto.height();
+        weight = dto.weight();
+        neck = dto.neck();
+        waist = dto.waist();
+        hip = dto.hip();
     }
+
+
 }

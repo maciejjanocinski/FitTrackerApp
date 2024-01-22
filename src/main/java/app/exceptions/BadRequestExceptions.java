@@ -4,8 +4,8 @@ public sealed class BadRequestExceptions extends RuntimeException
         permits
         InvalidInputException,
         InvalidPasswordException,
-        ProductsApiException,
-        RecipeAlreadyAddedException{
+        RecipeAlreadyAddedException,
+        ProductNotFoundException {
     public BadRequestExceptions(String message) {
         super(message);
     }

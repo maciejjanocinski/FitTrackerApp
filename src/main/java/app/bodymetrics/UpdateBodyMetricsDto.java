@@ -3,12 +3,10 @@ package app.bodymetrics;
 import app.common.Gender;
 import app.util.validation.genderValidation.ValidGender;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-record AddBodyMetricsDto(
+record UpdateBodyMetricsDto(
         @NotNull(message = "You have to pass your gender.")
         @ValidGender
         Gender gender,

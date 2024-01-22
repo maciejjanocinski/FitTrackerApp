@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.*;
     }
 
     @PostMapping("/")
-    BodyMetricsDto setBodyMetrics(@CurrentSecurityContext(expression = "authentication")
+    BodyMetricsDto updateBodyMetrics(@CurrentSecurityContext(expression = "authentication")
                                   Authentication authentication,
-                                  @RequestBody @Valid AddBodyMetricsDto addBodyMetricsDto) {
-        return bodyMetricsService.updateBodyMetrics(authentication, addBodyMetricsDto);
+                                     @RequestBody @Valid UpdateBodyMetricsDto updateBodyMetricsDto) {
+        return bodyMetricsService.updateBodyMetrics(authentication, updateBodyMetricsDto);
     }
 
 }

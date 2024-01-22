@@ -1,5 +1,5 @@
 package app.exceptions;
-public class ProductNotFoundException extends RuntimeException{
+public final class ProductNotFoundException extends BadRequestExceptions{
     public ProductNotFoundException(String message) {
         super(message);
     }

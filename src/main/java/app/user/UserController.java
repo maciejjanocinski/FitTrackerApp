@@ -24,7 +24,7 @@ class UserController {
     private final UserService userService;
 
     @GetMapping("/")
-    UserDto getUser(@CurrentSecurityContext(expression = "authentication")
+    UserDto getProfile(@CurrentSecurityContext(expression = "authentication")
                                          Authentication authentication) {
         return userService.getUser(authentication);
     }
