@@ -72,7 +72,8 @@ public class User implements UserDetails {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Product> lastlySearchedProducts;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
+    @OrderBy("id DESC")
     private List<Product> lastlyAddedProducts;
 
     private String lastProductQuery;
@@ -142,13 +143,10 @@ public class User implements UserDetails {
         this.setPhone(updateProfileInfoDto.phone());
     }
 
-    void updateBodyMetrics(BodyMetrics bodyMetrics) {
-        this.setBodyMetrics(bodyMetrics);
-    }
-
    public void updateLastlyAddedProducts(Product product) {
         if (lastlyAddedProducts.size() == 15) {
-            lastlyAddedProducts.remove(0);
+            lastlyAddedProducts.get(lastlyAddedProducts.size() - 1).setLastlyAdded(false);
+            lastlyAddedProducts.remove(lastlyAddedProducts.size() - 1);
         }
         lastlyAddedProducts.add(product);
     }

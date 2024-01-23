@@ -1,6 +1,7 @@
 package app.user;
 
 import app.product.Product;
+import app.product.ProductDto;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
@@ -30,7 +31,7 @@ class UserController {
     }
 
     @GetMapping("/lastly-added-products")
-    List<Product> getLastlyUsedProducts(@CurrentSecurityContext(expression = "authentication")
+    List<ProductDto> getLastlyUsedProducts(@CurrentSecurityContext(expression = "authentication")
                     Authentication authentication) {
         return userService.getlastlyAddedProducts(authentication);
     }

@@ -1,4 +1,4 @@
-package app.util.validation.genderValidation;
+package app.util.validation.gendervalidation;
 
 import app.common.Gender;
 import jakarta.validation.ConstraintValidator;

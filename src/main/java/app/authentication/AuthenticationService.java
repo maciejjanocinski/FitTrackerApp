@@ -53,7 +53,6 @@ class AuthenticationService {
                 .stripeCustomer(stripeCustomer)
                 .authorities(authorities)
                 .bodyMetrics(bodyMetrics)
-                .lastlyAddedProducts(new ArrayList<>())
                 .build();
 
         bodyMetrics.setUser(user);

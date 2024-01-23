@@ -43,7 +43,7 @@ class ProductService {
 
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
             List<Product> products = user.getLastlySearchedProducts().stream()
-                    .filter(p -> p.getDiary() == null)
+                    .filter(p -> p.getDiary() == null && !p.isLastlyAdded() && p.getQuery().equals(lowerCasedQuery))
                     .toList();
             return productMapper.mapToDto(products);
         }
@@ -109,7 +109,7 @@ class ProductService {
     }
 
     void clearNotUsedProducts(User user) {
-        List<Product> products = user.getLastlySearchedProducts().stream().filter(p -> p.getDiary() == null).toList();
+        List<Product> products = user.getLastlySearchedProducts().stream().filter(p -> p.getDiary() == null && !p.isLastlyAdded()).toList();
         products.forEach(p -> {
             p.getMeasures().clear();
             p.setNutrients(null);

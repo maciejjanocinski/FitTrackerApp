@@ -39,7 +39,7 @@ public class BodyMetrics {
         hip = DEFAULT_HIP_SIZE;
     }
 
-    void updateBodyMetrics(UpdateBodyMetricsDto dto) {
+    void updateBodyMetrics(BodyMetricsDto dto) {
         gender = dto.gender();
         birthDate = dto.birthDate();
         height = dto.height();

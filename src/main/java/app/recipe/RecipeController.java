@@ -2,6 +2,7 @@ package app.recipe;
 
 import app.product.ProductDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -25,7 +26,7 @@ import java.util.List;
     }
 
     @PostMapping("/")
-    ProductDto addRecipeToDiary(@RequestBody AddRecipeToDiaryDto addProductToDiaryDto,
+    ProductDto addRecipeToDiary(@RequestBody @Valid AddRecipeToDiaryDto addProductToDiaryDto,
                                 @CurrentSecurityContext(expression = "authentication")
                                  Authentication authentication) {
         return RecipeService.addRecipeToDiary(addProductToDiaryDto, authentication);

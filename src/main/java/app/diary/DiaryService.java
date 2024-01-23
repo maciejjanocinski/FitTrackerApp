@@ -34,7 +34,6 @@ public class DiaryService {
 
         return diaryMapper.mapToDto(diary);
     }
-
     public ProductDto addProductToDiary(AddProductToDiaryDto addProductDto, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
@@ -49,6 +48,8 @@ public class DiaryService {
         newProduct.editProductAmount(addProductDto.measureLabel(), addProductDto.quantity());
         diary.addProduct(newProduct);
         user.updateLastlyAddedProducts(newProduct);
+        newProduct.setLastlyAdded(true);
+        newProduct.getNutrients().setProduct(newProduct);
 
         productsRepository.save(newProduct);
         return productMapper.mapToDto(newProduct);
@@ -62,6 +63,7 @@ public class DiaryService {
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         product.editProductAmount(editProductDto.measureLabel(), editProductDto.quantity());
+
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();
 
@@ -78,8 +80,7 @@ public class DiaryService {
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
         diary.removeProduct(product);
-        user.getLastlyAddedProducts().remove(product);
-        productsRepository.delete(product);
+        user.getLastlySearchedProducts().remove(product);
         return "Product deleted from diary successfully";
     }
 }

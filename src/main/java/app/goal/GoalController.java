@@ -2,6 +2,7 @@ package app.goal;
 
 import app.nutrients.NutrientsDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -24,7 +25,7 @@ public class GoalController {
     @PostMapping("/custom")
     NutrientsDto setCustomGoal(@CurrentSecurityContext(expression = "authentication")
                                                         Authentication authentication,
-                                   @RequestBody AddCustomGoalDto goalsDto) {
+                                   @RequestBody @Valid AddCustomGoalDto goalsDto) {
         return goalService.setCustomGoal(authentication, goalsDto);
     }
 

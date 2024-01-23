@@ -1,7 +1,7 @@
 package app.authentication;
 
-import app.util.validation.passwordValidation.ValidPassword;
-import jakarta.persistence.Column;
+import app.util.validation.passwordvalidation.ValidPassword;
+import app.util.validation.phonevalidation.ValidPhone;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -29,7 +29,7 @@ record RegisterDto(
         @Email
         String email,
 
-        @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
+        @ValidPhone
         String phone) {
 
 }

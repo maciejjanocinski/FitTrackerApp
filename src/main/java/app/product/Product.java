@@ -42,6 +42,7 @@ public class Product {
     private String image;
 
     private String query;
+    private boolean lastlyAdded = false;
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
@@ -110,12 +111,11 @@ public class Product {
                 .carbohydratesGrams(newCarbohydratesQuantity)
                 .fatGrams(newFatQuantity)
                 .fiberGrams(newFiberQuantity)
-                .product(this)
                 .build();
 
         quantity = newQuantity;
         currentlyUsedMeasureName = newMeasure.getLabel();
-        nutrients = new Nutrients(newNutrients);
+        nutrients.mapNutrients(newNutrients);
     }
 
     public Product(Product product) {

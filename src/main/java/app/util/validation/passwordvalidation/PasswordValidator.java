@@ -1,4 +1,4 @@
-package app.util.validation.passwordValidation;
+package app.util.validation.passwordvalidation;
 
 import app.exceptions.InvalidPasswordException;
 import jakarta.validation.ConstraintValidator;
@@ -10,10 +10,6 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
 
     @Override
     public boolean isValid(String password, ConstraintValidatorContext context) {
-        return validation(password);
-    }
-
-    public boolean isValidSetterCheck(String password) {
         return validation(password);
     }
 

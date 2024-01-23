@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
     }
 
     @Transactional
-    public BodyMetricsDto updateBodyMetrics(Authentication authentication, UpdateBodyMetricsDto updateBodyMetricsDto) {
+    public BodyMetricsDto updateBodyMetrics(Authentication authentication, BodyMetricsDto bodyMetricsDto) {
         BodyMetrics bodyMetrics = userService.getUserByUsername(authentication.getName()).getBodyMetrics();
-        bodyMetrics.updateBodyMetrics(updateBodyMetricsDto);
+        bodyMetrics.updateBodyMetrics(bodyMetricsDto);
 
         return bodyMetricsMapper.mapToDto(bodyMetrics);
     }

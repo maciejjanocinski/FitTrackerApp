@@ -1,6 +1,6 @@
 package app.user.dto;
 
-import app.util.validation.phoneValidation.ValidPhone;
+import app.util.validation.phonevalidation.ValidPhone;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

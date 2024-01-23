@@ -65,6 +65,7 @@ public class Diary {
 
     void removeProduct(Product product) {
         products.remove(product);
+        product.setDiary(null);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }

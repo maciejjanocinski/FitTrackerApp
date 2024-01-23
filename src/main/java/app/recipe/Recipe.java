@@ -69,7 +69,7 @@ public class Recipe {
                 .query(this.getQuery())
                 .measures(List.of(Measure.builder()
                         .label("Portion")
-                        .weight(BigDecimal.ZERO)
+                        .weight(BigDecimal.ONE)
                         .build()))
                 .build();
     }

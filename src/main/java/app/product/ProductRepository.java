@@ -16,7 +16,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Product p WHERE p.diary = null AND p.user.id = :userId")
+    @Query("DELETE FROM Product p WHERE p.diary = null AND p.user.id = :userId AND p.lastlyAdded = false")
     void deleteNotUsedProducts(@Param("userId") Long userId);
 
     Optional<Product> findProductById(Long id);

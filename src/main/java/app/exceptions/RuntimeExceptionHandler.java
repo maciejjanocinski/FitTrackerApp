@@ -25,8 +25,8 @@ public class RuntimeExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     private ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        String defaultMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
-        return new ResponseEntity<>(defaultMessage, HttpStatus.BAD_REQUEST);
+        String message = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -47,7 +47,7 @@ public class RuntimeExceptionHandler {
 
     @ExceptionHandler(UnexpectedTypeException.class)
     private ResponseEntity<String> handleUnexpectedTypeException(UnexpectedTypeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
