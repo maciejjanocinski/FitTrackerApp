@@ -12,7 +12,7 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/workout")
-public class WorkoutController {
+ class WorkoutController {
 
     private final WorkoutService workoutService;
 

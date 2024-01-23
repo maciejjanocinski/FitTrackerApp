@@ -1,6 +1,6 @@
 package app.workout;
 
-public record DeleteWorkoutDto(
+ record DeleteWorkoutDto(
         Long id
 ) {
 }

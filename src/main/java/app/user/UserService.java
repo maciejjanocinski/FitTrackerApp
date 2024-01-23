@@ -1,7 +1,9 @@
 package app.user;
 
 import app.product.Product;
-import app.util.exceptions.InvalidPasswordException;
+import app.exceptions.InvalidPasswordException;
+import app.product.ProductDto;
+import app.product.ProductMapper;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
@@ -16,10 +18,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayDeque;
 import java.util.List;
 
-import static app.user.UserMapper.mapUserToUserDto;
 import static app.util.Utils.USER_NOT_FOUND_MESSAGE;
 
 @Service
@@ -29,6 +29,8 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final UserMapper userMapper = UserMapper.INSTANCE;
+    private final ProductMapper productMapper = ProductMapper.INSTANCE;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
@@ -38,12 +40,12 @@ public class UserService implements UserDetailsService {
 
     UserDto getUser(Authentication authentication) {
         User user = getUserByUsername(authentication.getName());
-        return mapUserToUserDto(user);
+        return userMapper.mapToDto(user);
     }
 
-    List<Product> getlastlyAddedProducts(Authentication authentication) {
+    List<ProductDto> getlastlyAddedProducts(Authentication authentication) {
         User user = getUserByUsername(authentication.getName());
-        return user.getLastlyAddedProducts();
+        return productMapper.mapToDto(user.getLastlyAddedProducts());
     }
 
     public User getUserByUsername(String username) {

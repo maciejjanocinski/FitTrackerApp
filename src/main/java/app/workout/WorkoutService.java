@@ -24,16 +24,15 @@ import java.util.Optional;
 
 import static app.workout.Workout.generateNewCustomWorkout;
 import static app.workout.Workout.generateNewWorkout;
-import static app.workout.WorkoutMapper.mapWorkoutListToWorkoutListDto;
-import static app.workout.WorkoutMapper.mapWorkoutToWorkoutDto;
 
 @Service
 @RequiredArgsConstructor
-public class WorkoutService {
+class WorkoutService {
 
     private final UserService userService;
     private final ActivityRepository activityRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+    private final WorkoutMapper workoutMapper = WorkoutMapper.INSTANCE;
 
     @Value("${api.activities.key}")
     private String workoutsKey;
@@ -46,7 +45,7 @@ public class WorkoutService {
 
     List<WorkoutDto> getWorkouts(Authentication authentication) {
         Diary diary = userService.getUserByUsername(authentication.getName()).getDiary();
-        return mapWorkoutListToWorkoutListDto(diary.getWorkouts());
+        return workoutMapper.mapToDto(diary.getWorkouts());
     }
 
     @Transactional
@@ -56,21 +55,21 @@ public class WorkoutService {
         Workout workout = generateNewCustomWorkout(addCustomWorkoutDto);
         workout.setDiary(diary);
         diary.getWorkouts().add(workout);
-        return mapWorkoutToWorkoutDto(workout);
+        return workoutMapper.mapToDto(workout);
     }
 
     @Transactional
     public WorkoutDto addWorkout(Authentication authentication, AddWorkoutDto addWorkoutDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
-        Double weight = user.getBodyMetrics().getWeight();
+        BigDecimal weight = user.getBodyMetrics().getWeight();
         Optional<Activity> activity = activityRepository.findActivityById(addWorkoutDto.activityid());
         if (activity.isEmpty()) {
             throw new RuntimeException("Activity not found.");
         }
         CaloriesBurnedApiResponse caloriesBurnedApiResponse = getCaloriesBurnedApiResponse(addWorkoutDto.activityid(), addWorkoutDto.activitymin(), weight);
 
-        if (caloriesBurnedApiResponse.getStatus_code() != 200) {
+        if (caloriesBurnedApiResponse.getStatusCode() != 200) {
             throw new RuntimeException("Something went wrong");
         }
         BigDecimal burnedCalorie = BigDecimal.valueOf(caloriesBurnedApiResponse.getData().getBurnedCalorie());
@@ -85,14 +84,14 @@ public class WorkoutService {
         diary.calculateBurnedCalories();
         diary.calculateNutrientsLeft();
 
-        return mapWorkoutToWorkoutDto(workout);
+        return workoutMapper.mapToDto(workout);
     }
 
     @Transactional
     public WorkoutDto editWorkout(Authentication authentication, EditWorkoutDto editWorkoutDto) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
-        Double weight = user.getBodyMetrics().getWeight();
+        BigDecimal weight = user.getBodyMetrics().getWeight();
         List<Workout> workouts = user.getDiary().getWorkouts();
 
         Workout workout = workouts.stream()
@@ -109,8 +108,9 @@ public class WorkoutService {
         diary.calculateBurnedCalories();
         diary.calculateNutrientsLeft();
 
-        return mapWorkoutToWorkoutDto(workout);
+        return workoutMapper.mapToDto(workout);
     }
+
     @Transactional
     public void deleteWorkout(Authentication authentication, DeleteWorkoutDto deleteWorkoutDto) {
         User user = userService.getUserByUsername(authentication.getName());
@@ -129,13 +129,13 @@ public class WorkoutService {
     }
 
 
-    private CaloriesBurnedApiResponse getCaloriesBurnedApiResponse(String activityId, Double activityMin, Double weight) {
+    private CaloriesBurnedApiResponse getCaloriesBurnedApiResponse(String activityId, BigDecimal activityMin, BigDecimal weight) {
         ResponseEntity<CaloriesBurnedApiResponse> responseEntity =
                 restTemplate.exchange(caloriesBurnedUrlBuilder(activityId, activityMin, weight), CaloriesBurnedApiResponse.class);
         return responseEntity.getBody();
     }
 
-    private RequestEntity<Void> caloriesBurnedUrlBuilder(String activityId, Double activityMin, Double weight) {
+    private RequestEntity<Void> caloriesBurnedUrlBuilder(String activityId, BigDecimal activityMin, BigDecimal weight) {
         URI uri = UriComponentsBuilder.fromUriString(burnedCaloriesUrl)
                 .queryParam("activityid", activityId)
                 .queryParam("activitymin", activityMin)
@@ -149,7 +149,6 @@ public class WorkoutService {
 
         return new RequestEntity<>(headers, HttpMethod.GET, uri);
     }
-
 
 
 }

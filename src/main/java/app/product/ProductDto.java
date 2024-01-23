@@ -1,5 +1,7 @@
 package app.product;
 
+import app.nutrients.Nutrients;
+import app.nutrients.NutrientsDto;
 import lombok.Builder;
 import java.util.List;
 import java.math.BigDecimal;
@@ -7,15 +9,10 @@ import java.math.BigDecimal;
 public record ProductDto(
         Long id,
         String name,
-        BigDecimal kcal,
-        BigDecimal protein,
-        BigDecimal fat,
-        BigDecimal carbohydrates,
-        BigDecimal fiber,
-        String image,
+        NutrientsDto nutrients,
+        String currentlyUsedMeasureName,
         BigDecimal quantity,
-        String currentlyUsedMeasure,
-        boolean isUsed,
+        String image,
         String query,
-        List<Measure> measures
+        List<MeasureDto> measures
 ) {}

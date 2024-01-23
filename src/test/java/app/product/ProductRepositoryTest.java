@@ -1,7 +1,7 @@
 //package app.product;
 //
-//import app.authentication.Role;
-//import app.authentication.RoleRepository;
+//import app.roles.Role;
+//import app.roles.RoleRepository;
 //import app.user.User;
 //import app.user.UserRepository;
 //import app.utils.TestUtils;

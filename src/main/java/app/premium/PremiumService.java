@@ -1,8 +1,9 @@
 package app.premium;
 
-import app.authentication.Role;
-import app.authentication.RoleRepository;
+import app.roles.Role;
+import app.roles.RoleRepository;
 import app.authentication.TokenService;
+import app.roles.RoleType;
 import app.user.User;
 import app.user.UserService;
 import jakarta.transaction.Transactional;
@@ -14,7 +15,7 @@ import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
-public class PremiumService {
+ class PremiumService {
     private final UserService userService;
     private final TokenService tokenService;
     private final RoleRepository roleRepository;
@@ -22,7 +23,7 @@ public class PremiumService {
     @Transactional
     public String getPremium(Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
-        Role rolePremium = roleRepository.findByName(Role.roleType.ROLE_USER_PREMIUM.toString())
+        Role rolePremium = roleRepository.findByName(RoleType.ROLE_USER_PREMIUM.toString())
                 .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MESSAGE));
         user.addRole(rolePremium);
 

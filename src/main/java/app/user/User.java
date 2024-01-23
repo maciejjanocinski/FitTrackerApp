@@ -1,7 +1,7 @@
 package app.user;
 
-import app.authentication.Role;
-import app.bodyMetrics.BodyMetrics;
+import app.roles.Role;
+import app.bodymetrics.BodyMetrics;
 import app.diary.Diary;
 import app.product.Product;
 import app.recipe.Recipe;
@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -50,13 +49,11 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "user")
-    @JsonManagedReference
     private StripeCustomer stripeCustomer;
 
     @OneToOne(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "user")
-    @JsonManagedReference
     private BodyMetrics bodyMetrics;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -67,18 +64,16 @@ public class User implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "diary_id")
-    @JsonManagedReference
     private Diary diary;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonManagedReference
     private List<Recipe> lastlySearchedRecipes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonManagedReference
     private List<Product> lastlySearchedProducts;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
+    @OrderBy("id DESC")
     private List<Product> lastlyAddedProducts;
 
     private String lastProductQuery;
@@ -148,13 +143,10 @@ public class User implements UserDetails {
         this.setPhone(updateProfileInfoDto.phone());
     }
 
-    void updateBodyMetrics(BodyMetrics bodyMetrics) {
-        this.setBodyMetrics(bodyMetrics);
-    }
-
    public void updateLastlyAddedProducts(Product product) {
         if (lastlyAddedProducts.size() == 15) {
-            lastlyAddedProducts.remove(0);
+            lastlyAddedProducts.get(lastlyAddedProducts.size() - 1).setLastlyAdded(false);
+            lastlyAddedProducts.remove(lastlyAddedProducts.size() - 1);
         }
         lastlyAddedProducts.add(product);
     }

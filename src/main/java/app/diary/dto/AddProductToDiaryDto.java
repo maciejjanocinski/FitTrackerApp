@@ -1,5 +1,6 @@
 package app.diary.dto;
 
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -8,5 +9,7 @@ import java.math.BigDecimal;
 public record AddProductToDiaryDto(
         Long id,
         String measureLabel,
-        BigDecimal quantity) {
+        @Positive(message = "Quantity must be positive.")
+        BigDecimal quantity
+) {
 }

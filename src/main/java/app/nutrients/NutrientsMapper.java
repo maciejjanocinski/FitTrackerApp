@@ -1,15 +1,13 @@
 package app.nutrients;
 
 import org.mapstruct.Mapper;
-@Mapper(componentModel = "spring")
+import org.mapstruct.factory.Mappers;
+
+@Mapper
 public interface NutrientsMapper {
-    static void mapNutrientsToNutrients(Nutrients oldNutrients, Nutrients newNutrients) {
-        oldNutrients.setKcal(newNutrients.getKcal());
-        oldNutrients.setProteinQuantityInGrams(newNutrients.getProteinQuantityInGrams());
-        oldNutrients.setCarbohydratesQuantityInGrams(newNutrients.getCarbohydratesQuantityInGrams());
-        oldNutrients.setFatQuantityInGrams(newNutrients.getFatQuantityInGrams());
-        oldNutrients.setFiberQuantityInGrams(newNutrients.getFiberQuantityInGrams());
-        oldNutrients.setProduct(newNutrients.getProduct());
-    }
+
+    NutrientsMapper INSTANCE = Mappers.getMapper(NutrientsMapper.class);
+
+    NutrientsDto mapToDto(Nutrients nutrients);
 
 }

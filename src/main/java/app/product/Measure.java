@@ -1,11 +1,12 @@
 package app.product;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 import java.math.BigDecimal;
 
@@ -22,12 +23,27 @@ public class Measure {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    private String name;
+    private String label;
 
     private BigDecimal weight;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    @JsonBackReference
     private Product product;
+
+    public Measure(Measure measure) {
+        this.id = null;
+        this.product = null;
+        this.label = measure.getLabel();
+        this.weight = measure.getWeight();
+    }
+
+    public static List<Measure> mapToList(List<Measure> measures, Product product) {
+        return measures.stream()
+                .map(measure -> {
+                    Measure newMeasure = new Measure(measure);
+                    newMeasure.setProduct(product);
+                    return newMeasure;
+                })
+                .toList();
+    }
 }

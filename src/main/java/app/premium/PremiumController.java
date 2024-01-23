@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/premium")
-public class PremiumController {
+ class PremiumController {
 
     private final PremiumService premiumService;
     @GetMapping("/")

@@ -1,13 +1,15 @@
 package app.authentication;
 
-import app.bodyMetrics.BodyMetrics;
+import app.bodymetrics.BodyMetrics;
 import app.diary.Diary;
-import app.product.Product;
+import app.exceptions.InvalidInputException;
+import app.roles.Role;
+import app.roles.RoleRepository;
+import app.roles.RoleType;
 import app.stripe.StripeCustomer;
 import app.user.User;
 import app.user.UserRepository;
-import app.util.exceptions.InvalidInputException;
-import app.util.exceptions.InvalidPasswordException;
+import app.exceptions.InvalidPasswordException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,8 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleInfoNotFoundException;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,13 +35,12 @@ class AuthenticationService {
 
     RegisterResponseDto register(RegisterDto registerDto) {
 
-        Role role = roleRepository.findByName(Role.roleType.ROLE_USER_STANDARD.toString())
+        Role role = roleRepository.findByName(RoleType.ROLE_USER_STANDARD.toString())
                 .orElseThrow(() -> new InvalidInputException(ROLE_NOT_FOUND_MESSAGE));
 
         Set<Role> authorities = new HashSet<>();
         BodyMetrics bodyMetrics = new BodyMetrics();
         StripeCustomer stripeCustomer = new StripeCustomer();
-        List<Product> lastlyAddedProducts = new ArrayList<>();
         authorities.add(role);
         Diary diary = new Diary();
         User user = User.builder()
@@ -54,12 +53,11 @@ class AuthenticationService {
                 .stripeCustomer(stripeCustomer)
                 .authorities(authorities)
                 .bodyMetrics(bodyMetrics)
-                .lastlyAddedProducts(lastlyAddedProducts)
                 .build();
 
         bodyMetrics.setUser(user);
         stripeCustomer.setUser(user);
-        if (checkIfPasswordsAreTheSame(registerDto.password(), registerDto.confirmPassword())) {
+        if (checkPasswordsMatch(registerDto.password(), registerDto.confirmPassword())) {
             user.setPassword(passwordEncoder.encode(registerDto.password()));
         } else {
             throw new InvalidPasswordException("Passwords are not the same");
@@ -87,7 +85,7 @@ class AuthenticationService {
     }
 
 
-    private boolean checkIfPasswordsAreTheSame(String password, String confirmPassword) {
+    private boolean checkPasswordsMatch(String password, String confirmPassword) {
         return password.equals(confirmPassword);
     }
 }

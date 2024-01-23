@@ -256,7 +256,7 @@
 //                .leftFat(BigDecimal.valueOf(100))
 //                .leftCarbohydrates(BigDecimal.valueOf(100))
 //                .leftFiber(BigDecimal.valueOf(100))
-//                .productsInDiary(List.of(
+//                .products(List.of(
 //                        buildProductInDiaryDto("1"),
 //                        buildProductInDiaryDto("2"),
 //                        buildProductInDiaryDto("3")

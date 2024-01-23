@@ -1,13 +1,12 @@
 package app.diary;
 
-import app.bodyMetrics.Gender;
+import app.common.Gender;
+import app.exceptions.InvalidInputException;
 import app.goal.AddCustomGoalDto;
 import app.nutrients.Nutrients;
 import app.product.Product;
 import app.recipe.Recipe;
-import app.util.exceptions.InvalidInputException;
 import app.workout.Workout;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static app.nutrients.NutrientsMapper.mapNutrientsToNutrients;
+import static app.util.Utils.FIBER_FEMALE;
+import static app.util.Utils.FIBER_MALE;
 
 @Data
 @AllArgsConstructor
@@ -28,15 +28,14 @@ import static app.nutrients.NutrientsMapper.mapNutrientsToNutrients;
 public class Diary {
 
     @Id
-    @PrimaryKeyJoinColumn
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long diaryId;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private Nutrients nutrientsSum;
+    private Nutrients sumNutrients;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private Nutrients nutrientsLeft;
+    private Nutrients leftNutrients;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private Nutrients goalNutrients;
@@ -44,17 +43,14 @@ public class Diary {
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "diary")
-    @JsonManagedReference
     private List<Product> products;
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER,
             mappedBy = "diary")
-    @JsonManagedReference
     private List<Recipe> recipes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "diary")
-    @JsonManagedReference
     private List<Workout> workouts;
 
     private BigDecimal kcalBurned;
@@ -69,6 +65,7 @@ public class Diary {
 
     void removeProduct(Product product) {
         products.remove(product);
+        product.setDiary(null);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
@@ -85,57 +82,55 @@ public class Diary {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal sumProtein = products.stream()
-                .map(p -> p.getNutrients().getProteinQuantityInGrams())
+                .map(p -> p.getNutrients().getProteinGrams())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal sumCarbohydrates = products.stream()
-                .map(p -> p.getNutrients().getCarbohydratesQuantityInGrams())
+                .map(p -> p.getNutrients().getCarbohydratesGrams())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal sumFat = products.stream()
-                .map(p -> p.getNutrients().getFatQuantityInGrams())
+                .map(p -> p.getNutrients().getFatGrams())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal sumFiber = products.stream()
-                .map(p -> p.getNutrients().getFiberQuantityInGrams())
+                .map(p -> p.getNutrients().getFiberGrams())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        nutrientsSum.setKcal(sumKcal);
-        nutrientsSum.setProteinQuantityInGrams(sumProtein);
-        nutrientsSum.setCarbohydratesQuantityInGrams(sumCarbohydrates);
-        nutrientsSum.setFatQuantityInGrams(sumFat);
-        nutrientsSum.setFiberQuantityInGrams(sumFiber);
+        sumNutrients.setKcal(sumKcal);
+        sumNutrients.setProteinGrams(sumProtein);
+        sumNutrients.setCarbohydratesGrams(sumCarbohydrates);
+        sumNutrients.setFatGrams(sumFat);
+        sumNutrients.setFiberGrams(sumFiber);
     }
 
     public void calculateNutrientsLeft() {
-        BigDecimal kcalLeft = goalNutrients.getKcal().subtract(nutrientsSum.getKcal()).add(kcalBurned);
-        BigDecimal proteinLeft = goalNutrients.getProteinQuantityInGrams().subtract(nutrientsSum.getProteinQuantityInGrams());
-        BigDecimal carbohydratesLeft = goalNutrients.getCarbohydratesQuantityInGrams().subtract(nutrientsSum.getCarbohydratesQuantityInGrams());
-        BigDecimal fatLeft = goalNutrients.getFatQuantityInGrams().subtract(nutrientsSum.getFatQuantityInGrams());
-        BigDecimal fiberLeft = goalNutrients.getFiberQuantityInGrams().subtract(nutrientsSum.getFiberQuantityInGrams());
+        BigDecimal kcalLeft = goalNutrients.getKcal().subtract(sumNutrients.getKcal()).add(kcalBurned);
+        BigDecimal proteinLeft = goalNutrients.getProteinGrams().subtract(sumNutrients.getProteinGrams());
+        BigDecimal carbohydratesLeft = goalNutrients.getCarbohydratesGrams().subtract(sumNutrients.getCarbohydratesGrams());
+        BigDecimal fatLeft = goalNutrients.getFatGrams().subtract(sumNutrients.getFatGrams());
+        BigDecimal fiberLeft = goalNutrients.getFiberGrams().subtract(sumNutrients.getFiberGrams());
 
-        nutrientsLeft.setKcal(kcalLeft);
-        nutrientsLeft.setProteinQuantityInGrams(proteinLeft);
-        nutrientsLeft.setCarbohydratesQuantityInGrams(carbohydratesLeft);
-        nutrientsLeft.setFatQuantityInGrams(fatLeft);
-        nutrientsLeft.setFiberQuantityInGrams(fiberLeft);
+        leftNutrients.setKcal(kcalLeft);
+        leftNutrients.setProteinGrams(proteinLeft);
+        leftNutrients.setCarbohydratesGrams(carbohydratesLeft);
+        leftNutrients.setFatGrams(fatLeft);
+        leftNutrients.setFiberGrams(fiberLeft);
     }
 
 
-    public Diary setCustomGoal(AddCustomGoalDto addCustomGoalDto, Gender gender) {
+    public void setCustomGoal(AddCustomGoalDto addCustomGoalDto, Gender gender) {
         validateGoalDto(addCustomGoalDto);
         Nutrients newGoalNutrients = countCustomGoal(addCustomGoalDto, gender);
-        mapNutrientsToNutrients(goalNutrients, newGoalNutrients);
+        goalNutrients = new Nutrients(newGoalNutrients);
         calculateNutrientsLeft();
         calculateNutrientsSum();
-        return this;
     }
 
-    public Diary setGoal(Nutrients newGoalNutrients) {
-        mapNutrientsToNutrients(goalNutrients, newGoalNutrients);
+    public void setGoal(Nutrients newGoalNutrients) {
+        goalNutrients = new Nutrients(newGoalNutrients);
         calculateNutrientsLeft();
         calculateNutrientsSum();
-        return this;
     }
 
     void validateGoalDto(AddCustomGoalDto addCustomGoalDto) {
@@ -149,20 +144,20 @@ public class Diary {
         BigDecimal protein = addCustomGoalDto.kcal().multiply(BigDecimal.valueOf(addCustomGoalDto.proteinPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
         BigDecimal carbohydrates = addCustomGoalDto.kcal().multiply(BigDecimal.valueOf(addCustomGoalDto.carbohydratesPercentage())).divide(BigDecimal.valueOf(400), 2, RoundingMode.HALF_UP);
         BigDecimal fat = addCustomGoalDto.kcal().multiply(BigDecimal.valueOf(addCustomGoalDto.fatPercentage())).divide(BigDecimal.valueOf(900), 2, RoundingMode.HALF_UP);
-        BigDecimal fiber = Objects.equals(gender, Gender.MALE) ? BigDecimal.valueOf(38) : BigDecimal.valueOf(25);
+        BigDecimal fiber = Objects.equals(gender, Gender.MALE) ? BigDecimal.valueOf(FIBER_MALE) : BigDecimal.valueOf(FIBER_FEMALE);
 
         return Nutrients.builder()
                 .kcal(addCustomGoalDto.kcal())
-                .proteinQuantityInGrams(protein)
-                .carbohydratesQuantityInGrams(carbohydrates)
-                .fatQuantityInGrams(fat)
-                .fiberQuantityInGrams(fiber)
+                .proteinGrams(protein)
+                .carbohydratesGrams(carbohydrates)
+                .fatGrams(fat)
+                .fiberGrams(fiber)
                 .build();
     }
 
     public Diary() {
-        nutrientsSum = new Nutrients();
-        nutrientsLeft = new Nutrients();
+        sumNutrients = new Nutrients();
+        leftNutrients = new Nutrients();
         goalNutrients = new Nutrients();
         workouts = new ArrayList<>();
         products = new ArrayList<>();

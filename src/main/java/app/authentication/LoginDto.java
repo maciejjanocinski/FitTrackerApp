@@ -1,6 +1,6 @@
 package app.authentication;
 
-import app.util.validation.passwordValidation.ValidPassword;
+import app.util.validation.passwordvalidation.ValidPassword;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;

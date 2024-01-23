@@ -2,8 +2,10 @@ package app.workout;
 
 import lombok.Builder;
 
+import java.math.BigDecimal;
+
 @Builder
-public record EditWorkoutDto(
+ record EditWorkoutDto(
         Long id,
-        Double activitymin) {
+        BigDecimal activitymin) {
 }

@@ -1,11 +1,17 @@
 package app.activity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
 import java.util.List;
 
 @Data
-public class ActivityApiResponse {
-    private int status_code;
-    private String request_result;
+class ActivityApiResponse {
+    @JsonProperty("status_code")
+    private int statusCode;
+
+    @JsonProperty("request_result")
+    private String requestResult;
+
     private List<Activity> data;
 }

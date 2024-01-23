@@ -1,14 +1,14 @@
 package app.authentication;
 
-import app.util.validation.passwordValidation.ValidPassword;
-import jakarta.persistence.Column;
+import app.util.validation.passwordvalidation.ValidPassword;
+import app.util.validation.phonevalidation.ValidPhone;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
-public record RegisterDto(
+record RegisterDto(
         @Size(min = 6, message = "Username must have at least 6 characters.")
         @Size(max = 20, message = "Username cannot have more than 20 characters.")
         String username,
@@ -29,7 +29,7 @@ public record RegisterDto(
         @Email
         String email,
 
-        @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
+        @ValidPhone
         String phone) {
 
 }

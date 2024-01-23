@@ -1,16 +1,13 @@
 package app.recipe;
 
-import static app.product.ProductMapper.mapRecipeToProduct;
-import static app.product.ProductMapper.mapToProductDto;
-import static app.recipe.RecipeMapper.mapRecipeDtoToRecipeDtoList;
-
 import app.diary.Diary;
+import app.exceptions.RecipeAlreadyAddedException;
 import app.product.Product;
 import app.product.ProductDto;
+import app.product.ProductMapper;
 import app.product.ProductRepository;
 import app.user.User;
 import app.user.UserService;
-import app.util.exceptions.RecipeAlreadyAddedException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RecipeService {
+ class RecipeService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${api.recipes.url}")
@@ -35,7 +32,8 @@ public class RecipeService {
 
     @Value("${api.recipes.id}")
     private String id;
-    private final RecipeMapper recipeMapper;
+    private final RecipeMapper recipeMapper = RecipeMapper.INSTANCE;
+    private final ProductMapper productMapper = ProductMapper.INSTANCE;
 
     private final UserService userService;
 
@@ -47,7 +45,7 @@ public class RecipeService {
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastRecipeQuery() != null && user.getLastRecipeQuery().equals(lowerCasedQuery)) {
-            return mapRecipeDtoToRecipeDtoList(user.getLastlySearchedRecipes());
+            return recipeMapper.mapToDto(user.getLastlySearchedRecipes());
         }
 
         clearNotUsedRecipes(user);
@@ -59,9 +57,9 @@ public class RecipeService {
 
         List<Recipe> recipes = result.getHits().stream()
                 .map(recipeAndLinkDto -> {
-                    RecipeDto recipeDto = recipeAndLinkDto.getRecipe();
-                    recipeDto.calculateNutrientsPerServing();
-                    Recipe recipe = recipeMapper.mapToRecipe(recipeDto);
+                    RecipeApiResult recipeApiResult = recipeAndLinkDto.getRecipe();
+                    recipeApiResult.calculateNutrientsPerServing();
+                    Recipe recipe = recipeMapper.mapToRecipe(recipeApiResult);
                     recipe.setUser(user);
                     recipe.setQuery(lowerCasedQuery);
                     return recipe;
@@ -69,7 +67,7 @@ public class RecipeService {
                 .toList();
 
         recipeRepository.saveAll(recipes);
-        return mapRecipeDtoToRecipeDtoList(recipes);
+        return recipeMapper.mapToDto(recipes);
     }
 
     public ProductDto addRecipeToDiary(AddRecipeToDiaryDto addProductToDiaryDto, Authentication authentication) {
@@ -78,14 +76,14 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findByIdAndUser(addProductToDiaryDto.id(), user)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-        Product product = mapRecipeToProduct(recipe);
+        Product product = recipe.mapToProduct();
 
         product.getMeasures().forEach(measure -> measure.setProduct(product));
         product.setUser(user);
         product.setDiary(diary);
         diary.addProduct(product);
         productRepository.save(product);
-        return mapToProductDto(product);
+        return productMapper.mapToDto(product);
     }
 
 

@@ -1,7 +1,7 @@
 package app.configuration;
 
-import app.authentication.Role;
-import app.authentication.RoleRepository;
+import app.roles.Role;
+import app.roles.RoleType;
 import app.util.RsaKeyProperties;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -10,6 +10,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,33 +42,22 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
-public class SecurityConfig implements WebMvcConfigurer {
+@RequiredArgsConstructor
+ class SecurityConfig {
 
     private final RsaKeyProperties keys;
-    private final RoleRepository roleRepository;
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
-    }
-
-
-
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
+//    }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+     PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
         Map<String, PasswordEncoder> encoderMap = new HashMap<>();
         encoderMap.put(idForEncode, new BCryptPasswordEncoder());
         return new DelegatingPasswordEncoder(idForEncode, encoderMap);
-    }
-
-    @Bean
-    public void addRoles() {
-        roleRepository.save(Role.builder().name(Role.roleType.ROLE_USER_STANDARD.toString()).build());
-        roleRepository.save(Role.builder().name(Role.roleType.ROLE_USER_PREMIUM.toString()).build());
-        roleRepository.save(Role.builder().name(Role.roleType.ROLE_ADMIN.toString()).build());
     }
 
     @Bean
@@ -79,7 +69,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspect) throws Exception {
+     SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspect) throws Exception {
         MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspect);
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -98,7 +88,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 mvcMatcherBuilder.pattern("swagger-ui/**"),
                                 mvcMatcherBuilder.pattern("/webhook")
                         ).permitAll()
-                        .requestMatchers(mvcMatcherBuilder.pattern("/recipes/**")).hasAuthority(Role.roleType.ROLE_USER_PREMIUM.toString())
+                        .requestMatchers(mvcMatcherBuilder.pattern("/recipes/**")).hasAuthority(RoleType.ROLE_USER_PREMIUM.toString())
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2ResourceServer ->
@@ -123,7 +113,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
         grantedAuthoritiesConverter.setAuthorityPrefix("");
@@ -133,7 +123,4 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         return jwtConverter;
     }
-
-
-
 }

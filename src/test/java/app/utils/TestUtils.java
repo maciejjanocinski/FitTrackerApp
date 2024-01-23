@@ -1,15 +1,14 @@
 package app.utils;
 
-import app.authentication.Role;
-import app.diary.Diary;
-import app.product.Measure;
-import app.product.Product;
-import app.user.User;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+//import app.diary.Diary;
+//import app.product.Measure;
+//import app.product.Product;
+//import app.user.User;
+//
+//import java.math.BigDecimal;
+//import java.util.ArrayList;
+//import java.util.List;
+//import java.util.Set;
 
 public class TestUtils {
 //    public static final String USERNAME = "name";
@@ -68,7 +67,7 @@ public class TestUtils {
 //                .leftProtein(BigDecimal.valueOf(100))
 //                .leftFat(BigDecimal.valueOf(100))
 //                .leftFiber(BigDecimal.valueOf(100))
-//                .productsInDiary(new ArrayList<>())
+//                .products(new ArrayList<>())
 //                .build();
 //    }
 //

@@ -2,6 +2,7 @@ package app.recipe;
 
 import app.product.ProductDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -13,19 +14,19 @@ import java.util.List;
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/recipes")
-public class RecipeController {
+ class RecipeController {
 
     private final RecipeService RecipeService;
 
     @GetMapping("/search")
     List<RecipeDto> searchProducts(@RequestParam String recipe,
-                                @CurrentSecurityContext(expression = "authentication")
+                                   @CurrentSecurityContext(expression = "authentication")
                                 Authentication authentication) {
         return RecipeService.searchRecipes(recipe, authentication);
     }
 
     @PostMapping("/")
-    ProductDto addRecipeToDiary(@RequestBody AddRecipeToDiaryDto addProductToDiaryDto,
+    ProductDto addRecipeToDiary(@RequestBody @Valid AddRecipeToDiaryDto addProductToDiaryDto,
                                 @CurrentSecurityContext(expression = "authentication")
                                  Authentication authentication) {
         return RecipeService.addRecipeToDiary(addProductToDiaryDto, authentication);
