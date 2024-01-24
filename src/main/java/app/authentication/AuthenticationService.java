@@ -55,6 +55,7 @@ class AuthenticationService {
                 .bodyMetrics(bodyMetrics)
                 .build();
 
+        diary.setUser(user);
         bodyMetrics.setUser(user);
         stripeCustomer.setUser(user);
         if (checkPasswordsMatch(registerDto.password(), registerDto.confirmPassword())) {

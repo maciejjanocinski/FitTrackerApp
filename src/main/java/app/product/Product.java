@@ -95,7 +95,7 @@ public class Product {
         return textValue == null ? "" : textValue;
     }
 
-    public void editProductAmount(String newMeasureLabel, BigDecimal newQuantity) {
+    public void changeAmount(String newMeasureLabel, BigDecimal newQuantity) {
         Measure newMeasure = searchForMeasure(measures, newMeasureLabel);
         Measure currentlyUsedMeasure = searchForMeasure(measures, currentlyUsedMeasureName);
 

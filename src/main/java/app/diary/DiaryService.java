@@ -45,7 +45,7 @@ public class DiaryService {
         Product newProduct = new Product(product);
         newProduct.setDiary(diary);
         newProduct.setUser(user);
-        newProduct.editProductAmount(addProductDto.measureLabel(), addProductDto.quantity());
+        newProduct.changeAmount(addProductDto.measureLabel(), addProductDto.quantity());
         diary.addProduct(newProduct);
         user.updateLastlyAddedProducts(newProduct);
         newProduct.setLastlyAdded(true);
@@ -62,7 +62,7 @@ public class DiaryService {
         Product product = productsRepository.findProductById(editProductDto.id())
                 .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND_MESSAGE));
 
-        product.editProductAmount(editProductDto.measureLabel(), editProductDto.quantity());
+        product.changeAmount(editProductDto.measureLabel(), editProductDto.quantity());
 
         diary.calculateNutrientsSum();
         diary.calculateNutrientsLeft();

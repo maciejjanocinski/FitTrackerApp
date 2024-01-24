@@ -6,6 +6,7 @@ import app.goal.AddCustomGoalDto;
 import app.nutrients.Nutrients;
 import app.product.Product;
 import app.recipe.Recipe;
+import app.user.User;
 import app.workout.Workout;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +55,13 @@ public class Diary {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "diary")
     private List<Workout> workouts;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     private BigDecimal kcalBurned;
+
+    private LocalDate date;
 
 
 
@@ -163,5 +171,6 @@ public class Diary {
         products = new ArrayList<>();
         recipes = new ArrayList<>();
         kcalBurned = BigDecimal.ZERO;
+        date = LocalDate.now();
     }
 }

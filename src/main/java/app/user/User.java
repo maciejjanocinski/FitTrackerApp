@@ -7,7 +7,6 @@ import app.product.Product;
 import app.recipe.Recipe;
 import app.stripe.StripeCustomer;
 import app.user.dto.UpdateProfileInfoDto;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,8 +61,13 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> authorities;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "diary_id")
+    @OneToMany(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            mappedBy = "user")
+    private List<Diary> diariesHistory;
+
+    @OneToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
     private Diary diary;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
