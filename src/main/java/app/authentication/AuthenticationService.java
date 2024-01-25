@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
@@ -50,6 +51,7 @@ class AuthenticationService {
                 .email(registerDto.email().trim())
                 .phone(registerDto.phone().trim())
                 .diary(diary)
+                .diariesHistory(new ArrayList<>())
                 .stripeCustomer(stripeCustomer)
                 .authorities(authorities)
                 .bodyMetrics(bodyMetrics)

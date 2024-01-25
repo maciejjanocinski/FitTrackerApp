@@ -1,10 +1,10 @@
 package app.user;
 
-import app.roles.Role;
 import app.bodymetrics.BodyMetrics;
 import app.diary.Diary;
 import app.product.Product;
 import app.recipe.Recipe;
+import app.roles.Role;
 import app.stripe.StripeCustomer;
 import app.user.dto.UpdateProfileInfoDto;
 import jakarta.persistence.*;
