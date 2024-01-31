@@ -31,38 +31,37 @@ public class Diary {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long diaryId;
+    private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private Nutrients sumNutrients;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private Nutrients leftNutrients;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private Nutrients goalNutrients;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "diary")
     private List<Product> products;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "diary")
     private List<Recipe> recipes;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "diary")
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "diary")
     private List<Workout> workouts;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     private BigDecimal kcalBurned;
 
     private LocalDate date;
-
 
 
     public void addProduct(Product product) {

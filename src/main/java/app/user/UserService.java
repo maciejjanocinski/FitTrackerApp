@@ -53,6 +53,10 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_MESSAGE));
     }
 
+    public List<User> getUsers() {
+        return userRepository.findAll();
+    }
+
     @Transactional
     public String updateProfile(Authentication authentication, UpdateProfileInfoDto updateProfileInfoDto) {
         getUserByUsername(authentication.getName()).updateUserProfile(updateProfileInfoDto);

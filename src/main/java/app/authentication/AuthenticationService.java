@@ -2,14 +2,13 @@ package app.authentication;
 
 import app.bodymetrics.BodyMetrics;
 import app.diary.Diary;
-import app.exceptions.InvalidInputException;
+import app.exceptions.InvalidPasswordException;
 import app.roles.Role;
-import app.roles.RoleRepository;
+import app.roles.RoleService;
 import app.roles.RoleType;
 import app.stripe.StripeCustomer;
 import app.user.User;
 import app.user.UserRepository;
-import app.exceptions.InvalidPasswordException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,10 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @AllArgsConstructor
@@ -32,12 +28,11 @@ class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     RegisterResponseDto register(RegisterDto registerDto) {
 
-        Role role = roleRepository.findByName(RoleType.ROLE_USER_STANDARD.toString())
-                .orElseThrow(() -> new InvalidInputException(ROLE_NOT_FOUND_MESSAGE));
+        Role role = roleService.getRole(RoleType.ROLE_USER_STANDARD.toString());
 
         Set<Role> authorities = new HashSet<>();
         BodyMetrics bodyMetrics = new BodyMetrics();

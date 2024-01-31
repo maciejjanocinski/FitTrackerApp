@@ -67,7 +67,7 @@ public class User implements UserDetails {
     private List<Diary> diariesHistory;
 
     @OneToOne(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     private Diary diary;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")

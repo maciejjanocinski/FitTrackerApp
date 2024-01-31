@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @EnableScheduling
 @Component
 @RequiredArgsConstructor
@@ -16,17 +18,19 @@ public class ScheduledTasks {
 
     private final UserService userService;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 30000)
     @Transactional
     public void resetDailyLog() {
-        User user = userService.getUserByUsername("Maciej");
-        Diary diary = user.getDiary();
-        user.getDiariesHistory().add(diary);
+        List<User> users = userService.getUsers();
 
-        Diary newDiary = new Diary();
-        newDiary.setUser(user);
-        newDiary.getGoalNutrients().mapNutrients(diary.getGoalNutrients());
-        user.setDiary(newDiary);
+        for (User user : users
+        ) {
+            Diary diary = user.getDiary();
+            Diary newDiary = new Diary();
+            newDiary.setUser(user);
+            newDiary.getGoalNutrients().mapNutrients(diary.getGoalNutrients());
+            user.setDiary(newDiary);
+        }
     }
 
 }

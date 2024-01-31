@@ -1,7 +1,7 @@
 package app.stripe;
 
 import app.roles.Role;
-import app.roles.RoleRepository;
+import app.roles.RoleService;
 import app.roles.RoleType;
 import app.user.User;
 import app.user.UserRepository;
@@ -30,7 +30,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
 
-import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 import static com.stripe.Stripe.apiKey;
 
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ import static com.stripe.Stripe.apiKey;
     private final UserService userService;
     private final UserRepository userRepository;
     private final StripeCustomerRepository stripeCustomerRepository;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -135,8 +134,7 @@ import static com.stripe.Stripe.apiKey;
                 data.setCheckoutSessionId(null);
                 data.setSubscriptionId(null);
 
-                Role rolePremium = roleRepository.findByName(RoleType.ROLE_USER_PREMIUM.toString())
-                        .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MESSAGE));
+                Role rolePremium = roleService.getRole(RoleType.ROLE_USER_PREMIUM.toString());
                 User user = data.getUser();
                 user.removeRole(rolePremium);
             }

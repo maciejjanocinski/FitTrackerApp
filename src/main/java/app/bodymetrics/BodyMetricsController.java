@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.*;
     @GetMapping("/")
     BodyMetricsDto getBodyMetrics(@CurrentSecurityContext(expression = "authentication")
                                   Authentication authentication) {
-        return bodyMetricsService.getBodyMetrics(authentication);
+        return bodyMetricsService.get(authentication);
     }
 
     @PostMapping("/")
     BodyMetricsDto updateBodyMetrics(@CurrentSecurityContext(expression = "authentication")
                                   Authentication authentication,
                                      @RequestBody @Valid BodyMetricsDto bodyMetricsDto) {
-        return bodyMetricsService.updateBodyMetrics(authentication, bodyMetricsDto);
+        return bodyMetricsService.update(authentication, bodyMetricsDto);
     }
 
 }

@@ -42,15 +42,15 @@ api:
     id: ${RECIPES_API_ID}
 
   activities:
-    url: "https://fitness-calculator.p.rapidapi.com/activities"
-    key: "aa1b080260mshd8f566c12a89594p1ba130jsna4f57523640c"
-    host: "fitness-calculator.p.rapidapi.com"
+    url: ${ACTIVITIES_API_URL}
+    key: ${ACTIVITIES_API_KEY}
+    host: ${ACTIVITIES_API_HOST}
 
   burnedCalories:
-    url: 'https://fitness-calculator.p.rapidapi.com/burnedcalorie'
+    url: ${BURNED_CALORIES_API_URL}
 
   macro-calculator:
-    url: 'https://fitness-calculator.p.rapidapi.com/macrocalculator'
+    url: ${MACRO_CALCULATOR_API_URL}
 
 frontend:
   url: ${FRONTEND_URL}
