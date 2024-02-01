@@ -29,12 +29,16 @@ In each one click "View" button, copy Application ID and Application Keys and pa
 
 ![Logo](https://i.imgur.com/g3vokF1.jpg)
 
-Then paste them in application.yml here: 
+Then paste them in application.yml here:                       
+
+
 ![Logo](https://i.imgur.com/DEpkWWC.jpg)
 
 
-4. Go to https://dashboard.stripe.com/test/dashboard and create account. After that go to Developers - API Keys -> Secret Key
+4. Go to https://dashboard.stripe.com/test/dashboard and create account. After that go to Developers -> API Keys -> Secret Key
     and click Reveal secret key. Then copy it.
+
+   
 ![Logo](https://i.imgur.com/2d2djJ1.jpg)
 
 Create any product and copy API ID. 
@@ -45,12 +49,32 @@ Then as usual go to application.yml and paste this values.
 
 ![Logo](https://i.imgur.com/jE7lj3N.jpg)
 
+Go to Developers -> Webhooks and add new local listener
+
+![Logo](https://i.imgur.com/BdMVWJW.jpg)
+
+If you don't have domain and want to try app locally go to https://github.com/stripe/stripe-cli/releases/tag/v1.19.2 and download latest release for your OS.
+Otherwise just input your endpoint.
+
+
 5. (Optional) add url to frontend, you can get frontend app from my other repo https://github.com/maciejjanocinski/FitTrackerApp_frontend
 
 
    ![Logo](https://i.imgur.com/3x4C21R.jpg)
 
 6. Clean -> Build and then ./gradlew bootRun in project directory.
+   
+    ![Logo](https://i.imgur.com/Mt1xcOW.png)
+
+   
+Then in CLI go to directory where you downloaded stripe CLI previously and enter this command: ./stripe.exe listen --forward-to localhost:8081/webhook
+(if you want to run app on different port than 8081  you'll have to change it).
+
+
+   ![Logo](https://i.imgur.com/EteJzuX.jpg)
+
+And lastly run frontend if you have one.
+
 
 
 
