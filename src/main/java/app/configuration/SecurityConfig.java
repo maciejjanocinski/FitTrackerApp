@@ -46,12 +46,6 @@ import java.util.Map;
  class SecurityConfig {
 
     private final RsaKeyProperties keys;
-
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**").allowedOrigins("*").allowedMethods("*");
-//    }
-
     @Bean
      PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
@@ -96,7 +90,9 @@ import java.util.Map;
                                 jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session ->{
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                });
         return http.build();
     }
 

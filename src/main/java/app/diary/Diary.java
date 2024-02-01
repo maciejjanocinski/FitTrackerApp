@@ -6,6 +6,7 @@ import app.goal.AddCustomGoalDto;
 import app.nutrients.Nutrients;
 import app.product.Product;
 import app.recipe.Recipe;
+import app.user.User;
 import app.workout.Workout;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,32 +31,37 @@ public class Diary {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long diaryId;
+    private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private Nutrients sumNutrients;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private Nutrients leftNutrients;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private Nutrients goalNutrients;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "diary")
     private List<Product> products;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "diary")
     private List<Recipe> recipes;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "diary")
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "diary")
     private List<Workout> workouts;
+
+    @ManyToOne
+    private User user;
 
     private BigDecimal kcalBurned;
 
+    private LocalDate date;
 
 
     public void addProduct(Product product) {
@@ -77,31 +84,31 @@ public class Diary {
     }
 
     public void calculateNutrientsSum() {
-        BigDecimal sumKcal = products.stream()
-                .map(p -> p.getNutrients().getKcal())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal sumKcal = BigDecimal.ZERO;
+        BigDecimal sumProtein = BigDecimal.ZERO;
+        BigDecimal sumCarbohydrates = BigDecimal.ZERO;
+        BigDecimal sumFat = BigDecimal.ZERO;
+        BigDecimal sumFiber = BigDecimal.ZERO;
 
-        BigDecimal sumProtein = products.stream()
-                .map(p -> p.getNutrients().getProteinGrams())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        for (Product product : products) {
+            Nutrients productNutrients = product.getNutrients();
+            sumKcal = sumKcal.add(productNutrients.getKcal());
+            sumProtein = sumProtein.add(productNutrients.getProteinGrams());
+            sumCarbohydrates = sumCarbohydrates.add(productNutrients.getCarbohydratesGrams());
+            sumFat = sumFat.add(productNutrients.getFatGrams());
+            sumFiber = sumFiber.add(productNutrients.getFiberGrams());
+        }
 
-        BigDecimal sumCarbohydrates = products.stream()
-                .map(p -> p.getNutrients().getCarbohydratesGrams())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        Nutrients newNutrients = Nutrients.builder()
+                .kcal(sumKcal)
+                .proteinGrams(sumProtein)
+                .carbohydratesGrams(sumCarbohydrates)
+                .fatGrams(sumFat)
+                .fiberGrams(sumFiber)
+                .build();
 
-        BigDecimal sumFat = products.stream()
-                .map(p -> p.getNutrients().getFatGrams())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal sumFiber = products.stream()
-                .map(p -> p.getNutrients().getFiberGrams())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        sumNutrients.setKcal(sumKcal);
-        sumNutrients.setProteinGrams(sumProtein);
-        sumNutrients.setCarbohydratesGrams(sumCarbohydrates);
-        sumNutrients.setFatGrams(sumFat);
-        sumNutrients.setFiberGrams(sumFiber);
+        sumNutrients.map(newNutrients);
     }
 
     public void calculateNutrientsLeft() {
@@ -111,24 +118,28 @@ public class Diary {
         BigDecimal fatLeft = goalNutrients.getFatGrams().subtract(sumNutrients.getFatGrams());
         BigDecimal fiberLeft = goalNutrients.getFiberGrams().subtract(sumNutrients.getFiberGrams());
 
-        leftNutrients.setKcal(kcalLeft);
-        leftNutrients.setProteinGrams(proteinLeft);
-        leftNutrients.setCarbohydratesGrams(carbohydratesLeft);
-        leftNutrients.setFatGrams(fatLeft);
-        leftNutrients.setFiberGrams(fiberLeft);
+        Nutrients newNutrients = Nutrients.builder()
+                .kcal(kcalLeft)
+                .proteinGrams(proteinLeft)
+                .carbohydratesGrams(carbohydratesLeft)
+                .fatGrams(fatLeft)
+                .fiberGrams(fiberLeft)
+                .build();
+
+        leftNutrients.map(newNutrients);
     }
 
 
     public void setCustomGoal(AddCustomGoalDto addCustomGoalDto, Gender gender) {
         validateGoalDto(addCustomGoalDto);
         Nutrients newGoalNutrients = countCustomGoal(addCustomGoalDto, gender);
-        goalNutrients = new Nutrients(newGoalNutrients);
+        goalNutrients.map(newGoalNutrients);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
     public void setGoal(Nutrients newGoalNutrients) {
-        goalNutrients = new Nutrients(newGoalNutrients);
+        goalNutrients.map(newGoalNutrients);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
@@ -163,5 +174,6 @@ public class Diary {
         products = new ArrayList<>();
         recipes = new ArrayList<>();
         kcalBurned = BigDecimal.ZERO;
+        date = LocalDate.now();
     }
 }

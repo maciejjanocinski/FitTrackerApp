@@ -24,8 +24,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Objects;
 
-import static app.util.Utils.FIBER_FEMALE;
-import static app.util.Utils.FIBER_MALE;
+import static app.util.Utils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -82,18 +81,19 @@ public class GoalService {
 
     private MacroCalculatorApiResponse GetGoalFromApi(AddGoalDto addGoalDto, int age, Gender gender, BigDecimal height, BigDecimal weight) {
         ResponseEntity<MacroCalculatorApiResponse> responseEntity =
-                restTemplate.exchange(goalApiUriBuilder(addGoalDto, age ,gender, height, weight), MacroCalculatorApiResponse.class);
+                restTemplate.exchange(goalApiUriBuilder(addGoalDto, age, gender, height, weight), MacroCalculatorApiResponse.class);
         return responseEntity.getBody();
     }
 
     private Nutrients parseDataFromApiResponse(MacroCalculatorApiResponse response, AddGoalDto addGoalDto, BigDecimal fiber) {
-        ApiNutrition apiNutrition = switch (addGoalDto.dietType()) {
-            case "balanced" -> response.getData().getBalanced();
-            case "lowfat" -> response.getData().getLowfat();
-            case "lowcarbs" -> response.getData().getLowcarbs();
-            case "highprotein" -> response.getData().getHighprotein();
-            default -> throw new IllegalStateException("Unexpected value: " + addGoalDto.goal());
-        };
+        ApiNutrition apiNutrition =
+                switch (addGoalDto.dietType()) {
+                    case BALANCED -> response.getData().getBalanced();
+                    case LOW_FAT -> response.getData().getLowfat();
+                    case LOW_CARBS -> response.getData().getLowcarbs();
+                    case HIGH_PROTEIN -> response.getData().getHighprotein();
+                    default -> throw new IllegalStateException("Unexpected value: " + addGoalDto.goal());
+                };
 
         return Nutrients.builder()
                 .kcal(BigDecimal.valueOf(response.getData().getCalorie()))

@@ -41,9 +41,9 @@ class DiaryController {
     }
 
     @DeleteMapping("/product")
-     String deleteProductFromDiary(@CurrentSecurityContext(expression = "authentication")
+     void deleteProductFromDiary(@CurrentSecurityContext(expression = "authentication")
                                                           Authentication authentication,
                                                           @RequestBody DeleteProductDto deleteProductDto) {
-        return diaryService.deleteProductFromDiary(deleteProductDto, authentication);
+        diaryService.deleteProductFromDiary(deleteProductDto, authentication);
     }
 }

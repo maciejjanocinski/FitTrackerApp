@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 @Entity
 @AllArgsConstructor
@@ -42,7 +41,7 @@ public class Nutrients {
         this.fiberGrams = nutrients.getFiberGrams();
     }
 
-    public void mapNutrients(Nutrients nutrients) {
+    public void map(Nutrients nutrients) {
         this.kcal = nutrients.getKcal();
         this.proteinGrams = nutrients.getProteinGrams();
         this.carbohydratesGrams = nutrients.getCarbohydratesGrams();

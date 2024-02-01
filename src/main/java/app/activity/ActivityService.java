@@ -3,10 +3,7 @@ package app.activity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -60,7 +57,7 @@ import static app.util.Utils.INTENSITY_LEVEL_MIN;
     }
 
     private List<Activity> parseWorkoutsFromApiResponse(ActivityApiResponse activityApiResponse) {
-        if (activityApiResponse.getStatusCode() != 200) {
+        if (activityApiResponse.getStatusCode() != HttpStatus.OK.value()) {
             throw new RuntimeException();
         }
         return activityApiResponse.getData();

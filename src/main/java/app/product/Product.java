@@ -15,7 +15,8 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
-import static app.product.Measure.mapToList;
+import static app.product.Measure.map;
+import static app.util.Utils.*;
 
 @Data
 @Entity
@@ -30,7 +31,7 @@ public class Product {
     private String name;
 
     @OneToOne(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             orphanRemoval = true)
     private Nutrients nutrients;
 
@@ -45,7 +46,7 @@ public class Product {
     private boolean lastlyAdded = false;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "product",
             orphanRemoval = true)
     private List<Measure> measures;
@@ -78,11 +79,11 @@ public class Product {
 
     Nutrients createNutrients(Map<String, BigDecimal> nutrients) {
         return Nutrients.builder()
-                .kcal(valueOrZero(nutrients.get("ENERC_KCAL")))
-                .proteinGrams(valueOrZero(nutrients.get("PROCNT")))
-                .carbohydratesGrams(valueOrZero(nutrients.get("CHOCDF")))
-                .fatGrams(valueOrZero(nutrients.get("FAT")))
-                .fiberGrams(valueOrZero(nutrients.get("FIBTG")))
+                .kcal(valueOrZero(nutrients.get(KCAL_API)))
+                .proteinGrams(valueOrZero(nutrients.get(PROTEIN_API)))
+                .carbohydratesGrams(valueOrZero(nutrients.get(CARBS_API)))
+                .fatGrams(valueOrZero(nutrients.get(FAT_API)))
+                .fiberGrams(valueOrZero(nutrients.get(FIBER_API)))
                 .product(this)
                 .build();
     }
@@ -95,15 +96,14 @@ public class Product {
         return textValue == null ? "" : textValue;
     }
 
-    public void editProductAmount(String newMeasureLabel, BigDecimal newQuantity) {
+    public void changeAmount(String newMeasureLabel, BigDecimal newQuantity) {
         Measure newMeasure = searchForMeasure(measures, newMeasureLabel);
-        Measure currentlyUsedMeasure = searchForMeasure(measures, currentlyUsedMeasureName);
 
-        BigDecimal newKcalQuantity = nutrients.getKcal().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
-        BigDecimal newProteinQuantity = nutrients.getProteinGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
-        BigDecimal newCarbohydratesQuantity = nutrients.getCarbohydratesGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
-        BigDecimal newFatQuantity = nutrients.getFatGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
-        BigDecimal newFiberQuantity = nutrients.getFiberGrams().multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
+        BigDecimal newKcalQuantity = calcNewQuantity(nutrients.getKcal(), newQuantity, newMeasure);
+        BigDecimal newProteinQuantity = calcNewQuantity(nutrients.getProteinGrams(), newQuantity, newMeasure);
+        BigDecimal newCarbohydratesQuantity = calcNewQuantity(nutrients.getCarbohydratesGrams(), newQuantity, newMeasure);
+        BigDecimal newFatQuantity = calcNewQuantity(nutrients.getFatGrams(), newQuantity, newMeasure);
+        BigDecimal newFiberQuantity = calcNewQuantity(nutrients.getFiberGrams(), newQuantity, newMeasure);
 
         Nutrients newNutrients = Nutrients.builder()
                 .kcal(newKcalQuantity)
@@ -115,7 +115,12 @@ public class Product {
 
         quantity = newQuantity;
         currentlyUsedMeasureName = newMeasure.getLabel();
-        nutrients.mapNutrients(newNutrients);
+        nutrients.map(newNutrients);
+    }
+
+    private BigDecimal calcNewQuantity(BigDecimal oldQuantity, BigDecimal newQuantity, Measure newMeasure) {
+        Measure currentlyUsedMeasure = searchForMeasure(measures, currentlyUsedMeasureName);
+        return oldQuantity.multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
     }
 
     public Product(Product product) {
@@ -125,7 +130,7 @@ public class Product {
         this.quantity = product.getQuantity();
         this.image = product.getImage();
         this.query = product.getQuery();
-        this.measures = mapToList(product.getMeasures(), this);
+        this.measures = map(product.getMeasures(), this);
         this.user = product.getUser();
         this.diary = product.getDiary();
     }

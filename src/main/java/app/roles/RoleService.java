@@ -1,18 +1,20 @@
 package app.roles;
 
+import app.exceptions.InvalidInputException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
+
+import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
-public class RoleService implements CommandLineRunner {
+public class RoleService {
+    private final RoleRepository roleRepository;
 
- private final RoleRepository roleRepository;
-    @Override
-    public void run(String... args) {
-        roleRepository.save(Role.builder().name(RoleType.ROLE_USER_STANDARD.toString()).build());
-        roleRepository.save(Role.builder().name(RoleType.ROLE_USER_PREMIUM.toString()).build());
-        roleRepository.save(Role.builder().name(RoleType.ROLE_ADMIN.toString()).build());
+   public Role getRole(String name) {
+        return roleRepository.findByName(name)
+                .orElseThrow(() -> new InvalidInputException(ROLE_NOT_FOUND_MESSAGE));
     }
+
+
 }

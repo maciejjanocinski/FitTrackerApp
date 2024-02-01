@@ -51,8 +51,4 @@ public class TokenService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
     }
-
-    public  String generateAuthorizationHeaderForTests(String username, Role role) {
-        return "Bearer " + generateJwt(List.of(role), username);
-    }
 }

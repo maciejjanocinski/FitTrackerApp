@@ -7,6 +7,7 @@ import app.workout.WorkoutDto;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Builder
@@ -17,6 +18,7 @@ public record DiaryDto(
         List<ProductDto> products,
         List<RecipeDto> recipes,
         List<WorkoutDto> workouts,
-        BigDecimal kcalBurned
+        BigDecimal kcalBurned,
+        LocalDate date
 ) {
 }
