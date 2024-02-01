@@ -13,6 +13,15 @@ public class Utils {
     public static final String ROLE_NOT_FOUND_MESSAGE = "Role not found";
     public static final String USER_ALREADY_EXISTS_MESSAGE = "User with this username or email already exists";
     public static final String WRONG_CREDENTIALS_MESSAGE = "Wrong login or password";
+    public static final String BALANCED = "balanced";
+    public static final String LOW_FAT = "lowfat";
+    public static final String LOW_CARBS = "lowcarbs";
+    public static final String HIGH_PROTEIN = "highprotein";
+    public static final String KCAL_API = "ENERC_KCAL";
+    public static final String PROTEIN_API = "PROCNT";
+    public static final String CARBS_API = "CHOCDF";
+    public static final String FAT_API = "FAT";
+    public static final String FIBER_API = "FIBTG";
     public static final int INTENSITY_LEVEL_MIN = 1;
     public static final int INTENSITY_LEVEL_MAX = 9;
     public static final int FIBER_MALE = 38;

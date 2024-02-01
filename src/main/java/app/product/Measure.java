@@ -31,13 +31,11 @@ public class Measure {
     private Product product;
 
     public Measure(Measure measure) {
-        this.id = null;
-        this.product = null;
         this.label = measure.getLabel();
         this.weight = measure.getWeight();
     }
 
-    public static List<Measure> mapToList(List<Measure> measures, Product product) {
+    public static List<Measure> map(List<Measure> measures, Product product) {
         return measures.stream()
                 .map(measure -> {
                     Measure newMeasure = new Measure(measure);

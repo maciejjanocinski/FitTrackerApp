@@ -18,7 +18,7 @@ public class ScheduledTasks {
 
     private final UserService userService;
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 60000)
     @Transactional
     public void resetDailyLog() {
         List<User> users = userService.getUsers();
@@ -28,7 +28,7 @@ public class ScheduledTasks {
             Diary diary = user.getDiary();
             Diary newDiary = new Diary();
             newDiary.setUser(user);
-            newDiary.getGoalNutrients().mapNutrients(diary.getGoalNutrients());
+            newDiary.getGoalNutrients().map(diary.getGoalNutrients());
             user.setDiary(newDiary);
         }
     }

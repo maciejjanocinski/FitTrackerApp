@@ -70,7 +70,7 @@ public class DiaryService {
         return productMapper.mapToDto(product);
     }
 
-    public String deleteProductFromDiary(DeleteProductDto deleteProductDto, Authentication authentication) {
+    public void deleteProductFromDiary(DeleteProductDto deleteProductDto, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
 
@@ -81,6 +81,5 @@ public class DiaryService {
 
         diary.removeProduct(product);
         user.getLastlySearchedProducts().remove(product);
-        return "Product deleted from diary successfully";
     }
 }

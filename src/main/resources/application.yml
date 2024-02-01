@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:empty}
+    username: ${DB_USERNAME:empty}
+    password: ${DB_PASSWORD:empty}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -32,32 +32,32 @@ server:
 
 api:
   products:
-    url: ${PRODUCTS_API_URL}
-    key: ${PRODUCTS_API_KEY}
-    id: ${PRODUCTS_API_ID}
+    url: ${PRODUCTS_API_URL:empty}
+    key: ${PRODUCTS_API_KEY:empty}
+    id: ${PRODUCTS_API_ID:empty}
 
   recipes:
-    url: ${RECIPES_API_URL}
-    key: ${RECIPES_API_KEY}
-    id: ${RECIPES_API_ID}
+    url: ${RECIPES_API_URL:empty}
+    key: ${RECIPES_API_KEY:empty}
+    id: ${RECIPES_API_ID:empty}
 
   activities:
-    url: ${ACTIVITIES_API_URL}
-    key: ${ACTIVITIES_API_KEY}
-    host: ${ACTIVITIES_API_HOST}
+    url: ${ACTIVITIES_API_URL:empty}
+    key: ${ACTIVITIES_API_KEY:empty}
+    host: ${ACTIVITIES_API_HOST:empty}
 
   burnedCalories:
-    url: ${BURNED_CALORIES_API_URL}
+    url: ${BURNED_CALORIES_API_URL:empty}
 
   macro-calculator:
-    url: ${MACRO_CALCULATOR_API_URL}
+    url: ${MACRO_CALCULATOR_API_URL:empty}
 
 frontend:
-  url: ${FRONTEND_URL}
+  url: ${FRONTEND_URL:empty}
 
 stripe:
-  price: ${STRIPE_API_KEY}
+  price: ${STRIPE_API_KEY:empty}
   api:
-    key: ${STRIPE_API_KEY}
-    url: ${STRIPE_BILLING_PORTAL_API_URL}
+    key: ${STRIPE_API_KEY:empty}
+    url: ${STRIPE_BILLING_PORTAL_API_URL:empty}
 
