@@ -46,23 +46,22 @@ public class User implements UserDetails {
     private String password;
 
     @OneToOne(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "user")
     private StripeCustomer stripeCustomer;
 
     @OneToOne(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             mappedBy = "user")
     private BodyMetrics bodyMetrics;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> authorities;
 
     @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
             mappedBy = "user")
     private List<Diary> diariesHistory;
 

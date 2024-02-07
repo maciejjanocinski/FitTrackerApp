@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static app.util.Utils.POTION_MEASURE;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,7 +42,7 @@ public class Recipe {
 
     @OneToMany(
             cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
     private List<IngredientLine> ingredientLines;
 
@@ -63,7 +65,7 @@ public class Recipe {
                         .fiberGrams(this.getFiberPerServing())
                         .build()
                 )
-                .currentlyUsedMeasureName("Portion")
+                .currentlyUsedMeasureName(POTION_MEASURE)
                 .quantity(BigDecimal.ONE)
                 .image(this.getImage())
                 .query(this.getQuery())

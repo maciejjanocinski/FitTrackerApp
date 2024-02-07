@@ -5,17 +5,15 @@ import jakarta.validation.UnexpectedTypeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 
 import static app.util.Utils.USER_ALREADY_EXISTS_MESSAGE;
 import static app.util.Utils.WRONG_CREDENTIALS_MESSAGE;
 
-@RestControllerAdvice
+
 public class RuntimeExceptionHandler {
 
     @ExceptionHandler(BadRequestExceptions.class)
