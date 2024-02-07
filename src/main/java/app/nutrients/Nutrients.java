@@ -1,5 +1,6 @@
 package app.nutrients;
 
+import app.diary.Diary;
 import app.product.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

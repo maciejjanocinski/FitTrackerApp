@@ -18,7 +18,7 @@ public class ScheduledTasks {
 
     private final UserService userService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void resetDailyLog() {
         List<User> users = userService.getUsers();

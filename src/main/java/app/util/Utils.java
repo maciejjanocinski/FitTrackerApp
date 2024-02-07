@@ -32,5 +32,6 @@ public class Utils {
     public static BigDecimal DEFAULT_WAIST_SIZE = BigDecimal.valueOf(100);
     public static BigDecimal DEFAULT_HIP_SIZE = BigDecimal.valueOf(120);
     public static LocalDate DEFAULT_BIRTH_DATE = LocalDate.of(2000, 1, 1);
+    public static final String POTION_MEASURE = "Potion";
 
 }

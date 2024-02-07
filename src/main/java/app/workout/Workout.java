@@ -33,7 +33,6 @@ public class Workout {
     private LocalDate date;
 
     @ManyToOne
-    @JoinColumn
     private Diary diary;
 
 
