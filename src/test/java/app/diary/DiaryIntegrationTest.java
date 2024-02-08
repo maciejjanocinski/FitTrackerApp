@@ -7,7 +7,7 @@
 //import app.diary.dto.DeleteProductDto;
 //import app.diary.dto.EditProductInDiaryDto;
 //import app.product.Product;
-//import app.product.ProductRepository;
+//import app.product.IngredientRepository;
 //import app.user.User;
 //import app.user.UserRepository;
 //import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,7 +52,7 @@
 //    private  UserRepository userRepository;
 //
 //    @Autowired
-//    private  ProductRepository productRepository;
+//    private  IngredientRepository productRepository;
 //
 //    @Autowired
 //    private  ProductsInDiaryRepository productsInDiaryRepository;

@@ -1,44 +1,27 @@
 package app.recipe;
 
-import app.diary.Diary;
+import app.common.Product;
 import app.nutrients.Nutrients;
-import app.product.Measure;
-import app.product.Product;
-import app.user.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import app.ingredient.Ingredient;
+import app.ingredient.Measure;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static app.util.Utils.POTION_MEASURE;
+import static app.util.Utils.PORTION_MEASURE;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Entity
-@Builder
-public class Recipe {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String label;
-    @Column(columnDefinition = "TEXT")
-    private String image;
+public class Recipe extends Product {
+
     private String source;
     private String url;
     private int yield;
-    private BigDecimal caloriesPerServing;
-    private BigDecimal proteinPerServing;
-    private BigDecimal carbsPerServing;
-    private BigDecimal fatPerServing;
-    private BigDecimal fiberPerServing;
-    private String query;
 
     @OneToMany(
             cascade = CascadeType.ALL,
@@ -46,26 +29,11 @@ public class Recipe {
     )
     private List<IngredientLine> ingredientLines;
 
-    @ManyToOne
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "diary")
-    private Diary diary;
-
-
-    Product mapToProduct() {
-        return Product.builder()
-                .name(this.getLabel())
-                .nutrients(Nutrients.builder()
-                        .kcal(this.getCaloriesPerServing())
-                        .proteinGrams(this.getProteinPerServing())
-                        .fatGrams(this.getCarbsPerServing())
-                        .carbohydratesGrams(this.getFatPerServing())
-                        .fiberGrams(this.getFiberPerServing())
-                        .build()
-                )
-                .currentlyUsedMeasureName(POTION_MEASURE)
+    Ingredient mapToIngredient() {
+        return Ingredient.builder()
+                .name(this.getName())
+                .nutrients(new Nutrients(super.getNutrients()))
+                .currentlyUsedMeasureName(PORTION_MEASURE)
                 .quantity(BigDecimal.ONE)
                 .image(this.getImage())
                 .query(this.getQuery())
@@ -74,5 +42,14 @@ public class Recipe {
                         .weight(BigDecimal.ONE)
                         .build()))
                 .build();
+    }
+
+    @Builder
+    public Recipe(Long id, String name, String image, String query, Nutrients nutrients, String source, String url, int yield, List<IngredientLine> ingredientLines) {
+        super(id, name, image, query, nutrients);
+        this.source = source;
+        this.url = url;
+        this.yield = yield;
+        this.ingredientLines = ingredientLines;
     }
 }

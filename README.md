@@ -41,7 +41,7 @@ Then paste them in application.yml here:
    
 ![Logo](https://i.imgur.com/2d2djJ1.jpg)
 
-Create any product and copy API ID. 
+Create any ingredient and copy API ID. 
 
 ![Logo](https://i.imgur.com/UWaTgJ6.png)
 

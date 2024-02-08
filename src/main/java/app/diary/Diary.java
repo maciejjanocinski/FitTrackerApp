@@ -4,7 +4,7 @@ import app.common.Gender;
 import app.exceptions.InvalidInputException;
 import app.goal.AddCustomGoalDto;
 import app.nutrients.Nutrients;
-import app.product.Product;
+import app.ingredient.Ingredient;
 import app.recipe.Recipe;
 import app.user.User;
 import app.workout.Workout;
@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static app.util.Utils.FIBER_FEMALE;
-import static app.util.Utils.FIBER_MALE;
+import static app.util.Utils.*;
 
 @Data
 @AllArgsConstructor
@@ -48,7 +47,7 @@ public class Diary {
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "diary")
-    private List<Product> products;
+    private List<Ingredient> ingredients;
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
@@ -67,15 +66,15 @@ public class Diary {
     private LocalDate date;
 
 
-    public void addProduct(Product product) {
-        products.add(product);
+    public void addProduct(Ingredient ingredient) {
+        ingredients.add(ingredient);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
 
-    void removeProduct(Product product) {
-        products.remove(product);
-        product.setDiary(null);
+    void removeProduct(Ingredient ingredient) {
+        ingredients.remove(ingredient);
+        ingredient.setDiary(null);
         calculateNutrientsLeft();
         calculateNutrientsSum();
     }
@@ -93,8 +92,8 @@ public class Diary {
         BigDecimal sumFat = BigDecimal.ZERO;
         BigDecimal sumFiber = BigDecimal.ZERO;
 
-        for (Product product : products) {
-            Nutrients productNutrients = product.getNutrients();
+        for (Ingredient ingredient : ingredients) {
+            Nutrients productNutrients = ingredient.getNutrients();
             sumKcal = sumKcal.add(productNutrients.getKcal());
             sumProtein = sumProtein.add(productNutrients.getProteinGrams());
             sumCarbohydrates = sumCarbohydrates.add(productNutrients.getCarbohydratesGrams());
@@ -150,7 +149,7 @@ public class Diary {
     void validateGoalDto(AddCustomGoalDto addCustomGoalDto) {
         if (addCustomGoalDto.kcal().compareTo(BigDecimal.valueOf(0)) < 1 ||
                 addCustomGoalDto.proteinPercentage() + addCustomGoalDto.carbohydratesPercentage() + addCustomGoalDto.fatPercentage() != 100) {
-            throw new InvalidInputException("Kcal must be greater than 0 and sum of percentages must be equal to 100");
+            throw new InvalidInputException(VALIDATE_GOAL_MESSAGE);
         }
     }
 
@@ -174,7 +173,7 @@ public class Diary {
         leftNutrients = new Nutrients();
         goalNutrients = new Nutrients();
         workouts = new ArrayList<>();
-        products = new ArrayList<>();
+        ingredients = new ArrayList<>();
         recipes = new ArrayList<>();
         kcalBurned = BigDecimal.ZERO;
         date = LocalDate.now();

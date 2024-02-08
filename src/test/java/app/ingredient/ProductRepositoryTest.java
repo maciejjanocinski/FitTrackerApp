@@ -20,7 +20,7 @@
 //
 //@DataJpaTest
 //@EnableJpaRepositories(basePackageClasses = {
-//        ProductRepository.class,
+//        IngredientRepository.class,
 //        UserRepository.class,
 //        RoleRepository.class
 //})
@@ -28,7 +28,7 @@
 //class ProductRepositoryTest {
 //
 //    @Autowired
-//    private ProductRepository productRepository;
+//    private IngredientRepository productRepository;
 //
 //    @Autowired
 //    private UserRepository userRepository;

@@ -5,7 +5,7 @@
 //import app.user.UserService;
 //import app.util.exceptions.ProductNotFoundException;
 //import app.product.Product;
-//import app.product.ProductRepository;
+//import app.product.IngredientRepository;
 //import app.user.User;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@
 //@ExtendWith(MockitoExtension.class)
 //class DiaryServiceTest {
 //    @Mock
-//    private ProductRepository productsRepository;
+//    private IngredientRepository productsRepository;
 //    @Mock
 //    private UserService userService;
 //    @Mock

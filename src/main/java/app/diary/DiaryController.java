@@ -4,7 +4,7 @@ import app.diary.dto.AddProductToDiaryDto;
 import app.diary.dto.DeleteProductDto;
 import app.diary.dto.DiaryDto;
 import app.diary.dto.EditProductInDiaryDto;
-import app.product.ProductDto;
+import app.ingredient.IngredientDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +27,16 @@ class DiaryController {
     }
 
     @PostMapping("/product")
-    ProductDto addProductToDiary(@CurrentSecurityContext(expression = "authentication")
+    IngredientDto addProductToDiary(@CurrentSecurityContext(expression = "authentication")
                                                                   Authentication authentication,
-                                 @RequestBody @Valid AddProductToDiaryDto addProductDto) {
+                                    @RequestBody @Valid AddProductToDiaryDto addProductDto) {
         return diaryService.addProductToDiary(addProductDto, authentication);
     }
 
     @PatchMapping("/product")
-    ProductDto editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
+    IngredientDto editProductAmountInDiary(@CurrentSecurityContext(expression = "authentication")
                                                                          Authentication authentication,
-                                               @RequestBody @Valid EditProductInDiaryDto editProductDto) {
+                                           @RequestBody @Valid EditProductInDiaryDto editProductDto) {
         return diaryService.editProductAmountInDiary(editProductDto, authentication);
     }
 

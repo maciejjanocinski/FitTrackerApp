@@ -1,4 +1,4 @@
-package app.product;
+package app.ingredient;
 
 import app.nutrients.Nutrients;
 import app.user.User;
@@ -16,13 +16,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static app.product.Product.*;
+import static app.ingredient.Ingredient.*;
 
 
 @Service
 @RequiredArgsConstructor
-class ProductService {
-    private final ProductRepository productsRepository;
+class IngredientService {
+    private final IngredientRepository productsRepository;
     private final UserService userService;
 
     @Value("${api.products.url}")
@@ -34,18 +34,18 @@ class ProductService {
     @Value("${api.products.id}")
     private String id;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final ProductMapper productMapper = ProductMapper.INSTANCE;
+    private final IngredientMapper ingredientMapper = IngredientMapper.INSTANCE;
 
     @Transactional
-    public List<ProductDto> searchProducts(String query, Authentication authentication) {
+    public List<IngredientDto> search(String query, Authentication authentication) {
         String lowerCasedQuery = query.toLowerCase();
         User user = userService.getUserByUsername(authentication.getName());
 
         if (user.getLastProductQuery() != null && user.getLastProductQuery().equals(lowerCasedQuery)) {
-            List<Product> products = user.getLastlySearchedProducts().stream()
+            List<Ingredient> ingredients = user.getLastlySearchedIngredients().stream()
                     .filter(p -> p.getDiary() == null && !p.isLastlyAdded() && p.getQuery().equals(lowerCasedQuery))
                     .toList();
-            return productMapper.mapToDto(products);
+            return ingredientMapper.mapToDto(ingredients);
         }
 
         clearNotUsedProducts(user);
@@ -55,31 +55,31 @@ class ProductService {
         String url = createUrl(id, key, lowerCasedQuery);
         ResponseDto response = getProductsResponseFromApi(url);
 
-        List<Product> products = parseProductsFromResponseDto(response, lowerCasedQuery, user);
-        products.sort(Comparator.comparing(p -> p.getImage().length(), Comparator.reverseOrder()));
-        setImagesToAllEmptyProducts(products);
+        List<Ingredient> ingredients = parseProductsFromResponseDto(response, lowerCasedQuery, user);
+        ingredients.sort(Comparator.comparing(p -> p.getImage().length(), Comparator.reverseOrder()));
+        setImagesToAllEmptyProducts(ingredients);
 
-        user.getLastlySearchedProducts().addAll(products);
-        productsRepository.saveAll(products);
+        user.getLastlySearchedIngredients().addAll(ingredients);
+        productsRepository.saveAll(ingredients);
 
-        return productMapper.mapToDto(products);
+        return ingredientMapper.mapToDto(ingredients);
     }
 
-    List<Product> parseProductsFromResponseDto(ResponseDto response,
-                                               String query,
-                                               User user) {
+    List<Ingredient> parseProductsFromResponseDto(ResponseDto response,
+                                                  String query,
+                                                  User user) {
         if (response == null) {
             return Collections.emptyList();
         }
-        List<Product> products = new ArrayList<>();
+        List<Ingredient> ingredients = new ArrayList<>();
 
         for (HintDto hint : response.getHints()) {
             FoodDto food = hint.getFood();
             Map<String, BigDecimal> nutrientsData = food.getNutrients();
 
 
-            Product product = new Product();
-            product.checkIfFieldsAreNotNullAndSetValues(
+            Ingredient ingredient = new Ingredient();
+            ingredient.checkIfFieldsAreNotNullAndSetValues(
                     food.getLabel(),
                     food.getImage(),
                     query
@@ -89,42 +89,42 @@ class ProductService {
                     .map(measureResponseDto -> Measure.builder()
                             .label(measureResponseDto.getLabel())
                             .weight(measureResponseDto.getWeight())
-                            .product(product)
+                            .ingredient(ingredient)
                             .build())
                     .toList();
 
-            Nutrients nutrientsForProduct = product.createNutrients(nutrientsData);
-            nutrientsForProduct.setProduct(product);
+            Nutrients nutrientsForProduct = ingredient.createNutrients(nutrientsData);
+            nutrientsForProduct.setIngredient(ingredient);
 
             Measure usedMeasure = searchForMeasure(measures, "Gram");
 
-            product.setCurrentlyUsedMeasureName(usedMeasure.getLabel());
-            product.setQuantity(BigDecimal.valueOf(100));
-            product.setNutrients(nutrientsForProduct);
-            product.setMeasures(measures);
-            product.setUser(user);
-            products.add(product);
+            ingredient.setCurrentlyUsedMeasureName(usedMeasure.getLabel());
+            ingredient.setQuantity(BigDecimal.valueOf(100));
+            ingredient.setNutrients(nutrientsForProduct);
+            ingredient.setMeasures(measures);
+            ingredient.setUser(user);
+            ingredients.add(ingredient);
         }
-        return products;
+        return ingredients;
     }
 
     void clearNotUsedProducts(User user) {
-        List<Product> products = user.getLastlySearchedProducts().stream().filter(p -> p.getDiary() == null && !p.isLastlyAdded()).toList();
-        products.forEach(p -> {
+        List<Ingredient> ingredients = user.getLastlySearchedIngredients().stream().filter(p -> p.getDiary() == null && !p.isLastlyAdded()).toList();
+        ingredients.forEach(p -> {
             p.getMeasures().clear();
             p.setNutrients(null);
         });
-        user.getLastlySearchedProducts().removeAll(products);
+        user.getLastlySearchedIngredients().removeAll(ingredients);
     }
 
-    ProductDto getProductById(Authentication authentication, Long id) {
+    IngredientDto getProductById(Authentication authentication, Long id) {
         User user = userService.getUserByUsername(authentication.getName());
-        Product product = user.getLastlySearchedProducts().stream()
+        Ingredient ingredient = user.getLastlySearchedIngredients().stream()
                 .filter(p -> p.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new ProductNotFoundException("Product with activityid: " + id + " not found."));
 
-        return productMapper.mapToDto(product);
+        return ingredientMapper.mapToDto(ingredient);
     }
 
     private ResponseDto getProductsResponseFromApi(String url) {
@@ -143,9 +143,9 @@ class ProductService {
 
 
 
-    private void setImagesToAllEmptyProducts(List<Product> products) {
-        String image = products.get(0).getImage();
-        products.stream().filter(p -> p.getImage().isEmpty()).forEach(p -> {
+    private void setImagesToAllEmptyProducts(List<Ingredient> ingredients) {
+        String image = ingredients.get(0).getImage();
+        ingredients.stream().filter(p -> p.getImage().isEmpty()).forEach(p -> {
             p.setImage(image);
         });
     }

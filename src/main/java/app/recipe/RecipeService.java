@@ -2,10 +2,10 @@ package app.recipe;
 
 import app.diary.Diary;
 import app.exceptions.RecipeAlreadyAddedException;
-import app.product.Product;
-import app.product.ProductDto;
-import app.product.ProductMapper;
-import app.product.ProductRepository;
+import app.ingredient.Ingredient;
+import app.ingredient.IngredientDto;
+import app.ingredient.IngredientMapper;
+import app.ingredient.IngredientRepository;
 import app.user.User;
 import app.user.UserService;
 import jakarta.transaction.Transactional;
@@ -18,6 +18,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+
+import static app.util.Utils.RECIPE_NOT_FOUND_MESSAGE;
+import static app.util.Utils.ROLE_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -33,12 +36,12 @@ import java.util.List;
     @Value("${api.recipes.id}")
     private String id;
     private final RecipeMapper recipeMapper = RecipeMapper.INSTANCE;
-    private final ProductMapper productMapper = ProductMapper.INSTANCE;
+    private final IngredientMapper ingredientMapper = IngredientMapper.INSTANCE;
 
     private final UserService userService;
 
     private final RecipeRepository recipeRepository;
-    private final ProductRepository productRepository;
+    private final IngredientRepository ingredientRepository;
 
     List<RecipeDto> searchRecipes(String query, Authentication authentication) {
         String lowerCasedQuery = query.toLowerCase();
@@ -68,22 +71,23 @@ import java.util.List;
 
         recipeRepository.saveAll(recipes);
         return recipeMapper.mapToDto(recipes);
+
     }
 
-    public ProductDto addRecipeToDiary(AddRecipeToDiaryDto addProductToDiaryDto, Authentication authentication) {
+    public IngredientDto addRecipeToDiary(AddRecipeToDiaryDto addProductToDiaryDto, Authentication authentication) {
         User user = userService.getUserByUsername(authentication.getName());
         Diary diary = user.getDiary();
         Recipe recipe = recipeRepository.findByIdAndUser(addProductToDiaryDto.id(), user)
-                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+                .orElseThrow(() -> new IllegalArgumentException(ROLE_NOT_FOUND_MESSAGE));
 
-        Product product = recipe.mapToProduct();
+        Ingredient ingredient = recipe.mapToIngredient();
 
-        product.getMeasures().forEach(measure -> measure.setProduct(product));
-        product.setUser(user);
-        product.setDiary(diary);
-        diary.addProduct(product);
-        productRepository.save(product);
-        return productMapper.mapToDto(product);
+        ingredient.getMeasures().forEach(measure -> measure.setIngredient(ingredient));
+        ingredient.setUser(user);
+        ingredient.setDiary(diary);
+        diary.addProduct(ingredient);
+        ingredientRepository.save(ingredient);
+        return ingredientMapper.mapToDto(ingredient);
     }
 
 
@@ -93,12 +97,12 @@ import java.util.List;
         Diary diary = user.getDiary();
         for (Recipe recipe : user.getLastlySearchedRecipes()) {
             if (recipe.getId().equals(id) && recipe.getDiary() != null) {
-                throw new RecipeAlreadyAddedException("Recipe already added");
+                throw new RecipeAlreadyAddedException(RECIPE_NOT_FOUND_MESSAGE);
             }
         }
 
         Recipe recipe = recipeRepository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+                .orElseThrow(() -> new IllegalArgumentException(RECIPE_NOT_FOUND_MESSAGE));
 
         diary.getRecipes().add(recipe);
         recipe.setDiary(diary);
