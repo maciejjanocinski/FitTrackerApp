@@ -1,4 +1,4 @@
-package app.product;
+package app.ingredient;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -14,19 +14,19 @@ import java.util.List;
 @RequestMapping("/products")
  class ProductController {
 
-    private final ProductService productsService;
+    private final IngredientService productsService;
 
     @GetMapping("/search")
-    List<ProductDto> searchProducts(@RequestParam String product,
-                                    @CurrentSecurityContext(expression = "authentication")
+    List<IngredientDto> searchProducts(@RequestParam String product,
+                                       @CurrentSecurityContext(expression = "authentication")
                                     Authentication authentication) {
-        return productsService.searchProducts(product, authentication);
+        return productsService.search(product, authentication);
     }
 
     @GetMapping("/{id}")
-    ProductDto getProductById(@CurrentSecurityContext(expression = "authentication")
+    IngredientDto getProductById(@CurrentSecurityContext(expression = "authentication")
                               Authentication authentication,
-                              @PathVariable Long id) {
+                                 @PathVariable Long id) {
         return productsService.getProductById(authentication, id);
     }
 }

@@ -11,8 +11,12 @@ public class Utils {
     public static final String USER_NOT_FOUND_MESSAGE = "User not found";
     public static final String PRODUCT_NOT_FOUND_MESSAGE = "Product not found";
     public static final String ROLE_NOT_FOUND_MESSAGE = "Role not found";
+    public static final String MEASURE_NOT_FOUND_MESSAGE = "Measure not found";
     public static final String USER_ALREADY_EXISTS_MESSAGE = "User with this username or email already exists";
     public static final String WRONG_CREDENTIALS_MESSAGE = "Wrong login or password";
+    public static final String RECIPE_ALREADY_ADDED_MESSAGE = "Recipe already added to favourites.";
+    public static final String RECIPE_NOT_FOUND_MESSAGE = "Recipe already added to favourites.";
+    public static final String VALIDATE_GOAL_MESSAGE = "Kcal must be greater than 0 and sum of percentages must be equal to 100";
     public static final String BALANCED = "balanced";
     public static final String LOW_FAT = "lowfat";
     public static final String LOW_CARBS = "lowcarbs";
@@ -32,6 +36,7 @@ public class Utils {
     public static BigDecimal DEFAULT_WAIST_SIZE = BigDecimal.valueOf(100);
     public static BigDecimal DEFAULT_HIP_SIZE = BigDecimal.valueOf(120);
     public static LocalDate DEFAULT_BIRTH_DATE = LocalDate.of(2000, 1, 1);
-    public static final String POTION_MEASURE = "Potion";
+    public static final String PORTION_MEASURE = "Potion";
+    public static final int LASTLY_ADDED_PRODUCTS_LIMIT = 15;
 
 }

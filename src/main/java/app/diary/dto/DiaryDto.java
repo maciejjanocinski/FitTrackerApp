@@ -1,7 +1,7 @@
 package app.diary.dto;
 
 import app.nutrients.NutrientsDto;
-import app.product.ProductDto;
+import app.ingredient.IngredientDto;
 import app.recipe.RecipeDto;
 import app.workout.WorkoutDto;
 import lombok.Builder;
@@ -15,7 +15,7 @@ public record DiaryDto(
         NutrientsDto sumNutrients,
         NutrientsDto goalNutrients,
         NutrientsDto leftNutrients,
-        List<ProductDto> products,
+        List<IngredientDto> ingredients,
         List<RecipeDto> recipes,
         List<WorkoutDto> workouts,
         BigDecimal kcalBurned,

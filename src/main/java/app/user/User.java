@@ -2,7 +2,7 @@ package app.user;
 
 import app.bodymetrics.BodyMetrics;
 import app.diary.Diary;
-import app.product.Product;
+import app.ingredient.Ingredient;
 import app.recipe.Recipe;
 import app.roles.Role;
 import app.stripe.StripeCustomer;
@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static app.util.Utils.LASTLY_ADDED_PRODUCTS_LIMIT;
 
 
 @Data
@@ -73,11 +75,11 @@ public class User implements UserDetails {
     private List<Recipe> lastlySearchedRecipes;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<Product> lastlySearchedProducts;
+    private List<Ingredient> lastlySearchedIngredients;
 
     @OneToMany(cascade = CascadeType.ALL)
     @OrderBy("id DESC")
-    private List<Product> lastlyAddedProducts;
+    private List<Ingredient> lastlyAddedIngredients;
 
     private String lastProductQuery;
     private String lastRecipeQuery;
@@ -89,10 +91,6 @@ public class User implements UserDetails {
         return authorities.stream()
                 .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
                 .collect(Collectors.toList());
-    }
-
-    public void removeProduct(Product product) {
-        lastlySearchedProducts.remove(product);
     }
 
     public void addRole(Role role) {
@@ -146,12 +144,12 @@ public class User implements UserDetails {
         this.setPhone(updateProfileInfoDto.phone());
     }
 
-   public void updateLastlyAddedProducts(Product product) {
-        if (lastlyAddedProducts.size() == 15) {
-            lastlyAddedProducts.get(lastlyAddedProducts.size() - 1).setLastlyAdded(false);
-            lastlyAddedProducts.remove(lastlyAddedProducts.size() - 1);
+   public void updateLastlyAddedProducts(Ingredient ingredient) {
+        if (lastlyAddedIngredients.size() == LASTLY_ADDED_PRODUCTS_LIMIT) {
+            lastlyAddedIngredients.get(lastlyAddedIngredients.size() - 1).setLastlyAdded(false);
+            lastlyAddedIngredients.remove(lastlyAddedIngredients.size() - 1);
         }
-        lastlyAddedProducts.add(product);
+        lastlyAddedIngredients.add(ingredient);
     }
 
 }

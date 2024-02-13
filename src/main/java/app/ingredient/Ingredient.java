@@ -1,5 +1,6 @@
-package app.product;
+package app.ingredient;
 
+import app.common.Product;
 import app.diary.Diary;
 import app.exceptions.InvalidInputException;
 import app.nutrients.Nutrients;
@@ -15,54 +16,32 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
-import static app.product.Measure.map;
+import static app.ingredient.Measure.map;
 import static app.util.Utils.*;
 
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-
-    @OneToOne(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            orphanRemoval = true)
-    private Nutrients nutrients;
+public class Ingredient extends Product {
 
     private String currentlyUsedMeasureName;
 
     private BigDecimal quantity;
 
-    @Column(columnDefinition = "TEXT")
-    private String image;
-
-    private String query;
     private boolean lastlyAdded = false;
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
-            mappedBy = "product",
+            mappedBy = "ingredient",
             orphanRemoval = true)
     private List<Measure> measures;
-
-    @ManyToOne
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "diary")
-    private Diary diary;
 
     static Measure searchForMeasure(List<Measure> measures, String measureLabel) {
         return measures.stream()
                 .filter(m -> m.getLabel().equals(measureLabel))
                 .findFirst()
-                .orElseThrow(() -> new InvalidInputException("Measure not found"));
+                .orElseThrow(() -> new InvalidInputException(MEASURE_NOT_FOUND_MESSAGE));
     }
 
     void checkIfFieldsAreNotNullAndSetValues(
@@ -84,7 +63,7 @@ public class Product {
                 .carbohydratesGrams(valueOrZero(nutrients.get(CARBS_API)))
                 .fatGrams(valueOrZero(nutrients.get(FAT_API)))
                 .fiberGrams(valueOrZero(nutrients.get(FIBER_API)))
-                .product(this)
+                .ingredient(this)
                 .build();
     }
 
@@ -98,6 +77,7 @@ public class Product {
 
     public void changeAmount(String newMeasureLabel, BigDecimal newQuantity) {
         Measure newMeasure = searchForMeasure(measures, newMeasureLabel);
+        Nutrients nutrients = super.getNutrients();
 
         BigDecimal newKcalQuantity = calcNewQuantity(nutrients.getKcal(), newQuantity, newMeasure);
         BigDecimal newProteinQuantity = calcNewQuantity(nutrients.getProteinGrams(), newQuantity, newMeasure);
@@ -120,19 +100,33 @@ public class Product {
 
     private BigDecimal calcNewQuantity(BigDecimal oldQuantity, BigDecimal newQuantity, Measure newMeasure) {
         Measure currentlyUsedMeasure = searchForMeasure(measures, currentlyUsedMeasureName);
-        return oldQuantity.multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 2, RoundingMode.HALF_UP));
+        return oldQuantity.multiply(newQuantity.multiply(newMeasure.getWeight()).divide(quantity.multiply(currentlyUsedMeasure.getWeight()), 1, RoundingMode.HALF_UP));
     }
 
-    public Product(Product product) {
-        this.name = product.getName();
-        this.nutrients = new Nutrients(product.getNutrients());
-        this.currentlyUsedMeasureName = product.getCurrentlyUsedMeasureName();
-        this.quantity = product.getQuantity();
-        this.image = product.getImage();
-        this.query = product.getQuery();
-        this.measures = map(product.getMeasures(), this);
-        this.user = product.getUser();
-        this.diary = product.getDiary();
+    public Ingredient(Ingredient ingredient) {
+        super(ingredient);
+        this.currentlyUsedMeasureName = ingredient.getCurrentlyUsedMeasureName();
+        this.quantity = ingredient.getQuantity();
+        this.measures = map(ingredient.getMeasures(), this);
+    }
+
+    @Builder
+    public Ingredient(Long id,
+                      String name,
+                      String image,
+                      String query,
+                      Nutrients nutrients,
+                      String currentlyUsedMeasureName,
+                      BigDecimal quantity,
+                      boolean lastlyAdded,
+                      List<Measure> measures,
+                      User user,
+                      Diary diary) {
+        super(id, name, image, query, nutrients, user, diary);
+        this.currentlyUsedMeasureName = currentlyUsedMeasureName;
+        this.quantity = quantity;
+        this.lastlyAdded = lastlyAdded;
+        this.measures = measures;
     }
 }
 

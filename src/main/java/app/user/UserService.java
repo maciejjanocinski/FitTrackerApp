@@ -1,9 +1,8 @@
 package app.user;
 
-import app.product.Product;
 import app.exceptions.InvalidPasswordException;
-import app.product.ProductDto;
-import app.product.ProductMapper;
+import app.ingredient.IngredientDto;
+import app.ingredient.IngredientMapper;
 import app.user.dto.DeleteUserDto;
 import app.user.dto.UpdatePasswordDto;
 import app.user.dto.UpdateProfileInfoDto;
@@ -30,7 +29,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final UserMapper userMapper = UserMapper.INSTANCE;
-    private final ProductMapper productMapper = ProductMapper.INSTANCE;
+    private final IngredientMapper ingredientMapper = IngredientMapper.INSTANCE;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
@@ -43,9 +42,9 @@ public class UserService implements UserDetailsService {
         return userMapper.mapToDto(user);
     }
 
-    List<ProductDto> getlastlyAddedProducts(Authentication authentication) {
+    List<IngredientDto> getlastlyAddedProducts(Authentication authentication) {
         User user = getUserByUsername(authentication.getName());
-        return productMapper.mapToDto(user.getLastlyAddedProducts());
+        return ingredientMapper.mapToDto(user.getLastlyAddedIngredients());
     }
 
     public User getUserByUsername(String username) {

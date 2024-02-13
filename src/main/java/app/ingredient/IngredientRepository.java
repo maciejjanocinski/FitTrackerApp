@@ -1,7 +1,6 @@
-package app.product;
+package app.ingredient;
 
 import jakarta.transaction.Transactional;
-import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,15 +11,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, String> {
+public interface IngredientRepository extends JpaRepository<Ingredient, String> {
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM Product p WHERE p.diary = null AND p.user.id = :userId AND p.lastlyAdded = false")
+    @Query("DELETE FROM Ingredient p WHERE p.diary = null AND p.user.id = :userId AND p.lastlyAdded = false")
     void deleteNotUsedProducts(@Param("userId") Long userId);
 
-    Optional<Product> findProductById(Long id);
+    Optional<Ingredient> findProductById(Long id);
 
-    List<Product> findAllByQuery(String query);
+    List<Ingredient> findAllByQuery(String query);
 
 }

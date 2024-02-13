@@ -1,19 +1,18 @@
 package app.recipe;
 
+import app.nutrients.Nutrients;
+import app.nutrients.NutrientsDto;
+
 import java.math.BigDecimal;
 import java.util.List;
 
  public record RecipeDto(Long id,
-                 String label,
+                 String name,
                  String image,
                  String source,
                  String url,
                  int yield,
-                 BigDecimal caloriesPerServing,
-                 BigDecimal proteinPerServing,
-                 BigDecimal carbsPerServing,
-                 BigDecimal fatPerServing,
-                 BigDecimal fiberPerServing,
+                 NutrientsDto nutrients,
                  String query,
                  List<IngredientLineDto> ingredientLines) {
 }

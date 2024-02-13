@@ -70,7 +70,7 @@
 -- CREATE TABLE recipe
 -- (
 --     id      BIGINT AUTO_INCREMENT PRIMARY KEY,
---     label   VARCHAR(255),
+--     name   VARCHAR(255),
 --     image   TEXT,
 --     source  VARCHAR(255),
 --     url     VARCHAR(255),
@@ -101,7 +101,7 @@
 --     FOREIGN KEY (ingredient_lines_id) REFERENCES ingredient_line (id)
 -- );
 --
--- CREATE TABLE product
+-- CREATE TABLE ingredient
 -- (
 --     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
 --     product_id    VARCHAR(255),
@@ -130,6 +130,6 @@
 --     product_id BIGINT,
 --     measures_id BIGINT,
 --     PRIMARY KEY (product_id, measures_id),
---     FOREIGN KEY (product_id) REFERENCES product (id),
+--     FOREIGN KEY (product_id) REFERENCES ingredient (id),
 --     FOREIGN KEY (measures_id) REFERENCES measure (id)
 -- );

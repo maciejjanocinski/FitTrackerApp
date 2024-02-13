@@ -1,7 +1,6 @@
 package app.nutrients;
 
-import app.diary.Diary;
-import app.product.Product;
+import app.ingredient.Ingredient;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +23,7 @@ public class Nutrients {
     private BigDecimal fiberGrams;
 
     @OneToOne
-    private Product product;
+    private Ingredient ingredient;
 
     public Nutrients() {
         kcal = BigDecimal.ZERO;

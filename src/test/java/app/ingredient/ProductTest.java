@@ -134,7 +134,7 @@
 //
 //        FoodDTO foodDTO = FoodDTO.builder()
 //                .foodId("foodId")
-//                .label("label")
+//                .name("name")
 //                .knownAs("knownAs")
 //                .category("category")
 //                .categoryLabel("categoryLabel")
@@ -144,13 +144,13 @@
 //
 //        MeasureDTO measureGram = MeasureDTO.builder()
 //                .uri("uri")
-//                .label("Gram")
+//                .name("Gram")
 //                .weight(BigDecimal.valueOf(1))
 //                .build();
 //
 //        MeasureDTO measureDecagram = MeasureDTO.builder()
 //                .uri("uri")
-//                .label("Kilogram")
+//                .name("Kilogram")
 //                .weight(BigDecimal.valueOf(1000))
 //                .build();
 //

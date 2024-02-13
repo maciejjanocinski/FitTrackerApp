@@ -1,4 +1,4 @@
-package app.product;
+package app.ingredient;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,18 +28,18 @@ public class Measure {
     private BigDecimal weight;
 
     @ManyToOne
-    private Product product;
+    private Ingredient ingredient;
 
     public Measure(Measure measure) {
         this.label = measure.getLabel();
         this.weight = measure.getWeight();
     }
 
-    public static List<Measure> map(List<Measure> measures, Product product) {
+    public static List<Measure> map(List<Measure> measures, Ingredient ingredient) {
         return measures.stream()
                 .map(measure -> {
                     Measure newMeasure = new Measure(measure);
-                    newMeasure.setProduct(product);
+                    newMeasure.setIngredient(ingredient);
                     return newMeasure;
                 })
                 .toList();

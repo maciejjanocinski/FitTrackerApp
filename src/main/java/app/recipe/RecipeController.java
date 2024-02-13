@@ -1,6 +1,6 @@
 package app.recipe;
 
-import app.product.ProductDto;
+import app.ingredient.IngredientDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,8 @@ import java.util.List;
     }
 
     @PostMapping("/")
-    ProductDto addRecipeToDiary(@RequestBody @Valid AddRecipeToDiaryDto addProductToDiaryDto,
-                                @CurrentSecurityContext(expression = "authentication")
+    IngredientDto addRecipeToDiary(@RequestBody @Valid AddRecipeToDiaryDto addProductToDiaryDto,
+                                   @CurrentSecurityContext(expression = "authentication")
                                  Authentication authentication) {
         return RecipeService.addRecipeToDiary(addProductToDiaryDto, authentication);
     }
